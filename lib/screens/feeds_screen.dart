@@ -259,6 +259,7 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
                 ),
               ),
 
+
               // Контент
               Expanded(
                 child: Padding(
@@ -308,6 +309,7 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
     );
   }
 
+
   String getSourceShort(Article article) {
     if (article.sourceType == SourceType.rss_world) return 'WORLD';
     switch (article.sourceType) {
@@ -344,6 +346,12 @@ class _SmartImageLoaderState extends State<SmartImageLoader> {
   }
 
   void _load() {
+    // Проверка на Google News RSS. Если это он — сразу возвращаем null, чтобы показался плейсхолдер.
+    if (widget.article.link.contains('news.google.com')) {
+      _imageFuture = Future.value(null);
+      return;
+    }
+
     if (widget.article.imageUrl != null && widget.article.imageUrl!.isNotEmpty) {
       _imageFuture = Future.value(widget.article.imageUrl);
     } else {
