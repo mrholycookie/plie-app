@@ -56,15 +56,31 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
   Widget build(BuildContext context) {
     super.build(context);
 
+    // Используем Stack на уровне всего экрана, чтобы кнопка "Назад/Меню"
+    // или "Открыть в VK" была поверх видео и не уезжала при скролле (если нужно глобально)
+    // Но так как у нас PageView, лучше кнопку внедрить в VideoCard или оставить глобально.
+    // Если кнопка должна менять ссылку в зависимости от видео, она должна знать текущий индекс.
+    // Однако в ТЗ просят перенести кнопку "Открыть в VK" (которая открывает ТЕКУЩЕЕ видео).
+    // Значит кнопка должна быть внутри _VideoCard или обновляться при свайпе.
+    // Проще всего оставить её внутри _VideoCard, но позиционировать вверху слева.
+
     return Scaffold(
       backgroundColor: Colors.black,
+      // Убираем AppBar, чтобы сделать полноэкранный опыт как в Shorts/Reels,
+      // или оставляем прозрачным поверх контента.
+      // В запросе не было требования убрать AppBar, но "верхний левый угол" часто конфликтует с ним.
+      // Если AppBar нужен, кнопка будет под ним или в нем.
+      // Давайте сделаем её плавающей поверх контента, но учтем AppBar если он есть.
+      extendBodyBehindAppBar: true, 
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent, // Прозрачный
+        elevation: 0,
         title: Text(
           "КЛИПЫ",
           style: GoogleFonts.unbounded(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: false,
+        // Можно добавить кнопку прямо в actions или leading, но запрос был "квадратную ... перенесем".
       ),
       body: _buildBody(),
     );
@@ -122,58 +138,36 @@ class _VideoCardState extends State<_VideoCard> {
       ..loadRequest(Uri.parse(widget.url));
   }
 
-  /// Метод преобразует ссылку плеера (video_ext.php) в ссылку на клип/видео,
-  /// которую понимает нативное приложение VK.
   String _fixVkUrl(String url) {
-    // Если ссылка уже нормальная (vk.com/clip... или vk.com/video...), возвращаем как есть
     if (url.contains('vk.com/clip') || url.contains('vk.com/video') && !url.contains('video_ext.php')) {
       return url;
     }
-
     try {
-      // Пытаемся вытащить параметры oid (owner_id) и id (video_id) из ссылки
-      // Формат обычно: https://vk.com/video_ext.php?oid=-123456&id=789012&...
       final uri = Uri.parse(url);
       final oid = uri.queryParameters['oid'];
       final id = uri.queryParameters['id'];
-
       if (oid != null && id != null) {
-        // Собираем ссылку, которая 100% открывается в приложении
-        // Используем /clip, так как экран называется "Shorts"
         return 'https://vk.com/clip${oid}_$id';
       }
     } catch (e) {
       debugPrint('Error parsing VK url: $e');
     }
-
-    // Если распарсить не удалось, возвращаем оригинал (откроется в браузере)
     return url;
   }
 
   Future<void> _openInVkApp() async {
-    // 1. Сначала чистим URL
     final String cleanUrl = _fixVkUrl(widget.url);
     final Uri uri = Uri.parse(cleanUrl);
 
-    debugPrint('Opening VK URL: $cleanUrl'); // Для отладки
-
     try {
-      // 2. Пробуем открыть внешнее приложение (LaunchMode.externalApplication)
       final bool launched = await launchUrl(
         uri,
         mode: LaunchMode.externalApplication,
       );
-
       if (!launched) {
-        // 3. Fallback: если приложения нет или ссылка "кривая", открываем в браузере
-        await launchUrl(
-          uri,
-          mode: LaunchMode.platformDefault,
-        );
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
       }
     } catch (e) {
-      debugPrint("Ошибка запуска VK: $e");
-      // Последний шанс - открыть как есть
       try {
         await launchUrl(uri, mode: LaunchMode.platformDefault);
       } catch (_) {}
@@ -184,34 +178,56 @@ class _VideoCardState extends State<_VideoCard> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // 1. Видео (WebView)
         WebViewWidget(controller: _controller),
         
+        // Лоадер
         if (!_isLoaded)
           const Center(child: CircularProgressIndicator(color: Color(0xFFCCFF00))),
         
+        // 2. Кнопка "Открыть в VK" в левом верхнем углу
+        // Используем SafeArea, чтобы не залезть на "челку" или статус бар
         Positioned(
-          bottom: 0, left: 0, right: 0,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                colors: [Colors.black.withOpacity(0.9), Colors.transparent],
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _openInVkApp,
-                  icon: const Icon(Icons.open_in_new, size: 16),
-                  label: Text("Открыть в VK", style: GoogleFonts.manrope(fontWeight: FontWeight.bold)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFCCFF00),
-                    foregroundColor: Colors.black,
+          top: 0,
+          left: 0,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0), // Отступы от краев
+              child: GestureDetector(
+                onTap: _openInVkApp,
+                child: Container(
+                  width: 50, // Размер квадрата
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6), // Полупрозрачный фон
+                    borderRadius: BorderRadius.circular(12), // Скругленные углы (квадратный стиль)
+                    border: Border.all(color: Colors.white.withOpacity(0.2), width: 1), // Тонкая рамка
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.open_in_new, 
+                      color: Colors.white, 
+                      size: 24
+                    ),
                   ),
                 ),
-              ],
+              ),
+            ),
+          ),
+        ),
+
+        // 3. Градиент снизу (оставляем для красоты, но без старой кнопки)
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: IgnorePointer( // Чтобы градиент не перехватывал нажатия на видео
+            child: Container(
+              height: 100,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                  colors: [Colors.black.withOpacity(0.8), Colors.transparent],
+                ),
+              ),
             ),
           ),
         ),

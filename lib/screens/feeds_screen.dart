@@ -152,10 +152,10 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                buildFilterChip("ALL", 'all', Icons.all_inclusive),
-                buildFilterChip("WEB", 'web', Icons.public),
+                buildFilterChip("ALL", 'all', FontAwesomeIcons.infinity),
+                buildFilterChip("WEB", 'web', FontAwesomeIcons.earthAsia),
                 buildFilterChip("WORLD", 'world', FontAwesomeIcons.earthAmericas),
-                buildFilterChip("TG", 'telegram', Icons.telegram),
+                buildFilterChip("TG", 'telegram', FontAwesomeIcons.telegram),
                 buildFilterChip("VK", 'vk', FontAwesomeIcons.vk),
               ],
             ),
