@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'feeds_screen.dart';
 import 'vk_shorts_screen.dart';
 
+import '../app_constants.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
   @override
@@ -112,7 +114,7 @@ class _WelcomeSheetState extends State<WelcomeSheet> {
           Text("PLIÉ", style: GoogleFonts.unbounded(fontWeight: FontWeight.w900, fontSize: 28, color: const Color(0xFFCCFF00))),
           const SizedBox(height: 20),
           // Обновил текст версии
-          Text("PLIÉ v1.6.2\n\n- Исправили картинки\n- Небольшая оптимизация\n\n Мы только запустились и очень надеемся на вашу высокую оценку, будем стараться становиться лучше с каждым днем!", style: GoogleFonts.manrope(color: Colors.grey[400], height: 1.6, fontSize: 15)),
+          Text("v${AppConstants.appVersion}\n\n- Мы только запустились и очень надеемся на вашу высокую оценку, будем стараться становиться лучше с каждым новым обновлением.", style: GoogleFonts.manrope(color: Colors.grey[400], height: 1.6, fontSize: 15)),
           const SizedBox(height: 30),
           GestureDetector(
             onTap: () => setState(() => doNotShowAgain = !doNotShowAgain),
@@ -135,7 +137,7 @@ class _WelcomeSheetState extends State<WelcomeSheet> {
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
-              child: Text("ВПЕРЁД", style: GoogleFonts.unbounded(fontWeight: FontWeight.bold)),
+              child: Text("ПОЕХАЛИ", style: GoogleFonts.unbounded(fontWeight: FontWeight.bold)),
             ),
           ),
         ],
