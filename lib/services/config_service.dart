@@ -5,13 +5,15 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import '../models/education_institution.dart';
+
 class ConfigService {
   static String get _configUrl => dotenv.env['CONFIG_URL'] ?? '';
   static const String _cacheKey = 'config_cache_v160';
   static Map<String, dynamic>? config;
   static final Completer<void> _readyCompleter = Completer<void>();
   static Future<void> get ready => _readyCompleter.future;
-  
+
   static Future<void> loadConfig() async {
     bool loaded = false;
     if (_configUrl.isEmpty) {
@@ -38,7 +40,6 @@ class ConfigService {
       }
     }
 
-    // 2. Если сеть недоступна или URL не задан, берем из кэша
     if (!loaded) {
       try {
         final prefs = await SharedPreferences.getInstance();
@@ -57,34 +58,38 @@ class ConfigService {
     return _parseIdNameList(config?['telegram']);
   }
 
-  /// Группы для НОВОСТНОЙ ленты
   static Map<String, String> getVkGroups() {
     return _parseIdNameList(config?['vk']);
   }
 
-  /// Группы СПЕЦИАЛЬНО для ленты КЛИПОВ
-  /// Читает ключ 'vk_clips' из JSON. 
-  /// Если его нет - возвращает обычные группы 'vk' (для обратной совместимости).
   static Map<String, String> getVkClipSources() {
     final clips = _parseIdNameList(config?['vk_clips']);
-    if (clips.isNotEmpty) {
-      return clips;
-    }
-    // Fallback: если спец. раздела нет, берем общие группы
+    if (clips.isNotEmpty) return clips;
     return getVkGroups();
   }
 
-  // Русские RSS
   static List<Map<String, String>> getRssFeeds() {
     return _parseRssList(config?['rss']);
   }
 
-  // Зарубежные RSS
   static List<Map<String, String>> getWorldFeeds() {
     return _parseRssList(config?['rss_world']);
   }
 
-  // Универсальный парсер для списков RSS
+  // --- НОВЫЙ МЕТОД: Образование ---
+  static List<EducationInstitution> getEducationInstitutions() {
+    final list = config?['education'];
+    if (list is! List) return [];
+    
+    return list.map((e) {
+      if (e is Map<String, dynamic>) {
+        return EducationInstitution.fromJson(e);
+      }
+      return null;
+    }).whereType<EducationInstitution>().toList();
+  }
+  // --------------------------------
+
   static List<Map<String, String>> _parseRssList(dynamic list) {
     if (list is! List) return [];
     
