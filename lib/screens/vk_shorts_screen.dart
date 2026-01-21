@@ -19,9 +19,9 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
   bool _isLoading = false;
   bool _isInit = false; 
   
-  // Индекс текущей партии групп (0 - первые 5 групп, 1 - следующие 5 и т.д.)
+  // Пагинация по группам
   int _currentBatchIndex = 0;
-  bool _hasMoreGroups = true; // Есть ли еще группы для загрузки
+  bool _hasMoreGroups = true;
 
   @override
   bool get wantKeepAlive => true; 
@@ -41,11 +41,10 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
       _hasMoreGroups = true;
     });
 
-    // Сбрасываем перемешивание, чтобы при рефреше был новый порядок групп
+    // Сброс шафла, чтобы при обновлении порядок групп менялся
     VkService.resetVideoShuffle();
     
     await ConfigService.ready;
-    // Грузим первую пачку (первые 5 групп)
     final videos = await VkService.fetchVideosBatch(batchIndex: 0);
 
     if (mounted) {
@@ -53,8 +52,7 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
         _videoUrls = videos;
         _isLoading = false;
         _isInit = true;
-        // Если ничего не пришло или пришло мало, возможно групп мало, но ставим флаг
-        if (videos.isEmpty) _hasMoreGroups = false; 
+        if (videos.isEmpty) _hasMoreGroups = false;
       });
     }
   }
@@ -62,19 +60,16 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
   Future<void> loadMoreVideos() async {
     if (!_hasMoreGroups || _isLoading) return;
     
-    // Не ставим setState(_isLoading=true), чтобы не блокировать UI лоадером при скролле,
-    // просто грузим в фоне.
-    
     _currentBatchIndex++;
     
+    // Грузим в фоне, без фуллскрин лоадера
     final newVideos = await VkService.fetchVideosBatch(batchIndex: _currentBatchIndex);
     
     if (mounted) {
       if (newVideos.isEmpty) {
-        setState(() => _hasMoreGroups = false); // Группы кончились
+        setState(() => _hasMoreGroups = false);
       } else {
         setState(() {
-          // Добавляем только уникальные, хотя fetchVideosBatch уже шафлит внутри себя
           final currentSet = _videoUrls.toSet();
           _videoUrls.addAll(newVideos.where((v) => !currentSet.contains(v)));
         });
@@ -91,7 +86,7 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
 
       extendBodyBehindAppBar: true, 
       appBar: AppBar(
-        backgroundColor: Colors.transparent, // Прозрачный
+        backgroundColor: Colors.transparent, 
         elevation: 0,
         title: Text(
           "КЛИПЫ",
@@ -131,7 +126,7 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
       controller: _pageController,
       itemCount: _videoUrls.length,
       onPageChanged: (index) {
-        // Если осталось 3 видео до конца списка — подгружаем новую пачку групп
+        // Подгружаем, когда осталось 3 видео до конца
         if (index >= _videoUrls.length - 3) {
           loadMoreVideos();
         }
@@ -208,14 +203,11 @@ class _VideoCardState extends State<_VideoCard> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // 1. Видео (WebView)
         WebViewWidget(controller: _controller),
         
-        // Лоадер
         if (!_isLoaded)
           const Center(child: CircularProgressIndicator(color: Color(0xFFCCFF00))),
         
-        // 2. Кнопка "Открыть в VK"
         Positioned(
           top: 0,
           left: 0,
@@ -245,7 +237,6 @@ class _VideoCardState extends State<_VideoCard> {
           ),
         ),
 
-        // 3. Градиент снизу
         Positioned(
           bottom: 0, left: 0, right: 0,
           child: IgnorePointer(

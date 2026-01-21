@@ -7,10 +7,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ConfigService {
   static String get _configUrl => dotenv.env['CONFIG_URL'] ?? '';
-  static const String _cacheKey = 'config_cache_v160'; 
+  static const String _cacheKey = 'config_cache_v160';
   static Map<String, dynamic>? config;
   static final Completer<void> _readyCompleter = Completer<void>();
   static Future<void> get ready => _readyCompleter.future;
+  
   static Future<void> loadConfig() async {
     bool loaded = false;
     if (_configUrl.isEmpty) {
@@ -56,8 +57,21 @@ class ConfigService {
     return _parseIdNameList(config?['telegram']);
   }
 
+  /// Группы для НОВОСТНОЙ ленты
   static Map<String, String> getVkGroups() {
     return _parseIdNameList(config?['vk']);
+  }
+
+  /// Группы СПЕЦИАЛЬНО для ленты КЛИПОВ
+  /// Читает ключ 'vk_clips' из JSON. 
+  /// Если его нет - возвращает обычные группы 'vk' (для обратной совместимости).
+  static Map<String, String> getVkClipSources() {
+    final clips = _parseIdNameList(config?['vk_clips']);
+    if (clips.isNotEmpty) {
+      return clips;
+    }
+    // Fallback: если спец. раздела нет, берем общие группы
+    return getVkGroups();
   }
 
   // Русские RSS
