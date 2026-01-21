@@ -24,6 +24,9 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
   int currentMax = 15;
   final int pageSize = 15;
   String selectedFilter = 'all';
+  
+  // ДОБАВИЛИ КОНТРОЛЛЕР
+  final ScrollController _scrollController = ScrollController();
 
   @override
   bool get wantKeepAlive => true;
@@ -32,6 +35,13 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
   void initState() {
     super.initState();
     loadData();
+  }
+  
+  // НЕ ЗАБЫВАЕМ DISPOSE
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> loadData({bool force = false}) async {
@@ -70,6 +80,10 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
         selectedFilter = newFilter;
         applyFilter();
       });
+      // СКРОЛЛИМ ВВЕРХ
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
     }
   }
 
@@ -177,6 +191,7 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
                               return false;
                             },
                             child: ListView.separated(
+                              controller: _scrollController, // ПРИВЯЗАЛИ КОНТРОЛЛЕР
                               padding: const EdgeInsets.all(16),
                               itemCount: visibleNews.length + 1,
                               separatorBuilder: (_, __) => const SizedBox(height: 16),
@@ -197,6 +212,9 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
     );
   }
 
+  // ... Остальные методы (buildFilterChip, buildCard, SmartImageLoader) остаются БЕЗ ИЗМЕНЕНИЙ ...
+  // Скопируйте их из вашего старого файла feeds_screen.dart, они там в порядке.
+  
   Widget buildFilterChip(String label, String value, IconData icon) {
     final isSelected = selectedFilter == value;
     final color = isSelected ? Colors.black : getFilterColor(value);
@@ -259,7 +277,6 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
                 ),
               ),
 
-
               // Контент
               Expanded(
                 child: Padding(
@@ -309,7 +326,6 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
     );
   }
 
-
   String getSourceShort(Article article) {
     if (article.sourceType == SourceType.rss_world) return 'В МИРЕ';
     switch (article.sourceType) {
@@ -346,7 +362,6 @@ class _SmartImageLoaderState extends State<SmartImageLoader> {
   }
 
   void _load() {
-    // Проверка на Google News RSS. Если это он — сразу возвращаем null, чтобы показался плейсхолдер.
     if (widget.article.link.contains('news.google.com')) {
       _imageFuture = Future.value(null);
       return;

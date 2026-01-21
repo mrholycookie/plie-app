@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../services/config_service.dart';
@@ -20,6 +21,9 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
   
   List<String> cities = ['ВСЕ'];
   String selectedCity = 'ВСЕ';
+  
+  // Контроллер для скролла вверх при смене фильтра
+  final ScrollController _scrollController = ScrollController();
 
   @override
   bool get wantKeepAlive => true;
@@ -29,12 +33,17 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
     super.initState();
     loadData();
   }
+  
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   Future<void> loadData() async {
     await ConfigService.ready;
     final data = ConfigService.getEducationInstitutions();
     
-    // Собираем уникальные города
     final uniqueCities = data.map((e) => e.city).toSet().toList()..sort();
     
     if (mounted) {
@@ -60,6 +69,10 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
       selectedCity = city;
       applyFilter();
     });
+    // Скролл вверх при смене фильтра
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(0);
+    }
   }
 
   @override
@@ -79,7 +92,6 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
           ? const Center(child: DanceLoader(color: Color(0xFFCCFF00)))
           : Column(
               children: [
-                // Фильтр городов
                 Container(
                   height: 50,
                   margin: const EdgeInsets.symmetric(vertical: 8),
@@ -94,11 +106,11 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                   ),
                 ),
                 
-                // Список ВУЗов
                 Expanded(
                   child: visibleInstitutions.isEmpty
                       ? Center(child: Text("Ничего не найдено", style: GoogleFonts.manrope(color: Colors.grey)))
                       : ListView.separated(
+                          controller: _scrollController, // Привязали контроллер
                           padding: const EdgeInsets.all(16),
                           itemCount: visibleInstitutions.length,
                           separatorBuilder: (_, __) => const SizedBox(height: 16),
@@ -114,23 +126,24 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
 
   Widget buildCityChip(String city) {
     final isSelected = selectedCity == city;
+    // Цвета как в Новостях
     final color = isSelected ? Colors.black : Colors.white;
     final bgColor = isSelected ? const Color(0xFFCCFF00) : const Color(0xFF1A1A1A);
     
     return InkWell(
       onTap: () => onCityChanged(city),
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: BorderRadius.circular(4), // Квадратные углы (было 20)
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(4), // Квадратные углы
           border: Border.all(color: isSelected ? bgColor : const Color(0xFF333333)),
         ),
         child: Text(
           city.toUpperCase(),
-          style: GoogleFonts.unbounded(color: color, fontSize: 11, fontWeight: FontWeight.bold),
+          style: GoogleFonts.unbounded(color: color, fontSize: 10, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -140,42 +153,47 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFF222222)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Картинка
-          if (item.imageUrl.isNotEmpty)
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Image.network(
-                item.imageUrl,
-                height: 140,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(height: 140, color: const Color(0xFF1A1A1A)),
+          // Картинка с заглушкой
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+            child: Image.network(
+              item.imageUrl,
+              height: 140,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              // Заглушка, если картинка битая
+              errorBuilder: (_, __, ___) => Container(
+                height: 140, 
+                color: const Color(0xFF1A1A1A),
+                child: Center(
+                  child: Icon(FontAwesomeIcons.graduationCap, color: Colors.grey[800], size: 40)
+                ),
               ),
             ),
+          ),
           
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Тип (Академия/Институт)
                 Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2AABEE).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(4)
+                        borderRadius: BorderRadius.circular(2)
                       ),
                       child: Text(
                         item.type.toUpperCase(),
-                        style: GoogleFonts.manrope(color: const Color(0xFF2AABEE), fontSize: 10, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.manrope(color: const Color(0xFF2AABEE), fontSize: 9, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -187,27 +205,25 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                 ),
                 const SizedBox(height: 8),
                 
-                // Название
                 Text(
                   item.name,
-                  style: GoogleFonts.unbounded(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.unbounded(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
                 
-                // Программы (теги)
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
-                  children: item.programs.take(3).map((prog) {
+                  children: item.programs.take(4).map((prog) { // Берем первые 4
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFF222222),
-                        borderRadius: BorderRadius.circular(4)
+                        borderRadius: BorderRadius.circular(2)
                       ),
                       child: Text(
                         prog,
-                        style: GoogleFonts.manrope(color: Colors.white70, fontSize: 11),
+                        style: GoogleFonts.manrope(color: Colors.white70, fontSize: 10),
                       ),
                     );
                   }).toList(),
@@ -215,7 +231,6 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                 
                 const SizedBox(height: 16),
                 
-                // Кнопка Сайт
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
@@ -226,11 +241,12 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                         } catch (_) {}
                       }
                     },
-                    icon: const Icon(Icons.public, size: 16, color: Color(0xFFCCFF00)),
-                    label: Text("ПЕРЕЙТИ НА САЙТ", style: GoogleFonts.unbounded(color: Colors.white, fontSize: 12)),
+                    icon: const Icon(Icons.public, size: 14, color: Color(0xFFCCFF00)),
+                    label: Text("ПЕРЕЙТИ НА САЙТ", style: GoogleFonts.unbounded(color: Colors.white, fontSize: 11)),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFF333333)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
                     ),
                   ),
                 )
