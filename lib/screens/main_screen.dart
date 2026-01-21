@@ -55,9 +55,7 @@ class _MainScreenState extends State<MainScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                // PUNKT 7: НОВОСТИ вместо NEWS
                 buildNavItem(0, FontAwesomeIcons.newspaper, "НОВОСТИ"),
-                // PUNKT 7: КЛИПЫ вместо CLIPS
                 buildNavItem(1, FontAwesomeIcons.film, "КЛИПЫ"),
               ],
             ),

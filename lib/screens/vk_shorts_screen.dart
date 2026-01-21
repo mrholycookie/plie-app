@@ -56,21 +56,9 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
   Widget build(BuildContext context) {
     super.build(context);
 
-    // Используем Stack на уровне всего экрана, чтобы кнопка "Назад/Меню"
-    // или "Открыть в VK" была поверх видео и не уезжала при скролле (если нужно глобально)
-    // Но так как у нас PageView, лучше кнопку внедрить в VideoCard или оставить глобально.
-    // Если кнопка должна менять ссылку в зависимости от видео, она должна знать текущий индекс.
-    // Однако в ТЗ просят перенести кнопку "Открыть в VK" (которая открывает ТЕКУЩЕЕ видео).
-    // Значит кнопка должна быть внутри _VideoCard или обновляться при свайпе.
-    // Проще всего оставить её внутри _VideoCard, но позиционировать вверху слева.
-
     return Scaffold(
       backgroundColor: Colors.black,
-      // Убираем AppBar, чтобы сделать полноэкранный опыт как в Shorts/Reels,
-      // или оставляем прозрачным поверх контента.
-      // В запросе не было требования убрать AppBar, но "верхний левый угол" часто конфликтует с ним.
-      // Если AppBar нужен, кнопка будет под ним или в нем.
-      // Давайте сделаем её плавающей поверх контента, но учтем AppBar если он есть.
+
       extendBodyBehindAppBar: true, 
       appBar: AppBar(
         backgroundColor: Colors.transparent, // Прозрачный
@@ -80,7 +68,6 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
           style: GoogleFonts.unbounded(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: false,
-        // Можно добавить кнопку прямо в actions или leading, но запрос был "квадратную ... перенесем".
       ),
       body: _buildBody(),
     );

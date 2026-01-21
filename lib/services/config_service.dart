@@ -3,29 +3,19 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // 1. Импорт
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ConfigService {
-  // 2. Теперь URL не константа, а геттер из .env
   static String get _configUrl => dotenv.env['CONFIG_URL'] ?? '';
-
-  // Кэш можно оставить константой, так как это внутренний ключ приложения
   static const String _cacheKey = 'config_cache_v160'; 
-
   static Map<String, dynamic>? config;
-  
   static final Completer<void> _readyCompleter = Completer<void>();
   static Future<void> get ready => _readyCompleter.future;
-
   static Future<void> loadConfig() async {
     bool loaded = false;
-
-    // Проверка на наличие URL
     if (_configUrl.isEmpty) {
       debugPrint("Warning: CONFIG_URL is missing in .env");
-      // Даже если URL нет, мы попытаемся загрузить из кэша (вдруг там что-то осталось с прошлых запусков)
     } else {
-      // 1. Пытаемся скачать свежий конфиг (обход кэша через ?t=)
       try {
         final uniqueUrl = '$_configUrl?t=${DateTime.now().millisecondsSinceEpoch}';
         final response = await http.get(Uri.parse(uniqueUrl)).timeout(const Duration(seconds: 10));
@@ -43,7 +33,6 @@ class ConfigService {
           }
         }
       } catch (e) {
-        // Игнорируем ошибки сети, идем к кэшу
         debugPrint("Config fetch error: $e");
       }
     }
@@ -62,9 +51,7 @@ class ConfigService {
 
     if (!_readyCompleter.isCompleted) _readyCompleter.complete();
   }
-
-  // --- Геттеры (БЕЗ ИЗМЕНЕНИЙ) ---
-
+  
   static Map<String, String> getTelegramChannels() {
     return _parseIdNameList(config?['telegram']);
   }

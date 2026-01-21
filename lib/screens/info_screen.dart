@@ -17,7 +17,7 @@ class InfoScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text("INFO", style: GoogleFonts.unbounded(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text("ИНФОРМАЦИЯ", style: GoogleFonts.unbounded(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),

@@ -131,7 +131,7 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          "PLIÉ",
+          "НОВОСТИ",
           style: GoogleFonts.unbounded(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: false,
