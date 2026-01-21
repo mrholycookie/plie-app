@@ -152,11 +152,11 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                buildFilterChip("ALL", 'all', FontAwesomeIcons.infinity),
-                buildFilterChip("WEB", 'web', FontAwesomeIcons.earthAsia),
-                buildFilterChip("WORLD", 'world', FontAwesomeIcons.earthAmericas),
-                buildFilterChip("TG", 'telegram', FontAwesomeIcons.telegram),
-                buildFilterChip("VK", 'vk', FontAwesomeIcons.vk),
+                buildFilterChip("ВСЁ", 'all', FontAwesomeIcons.infinity),
+                buildFilterChip("У НАС", 'web', FontAwesomeIcons.earthAsia),
+                buildFilterChip("В МИРЕ", 'world', FontAwesomeIcons.earthAmericas),
+                buildFilterChip("ТГ", 'telegram', FontAwesomeIcons.telegram),
+                buildFilterChip("ВК", 'vk', FontAwesomeIcons.vk),
               ],
             ),
           ),
@@ -311,11 +311,11 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
 
 
   String getSourceShort(Article article) {
-    if (article.sourceType == SourceType.rss_world) return 'WORLD';
+    if (article.sourceType == SourceType.rss_world) return 'В МИРЕ';
     switch (article.sourceType) {
-      case SourceType.vk: return 'VK';
-      case SourceType.telegram: return 'TG';
-      default: return 'WEB';
+      case SourceType.vk: return 'ВК';
+      case SourceType.telegram: return 'ТГ';
+      default: return 'У НАС';
     }
   }
 }
