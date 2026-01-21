@@ -112,7 +112,7 @@ class _WelcomeSheetState extends State<WelcomeSheet> {
           Text("PLIÉ", style: GoogleFonts.unbounded(fontWeight: FontWeight.w900, fontSize: 28, color: const Color(0xFFCCFF00))),
           const SizedBox(height: 20),
           // Обновил текст версии
-          Text("v${AppConstants.appVersion}\n\nМы только запустились и очень надеемся на вашу поддержку и оценку, будем стараться становиться лучше с каждым новым обновлением.", style: GoogleFonts.manrope(color: Colors.grey[400], height: 1.6, fontSize: 15)),
+          Text("Мы только запустились и очень надеемся на вашу поддержку и оценку, будем стараться становиться лучше с каждым новым обновлением.", style: GoogleFonts.manrope(color: Colors.grey[400], height: 1.6, fontSize: 15)),
           const SizedBox(height: 30),
           GestureDetector(
             onTap: () => setState(() => doNotShowAgain = !doNotShowAgain),

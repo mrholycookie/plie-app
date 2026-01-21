@@ -82,7 +82,7 @@ class RssService {
         final rssFeed = RssFeed.parse(decoded);
         return rssFeed.items
                 ?.take(15)
-                .map((item) => Article.fromRssItem(item, feed['category']!, feed['name']!, type)) // ВАЖНО: обнови Article.fromRssItem, добавь туда type
+                .map((item) => Article.fromRssItem(item, feed['category']!, feed['name']!, type))
                 .toList() ?? [];
       }
     } catch (_) {}

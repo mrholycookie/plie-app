@@ -18,6 +18,10 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
   List<String> _videoUrls = [];
   bool _isLoading = false;
   bool _isInit = false; 
+  
+  // Индекс текущей партии групп (0 - первые 5 групп, 1 - следующие 5 и т.д.)
+  int _currentBatchIndex = 0;
+  bool _hasMoreGroups = true; // Есть ли еще группы для загрузки
 
   @override
   bool get wantKeepAlive => true; 
@@ -29,26 +33,52 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
   }
 
   Future<void> loadInitialVideos() async {
-    setState(() => _isLoading = true);
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _videoUrls = [];
+      _currentBatchIndex = 0;
+      _hasMoreGroups = true;
+    });
+
+    // Сбрасываем перемешивание, чтобы при рефреше был новый порядок групп
+    VkService.resetVideoShuffle();
+    
     await ConfigService.ready;
-    final videos = await VkService.fetchVideosFromWall();
+    // Грузим первую пачку (первые 5 групп)
+    final videos = await VkService.fetchVideosBatch(batchIndex: 0);
+
     if (mounted) {
       setState(() {
         _videoUrls = videos;
         _isLoading = false;
         _isInit = true;
+        // Если ничего не пришло или пришло мало, возможно групп мало, но ставим флаг
+        if (videos.isEmpty) _hasMoreGroups = false; 
       });
     }
   }
 
   Future<void> loadMoreVideos() async {
-    await ConfigService.ready;
-    final newVideos = await VkService.fetchVideosFromWall();
+    if (!_hasMoreGroups || _isLoading) return;
+    
+    // Не ставим setState(_isLoading=true), чтобы не блокировать UI лоадером при скролле,
+    // просто грузим в фоне.
+    
+    _currentBatchIndex++;
+    
+    final newVideos = await VkService.fetchVideosBatch(batchIndex: _currentBatchIndex);
+    
     if (mounted) {
-      setState(() {
-        final currentSet = _videoUrls.toSet();
-        _videoUrls.addAll(newVideos.where((v) => !currentSet.contains(v)));
-      });
+      if (newVideos.isEmpty) {
+        setState(() => _hasMoreGroups = false); // Группы кончились
+      } else {
+        setState(() {
+          // Добавляем только уникальные, хотя fetchVideosBatch уже шафлит внутри себя
+          final currentSet = _videoUrls.toSet();
+          _videoUrls.addAll(newVideos.where((v) => !currentSet.contains(v)));
+        });
+      }
     }
   }
 
@@ -79,10 +109,20 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
     }
     if (_videoUrls.isEmpty && _isInit) {
       return Center(
-        child: IconButton(
-          icon: const Icon(Icons.refresh),
-          color: Colors.white,
-          onPressed: loadInitialVideos,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+             Text(
+              "Нет видео",
+              style: GoogleFonts.unbounded(color: Colors.white),
+            ),
+            const SizedBox(height: 20),
+            IconButton(
+              icon: const Icon(Icons.refresh, size: 30),
+              color: Colors.white,
+              onPressed: loadInitialVideos,
+            ),
+          ],
         ),
       );
     }
@@ -91,7 +131,10 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
       controller: _pageController,
       itemCount: _videoUrls.length,
       onPageChanged: (index) {
-        if (index >= _videoUrls.length - 2) loadMoreVideos();
+        // Если осталось 3 видео до конца списка — подгружаем новую пачку групп
+        if (index >= _videoUrls.length - 3) {
+          loadMoreVideos();
+        }
       },
       itemBuilder: (context, index) {
         return _VideoCard(url: _videoUrls[index]);
@@ -172,23 +215,22 @@ class _VideoCardState extends State<_VideoCard> {
         if (!_isLoaded)
           const Center(child: CircularProgressIndicator(color: Color(0xFFCCFF00))),
         
-        // 2. Кнопка "Открыть в VK" в левом верхнем углу
-        // Используем SafeArea, чтобы не залезть на "челку" или статус бар
+        // 2. Кнопка "Открыть в VK"
         Positioned(
           top: 0,
           left: 0,
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(16.0), // Отступы от краев
+              padding: const EdgeInsets.all(16.0), 
               child: GestureDetector(
                 onTap: _openInVkApp,
                 child: Container(
-                  width: 50, // Размер квадрата
+                  width: 50, 
                   height: 50,
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6), // Полупрозрачный фон
-                    borderRadius: BorderRadius.circular(12), // Скругленные углы (квадратный стиль)
-                    border: Border.all(color: Colors.white.withOpacity(0.2), width: 1), // Тонкая рамка
+                    color: Colors.black.withOpacity(0.6), 
+                    borderRadius: BorderRadius.circular(12), 
+                    border: Border.all(color: Colors.white.withOpacity(0.2), width: 1), 
                   ),
                   child: const Center(
                     child: Icon(
@@ -203,10 +245,10 @@ class _VideoCardState extends State<_VideoCard> {
           ),
         ),
 
-        // 3. Градиент снизу (оставляем для красоты, но без старой кнопки)
+        // 3. Градиент снизу
         Positioned(
           bottom: 0, left: 0, right: 0,
-          child: IgnorePointer( // Чтобы градиент не перехватывал нажатия на видео
+          child: IgnorePointer(
             child: Container(
               height: 100,
               decoration: BoxDecoration(

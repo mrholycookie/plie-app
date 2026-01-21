@@ -9,11 +9,15 @@ import '../models/article.dart';
 import 'config_service.dart';
 
 class VkService {
-  // Берём токен из .env, чтобы не хранить его в репозитории
+  // Берём токен из .env
   static String get _accessToken => dotenv.env['VK_ACCESS_TOKEN'] ?? '';
 
   static final Map<int, String> groupAvatars = {};
 
+  // Храним перемешанный список ID групп для видео, чтобы при пагинации идти по порядку
+  static List<String>? _shuffledVideoGroups;
+
+  // --- ЛОГИКА ДЛЯ НОВОСТЕЙ (ОСТАЕТСЯ БЕЗ ИЗМЕНЕНИЙ) ---
   static Future<List<Article>> fetchWallPosts() async {
     await ConfigService.ready;
 
@@ -44,7 +48,17 @@ class VkService {
     return allArticles;
   }
 
-  static Future<List<String>> fetchVideosFromWall() async {
+  // --- НОВАЯ ЛОГИКА ДЛЯ ВИДЕО (БАТЧИ) ---
+  
+  /// Сбрасывает кэш порядка групп. Нужно вызывать при Pull-to-refresh.
+  static void resetVideoShuffle() {
+    _shuffledVideoGroups = null;
+  }
+
+  /// Загружает видео из следующей пачки групп.
+  /// [batchIndex] - номер порции (0, 1, 2...).
+  /// [batchSize] - сколько групп опрашивать за раз (рекомендую 5).
+  static Future<List<String>> fetchVideosBatch({int batchIndex = 0, int batchSize = 5}) async {
     await ConfigService.ready;
 
     if (_accessToken.isEmpty) {
@@ -52,20 +66,38 @@ class VkService {
       return [];
     }
 
-    final groups = ConfigService.getVkGroups();
-    if (groups.isEmpty) return [];
+    final groupsMap = ConfigService.getVkGroups();
+    if (groupsMap.isEmpty) return [];
+
+    // 1. Если список групп еще не перемешан или пуст — инициализируем
+    if (_shuffledVideoGroups == null || _shuffledVideoGroups!.isEmpty) {
+      _shuffledVideoGroups = groupsMap.keys.toList();
+      _shuffledVideoGroups!.shuffle(); // Мешаем один раз для сессии
+    }
+
+    // 2. Вычисляем диапазон групп для текущего батча
+    final totalGroups = _shuffledVideoGroups!.length;
+    final start = batchIndex * batchSize;
+
+    // Если мы вышли за пределы списка групп — возвращаем пустоту (конец ленты)
+    if (start >= totalGroups) {
+      return [];
+    }
+
+    final end = (start + batchSize < totalGroups) ? start + batchSize : totalGroups;
+    final targetGroups = _shuffledVideoGroups!.sublist(start, end);
+
+    debugPrint("Loading videos from groups batch $batchIndex: $targetGroups");
 
     final List<String> videoUrls = [];
-    final groupIds = groups.keys.toList();
 
-    groupIds.shuffle();
-    final targetGroups = groupIds.take(8).toList();
-
+    // 3. Делаем запросы параллельно для выбранных групп
     final futures = targetGroups.map((domain) async {
+      // Используем wall.get, но берем больше постов (50), чтобы найти видео
       final url = Uri.parse(
         'https://api.vk.com/method/wall.get'
         '?domain=$domain'
-        '&count=15'
+        '&count=50' // УВЕЛИЧИЛИ С 15 ДО 50
         '&access_token=$_accessToken'
         '&v=5.131',
       );
@@ -79,7 +111,9 @@ class VkService {
             return extractVideosFromItems(items);
           }
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint("Error fetching video from $domain: $e");
+      }
 
       return <String>[];
     });
@@ -89,8 +123,10 @@ class VkService {
       videoUrls.addAll(list);
     }
 
+    // 4. Перемешиваем видео внутри этого батча, чтобы контент был разнообразным
     final unique = videoUrls.toSet().toList();
     unique.shuffle();
+    
     return unique;
   }
 
