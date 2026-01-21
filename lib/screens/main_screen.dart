@@ -6,8 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'feeds_screen.dart';
 import 'vk_shorts_screen.dart';
 
-import '../app_constants.dart';
-
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
   @override
