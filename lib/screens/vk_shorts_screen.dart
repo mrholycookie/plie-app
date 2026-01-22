@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:url_launcher/url_launcher.dart'; 
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 import '../services/config_service.dart';
 import '../services/vk_service.dart';
+import '../services/favorites_service.dart';
+import '../models/video_item.dart';
 import '../widgets/dance_loader.dart';
+import '../widgets/common_widgets.dart';
 
 class VkShortsScreen extends StatefulWidget {
   const VkShortsScreen({super.key});
@@ -15,7 +19,7 @@ class VkShortsScreen extends StatefulWidget {
 
 class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAliveClientMixin {
   final PageController _pageController = PageController();
-  List<String> _videoUrls = [];
+  List<VideoItem> _videoItems = [];
   bool _isLoading = false;
   bool _isInit = false; 
   
@@ -36,7 +40,7 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
     if (!mounted) return;
     setState(() {
       _isLoading = true;
-      _videoUrls = [];
+      _videoItems = [];
       _currentBatchIndex = 0;
       _hasMoreGroups = true;
     });
@@ -49,7 +53,7 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
 
     if (mounted) {
       setState(() {
-        _videoUrls = videos;
+        _videoItems = videos;
         _isLoading = false;
         _isInit = true;
         if (videos.isEmpty) _hasMoreGroups = false;
@@ -70,8 +74,8 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
         setState(() => _hasMoreGroups = false);
       } else {
         setState(() {
-          final currentSet = _videoUrls.toSet();
-          _videoUrls.addAll(newVideos.where((v) => !currentSet.contains(v)));
+          final currentUrls = _videoItems.map((v) => v.url).toSet();
+          _videoItems.addAll(newVideos.where((v) => !currentUrls.contains(v.url)));
         });
       }
     }
@@ -84,25 +88,21 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
     return Scaffold(
       backgroundColor: Colors.black,
 
-      extendBodyBehindAppBar: true, 
-      appBar: AppBar(
-        backgroundColor: Colors.transparent, 
+      extendBodyBehindAppBar: true,
+      appBar: const CommonAppBar(
+        title: "КЛИПЫ",
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          "КЛИПЫ",
-          style: GoogleFonts.unbounded(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: false,
       ),
       body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
-    if (_isLoading && _videoUrls.isEmpty) {
+    if (_isLoading && _videoItems.isEmpty) {
       return const Center(child: DanceLoader(color: Color(0xFFCCFF00)));
     }
-    if (_videoUrls.isEmpty && _isInit) {
+    if (_videoItems.isEmpty && _isInit) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -124,23 +124,23 @@ class _VkShortsScreenState extends State<VkShortsScreen> with AutomaticKeepAlive
     return PageView.builder(
       scrollDirection: Axis.vertical,
       controller: _pageController,
-      itemCount: _videoUrls.length,
+      itemCount: _videoItems.length,
       onPageChanged: (index) {
         // Подгружаем, когда осталось 3 видео до конца
-        if (index >= _videoUrls.length - 3) {
+        if (index >= _videoItems.length - 3) {
           loadMoreVideos();
         }
       },
       itemBuilder: (context, index) {
-        return _VideoCard(url: _videoUrls[index]);
+        return _VideoCard(videoItem: _videoItems[index]);
       },
     );
   }
 }
 
 class _VideoCard extends StatefulWidget {
-  final String url;
-  const _VideoCard({required this.url});
+  final VideoItem videoItem;
+  const _VideoCard({required this.videoItem});
   @override
   State<_VideoCard> createState() => _VideoCardState();
 }
@@ -148,10 +148,13 @@ class _VideoCard extends StatefulWidget {
 class _VideoCardState extends State<_VideoCard> {
   late final WebViewController _controller;
   bool _isLoaded = false;
+  bool _isFavorite = false;
+  bool _showInfo = false;
 
   @override
   void initState() {
     super.initState();
+    _loadFavoriteStatus();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.black)
@@ -160,7 +163,34 @@ class _VideoCardState extends State<_VideoCard> {
           if (mounted) setState(() => _isLoaded = true);
         }),
       )
-      ..loadRequest(Uri.parse(widget.url));
+      ..loadRequest(Uri.parse(widget.videoItem.url));
+  }
+
+  Future<void> _loadFavoriteStatus() async {
+    final isFav = await FavoritesService.isFavoriteVideo(widget.videoItem.url);
+    if (mounted) {
+      setState(() => _isFavorite = isFav);
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_isFavorite) {
+      await FavoritesService.removeFavoriteVideo(widget.videoItem.url);
+    } else {
+      await FavoritesService.addFavoriteVideo(widget.videoItem.url);
+    }
+    if (mounted) {
+      setState(() => _isFavorite = !_isFavorite);
+    }
+  }
+
+  Future<void> _shareVideo() async {
+    final url = _fixVkUrl(widget.videoItem.url);
+    try {
+      await Share.share(url);
+    } catch (e) {
+      debugPrint('Error sharing: $e');
+    }
   }
 
   String _fixVkUrl(String url) {
@@ -181,7 +211,7 @@ class _VideoCardState extends State<_VideoCard> {
   }
 
   Future<void> _openInVkApp() async {
-    final String cleanUrl = _fixVkUrl(widget.url);
+    final String cleanUrl = _fixVkUrl(widget.videoItem.url);
     final Uri uri = Uri.parse(cleanUrl);
 
     try {
@@ -201,57 +231,177 @@ class _VideoCardState extends State<_VideoCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        WebViewWidget(controller: _controller),
-        
-        if (!_isLoaded)
-          const Center(child: CircularProgressIndicator(color: Color(0xFFCCFF00))),
-        
-        Positioned(
-          top: 0,
-          left: 0,
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0), 
-              child: GestureDetector(
-                onTap: _openInVkApp,
-                child: Container(
-                  width: 50, 
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6), 
-                    borderRadius: BorderRadius.circular(12), 
-                    border: Border.all(color: Colors.white.withOpacity(0.2), width: 1), 
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.open_in_new, 
-                      color: Colors.white, 
-                      size: 24
+    return GestureDetector(
+      onTap: () {
+        setState(() => _showInfo = !_showInfo);
+      },
+      child: Stack(
+        children: [
+          WebViewWidget(controller: _controller),
+          
+          if (!_isLoaded)
+            const Center(child: CircularProgressIndicator(color: Color(0xFFCCFF00))),
+          
+          // Верхние кнопки
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: _openInVkApp,
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.open_in_new,
+                            color: Colors.white,
+                            size: 24
+                          ),
+                        ),
+                      ),
                     ),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: _shareVideo,
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.share,
+                                color: Colors.white,
+                                size: 24
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        GestureDetector(
+                          onTap: _toggleFavorite,
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                _isFavorite ? Icons.favorite : Icons.favorite_border,
+                                color: _isFavorite ? Colors.red : Colors.white,
+                                size: 24
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Информация о видео (показывается по тапу)
+          if (_showInfo && (widget.videoItem.title != null || widget.videoItem.description != null))
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [Colors.black.withOpacity(0.95), Colors.black.withOpacity(0.7), Colors.transparent],
+                  ),
+                ),
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.videoItem.groupName != null) ...[
+                        Text(
+                          widget.videoItem.groupName!.toUpperCase(),
+                          style: GoogleFonts.unbounded(
+                            color: const Color(0xFFCCFF00),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      if (widget.videoItem.title != null) ...[
+                        Text(
+                          widget.videoItem.displayTitle,
+                          style: GoogleFonts.manrope(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      if (widget.videoItem.description != null && widget.videoItem.description!.isNotEmpty) ...[
+                        Text(
+                          widget.videoItem.displayDescription,
+                          style: GoogleFonts.manrope(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // Градиент снизу (всегда)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: IgnorePointer(
+              child: Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [Colors.black.withOpacity(0.6), Colors.transparent],
                   ),
                 ),
               ),
             ),
           ),
-        ),
-
-        Positioned(
-          bottom: 0, left: 0, right: 0,
-          child: IgnorePointer(
-            child: Container(
-              height: 100,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                  colors: [Colors.black.withOpacity(0.8), Colors.transparent],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

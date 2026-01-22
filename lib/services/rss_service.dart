@@ -57,7 +57,42 @@ class RssService {
 
     if (allArticles.isEmpty && _memoryCache != null) return _memoryCache!;
 
-    allArticles.sort((a, b) {
+    // Дедупликация по ссылке и заголовку
+    final seenLinks = <String>{};
+    final seenTitles = <String>{};
+    final deduplicated = <Article>[];
+    
+    for (final article in allArticles) {
+      // Нормализуем заголовок для сравнения
+      final normalizedTitle = article.title.trim().toLowerCase();
+      final link = article.link.trim();
+      
+      // Пропускаем дубликаты
+      if (seenLinks.contains(link) || seenTitles.contains(normalizedTitle)) {
+        continue;
+      }
+      
+      // Фильтрация низкокачественного контента
+      // Минимальная длина текста
+      if (article.description.trim().length < 30 && article.title.trim().length < 10) {
+        continue;
+      }
+      
+      // Фильтрация рекламных постов по ключевым словам
+      final lowerText = (article.title + ' ' + article.description).toLowerCase();
+      final adKeywords = ['купить', 'скидка', 'акция', 'распродажа', 'только сегодня', 
+                         'заказать', 'доставка', 'бесплатно', 'промокод', 'реклама'];
+      if (adKeywords.any((keyword) => lowerText.contains(keyword) && 
+          (lowerText.split(keyword).length - 1) > 2)) {
+        continue; // Слишком много рекламных слов
+      }
+      
+      seenLinks.add(link);
+      seenTitles.add(normalizedTitle);
+      deduplicated.add(article);
+    }
+
+    deduplicated.sort((a, b) {
       final ad = a.pubDate;
       final bd = b.pubDate;
       if (ad == null && bd == null) return 0;
@@ -66,9 +101,9 @@ class RssService {
       return bd.compareTo(ad);
     });
 
-    _memoryCache = allArticles;
+    _memoryCache = deduplicated;
     _lastFetch = DateTime.now();
-    return allArticles;
+    return deduplicated;
   }
 
   static Future<List<Article>> fetchRssFeedSafe(Map<String, String> feed, SourceType type) async {

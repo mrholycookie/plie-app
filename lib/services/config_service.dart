@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../models/education_institution.dart';
 import '../models/dance_studio.dart';
+import '../models/event.dart';
 
 class ConfigService {
   static String get _configUrl => dotenv.env['CONFIG_URL'] ?? '';
@@ -102,6 +103,19 @@ class ConfigService {
     return null;
   }).whereType<DanceStudio>().toList();
 }
+
+  // --- НОВЫЙ МЕТОД: События (Афиша) ---
+  static List<Event> getEvents() {
+    final list = config?['events'];
+    if (list is! List) return [];
+    
+    return list.map((e) {
+      if (e is Map<String, dynamic>) {
+        return Event.fromJson(e);
+      }
+      return null;
+    }).whereType<Event>().toList();
+  }
   // --------------------------------
 
   static List<Map<String, String>> _parseRssList(dynamic list) {

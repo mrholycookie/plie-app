@@ -7,6 +7,7 @@ import 'package:metadata_fetch/metadata_fetch.dart';
 import '../services/rss_service.dart';
 import '../models/article.dart';
 import '../widgets/dance_loader.dart';
+import '../widgets/common_widgets.dart';
 import 'article_reader_screen.dart';
 import 'info_screen.dart';
 
@@ -24,6 +25,8 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
   int currentMax = 15;
   final int pageSize = 15;
   String selectedFilter = 'all';
+  DateTime? _lastUpdateTime;
+  DateTime? _previousUpdateTime; // Время предыдущего обновления для определения новых статей
   
   // ДОБАВИЛИ КОНТРОЛЛЕР
   final ScrollController _scrollController = ScrollController();
@@ -45,11 +48,17 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
   }
 
   Future<void> loadData({bool force = false}) async {
+    // Сохраняем время предыдущего обновления ПЕРЕД загрузкой новых данных
+    // Это нужно для определения новых статей
+    _previousUpdateTime = _lastUpdateTime;
+    
     setState(() => isLoading = true);
     final data = await RssService.fetchNews(forceRefresh: force);
     if (mounted) {
       setState(() {
         allNews = data;
+        // Обновляем время после загрузки новых данных
+        _lastUpdateTime = DateTime.now();
         applyFilter();
         isLoading = false;
       });
@@ -102,6 +111,44 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
     visibleNews = filteredNews.sublist(0, count);
   }
 
+  bool _isNewArticle(Article article) {
+    // Показываем "НОВОЕ" только для статей, которые появились после предыдущего обновления
+    if (article.pubDate == null) return false;
+    
+    // При первой загрузке (_previousUpdateTime == null) не показываем "НОВОЕ"
+    // Показываем только если пользователь обновил ленту и появились новые статьи
+    if (_previousUpdateTime == null) return false;
+    
+    // Статья считается новой, если она опубликована после предыдущего обновления
+    // Добавляем небольшую задержку (2 минуты) для учета времени загрузки и возможных расхождений во времени
+    final previousUpdateWithDelay = _previousUpdateTime!.subtract(const Duration(minutes: 2));
+    return article.pubDate!.isAfter(previousUpdateWithDelay);
+  }
+
+  String _getDateGroup(Article article) {
+    if (article.pubDate == null) return 'Ранее';
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final articleDate = DateTime(article.pubDate!.year, article.pubDate!.month, article.pubDate!.day);
+    
+    if (articleDate == today) return 'Сегодня';
+    if (articleDate == today.subtract(const Duration(days: 1))) return 'Вчера';
+    
+    final weekAgo = today.subtract(const Duration(days: 7));
+    if (articleDate.isAfter(weekAgo)) return 'На этой неделе';
+    
+    return 'Ранее';
+  }
+
+  Map<String, List<Article>> _groupByDate(List<Article> articles) {
+    final groups = <String, List<Article>>{};
+    for (final article in articles) {
+      final group = _getDateGroup(article);
+      groups.putIfAbsent(group, () => []).add(article);
+    }
+    return groups;
+  }
+
   Future<void> onArticleTap(Article article) async {
     if (article.sourceType == SourceType.web) {
       Navigator.push(
@@ -142,13 +189,8 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
     super.build(context);
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "НОВОСТИ",
-          style: GoogleFonts.unbounded(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: false,
+      appBar: CommonAppBar(
+        title: "НОВОСТИ",
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -190,20 +232,7 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
                               }
                               return false;
                             },
-                            child: ListView.separated(
-                              controller: _scrollController, // ПРИВЯЗАЛИ КОНТРОЛЛЕР
-                              padding: const EdgeInsets.all(16),
-                              itemCount: visibleNews.length + 1,
-                              separatorBuilder: (_, __) => const SizedBox(height: 16),
-                              itemBuilder: (context, index) {
-                                if (index == visibleNews.length) {
-                                  return visibleNews.length < filteredNews.length
-                                      ? const SizedBox(height: 50, child: Center(child: CircularProgressIndicator(color: Color(0xFF333333))))
-                                      : const SizedBox.shrink();
-                                }
-                                return buildCard(visibleNews[index], key: ValueKey(visibleNews[index].link));
-                              },
-                            ),
+                            child: _buildGroupedList(),
                           ),
                   ),
           ),
@@ -291,6 +320,24 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
                             decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(2)),
                             child: Text(getSourceShort(article), style: GoogleFonts.manrope(color: Colors.black, fontSize: 8, fontWeight: FontWeight.w800)),
                           ),
+                          if (_isNewArticle(article)) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFCCFF00),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: Text(
+                                'НОВОЕ',
+                                style: GoogleFonts.manrope(
+                                  color: Colors.black,
+                                  fontSize: 7,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -333,6 +380,113 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
       case SourceType.telegram: return 'ТГ';
       default: return 'У НАС';
     }
+  }
+
+  String _formatUpdateTime(DateTime time) {
+    final now = DateTime.now();
+    final diff = now.difference(time);
+    if (diff.inMinutes < 1) return 'только что';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} мин назад';
+    if (diff.inHours < 24) return '${diff.inHours} ч назад';
+    return '${diff.inDays} дн назад';
+  }
+
+  Widget _buildGroupedList() {
+    final groups = _groupByDate(visibleNews);
+    final groupOrder = ['Сегодня', 'Вчера', 'На этой неделе', 'Ранее'];
+    
+    int totalItems = 0;
+    for (final group in groups.values) {
+      totalItems += group.length;
+    }
+    totalItems += groups.length; // Заголовки групп
+    if (_lastUpdateTime != null) totalItems += 1; // Индикатор обновления
+    if (visibleNews.length < filteredNews.length) totalItems += 1; // Индикатор загрузки
+
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.all(16),
+      itemCount: totalItems,
+      itemBuilder: (context, index) {
+        int currentIndex = 0;
+        
+        // Индикатор обновления (показываем первым)
+        if (_lastUpdateTime != null && index == currentIndex) {
+          currentIndex++;
+          return _buildUpdateIndicator();
+        }
+        
+        for (final groupName in groupOrder) {
+          if (!groups.containsKey(groupName)) continue;
+          
+          final groupArticles = groups[groupName]!;
+          
+          // Заголовок группы
+          if (index == currentIndex) {
+            currentIndex++;
+            return Padding(
+              padding: EdgeInsets.only(bottom: 12, top: currentIndex > 1 ? 24 : 0),
+              child: Text(
+                groupName.toUpperCase(),
+                style: GoogleFonts.unbounded(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          }
+          
+          // Статьи в группе
+          for (int i = 0; i < groupArticles.length; i++) {
+            if (index == currentIndex) {
+              currentIndex++;
+              return Padding(
+                padding: EdgeInsets.only(bottom: i < groupArticles.length - 1 ? 16 : 0),
+                child: buildCard(groupArticles[i], key: ValueKey(groupArticles[i].link)),
+              );
+            }
+            currentIndex++;
+          }
+        }
+        
+        // Индикатор загрузки
+        if (index == currentIndex && visibleNews.length < filteredNews.length) {
+          return const SizedBox(
+            height: 50,
+            child: Center(child: CircularProgressIndicator(color: Color(0xFF333333))),
+          );
+        }
+        
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildUpdateIndicator() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFF222222)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.refresh, size: 14, color: Colors.grey[600]),
+          const SizedBox(width: 8),
+          Text(
+            'Обновлено: ${_formatUpdateTime(_lastUpdateTime!)}',
+            style: GoogleFonts.manrope(
+              color: Colors.grey[600],
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

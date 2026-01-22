@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/article.dart';
+import '../models/video_item.dart';
 import 'config_service.dart';
 
 class VkService {
@@ -55,7 +56,7 @@ class VkService {
     _shuffledVideoGroups = null;
   }
 
-  static Future<List<String>> fetchVideosBatch({int batchIndex = 0, int batchSize = 5}) async {
+  static Future<List<VideoItem>> fetchVideosBatch({int batchIndex = 0, int batchSize = 5}) async {
     await ConfigService.ready;
 
     if (_accessToken.isEmpty) {
@@ -85,7 +86,7 @@ class VkService {
 
     debugPrint("Loading videos from batch $batchIndex: $targetGroups");
 
-    final List<String> videoUrls = [];
+    final List<VideoItem> videoItems = [];
 
     final futures = targetGroups.map((domain) async {
       final url = Uri.parse(
@@ -102,62 +103,115 @@ class VkService {
           final data = json.decode(response.body);
           if (data['response'] != null) {
             final items = data['response']['items'] as List;
-            return extractVideosFromItems(items);
+            final groupName = groupsMap[domain] ?? domain;
+            return extractVideosFromItems(items, groupName);
           }
         }
       } catch (e) {
         debugPrint("Error fetching video from $domain: $e");
       }
-      return <String>[];
+      return <VideoItem>[];
     });
 
     final results = await Future.wait(futures);
     for (final list in results) {
-      videoUrls.addAll(list);
+      videoItems.addAll(list);
     }
 
-    final unique = videoUrls.toSet().toList();
+    // Дедупликация по URL
+    final seenUrls = <String>{};
+    final unique = <VideoItem>[];
+    for (final item in videoItems) {
+      if (!seenUrls.contains(item.url)) {
+        seenUrls.add(item.url);
+        unique.add(item);
+      }
+    }
+    
     unique.shuffle(); // Перемешиваем видео внутри этого батча
     return unique;
   }
 
-  static List<String> extractVideosFromItems(List items) {
-    final List<String> urls = [];
+  static List<VideoItem> extractVideosFromItems(List items, String groupName) {
+    final List<VideoItem> videos = [];
     for (final item in items) {
+      String? postText = item['text'] ?? '';
+      DateTime? postDate;
+      if (item['date'] != null) {
+        postDate = DateTime.fromMillisecondsSinceEpoch((item['date'] as int) * 1000);
+      }
+      
       if (item['attachments'] != null) {
         for (final att in item['attachments']) {
-          if (att['type'] == 'video') addVideoUrl(urls, att['video']);
+          if (att['type'] == 'video') {
+            final videoItem = _createVideoItem(att['video'], postText, postDate, groupName);
+            if (videoItem != null) videos.add(videoItem);
+          }
         }
       }
       if (item['copy_history'] != null) {
         for (final copy in item['copy_history']) {
+          String? copyText = copy['text'] ?? '';
+          DateTime? copyDate;
+          if (copy['date'] != null) {
+            copyDate = DateTime.fromMillisecondsSinceEpoch((copy['date'] as int) * 1000);
+          }
           if (copy['attachments'] != null) {
             for (final att in copy['attachments']) {
-              if (att['type'] == 'video') addVideoUrl(urls, att['video']);
+              if (att['type'] == 'video') {
+                final textToUse = (copyText?.isNotEmpty == true) ? copyText : postText;
+                final videoItem = _createVideoItem(att['video'], textToUse, copyDate ?? postDate, groupName);
+                if (videoItem != null) videos.add(videoItem);
+              }
             }
           }
         }
       }
     }
-    return urls;
+    return videos;
   }
 
-  static void addVideoUrl(List<String> urls, dynamic videoObj) {
-    if (videoObj == null) return;
+  static VideoItem? _createVideoItem(dynamic videoObj, String? postText, DateTime? postDate, String groupName) {
+    if (videoObj == null) return null;
 
     String? link = videoObj['player'];
+    String? videoTitle = videoObj['title'];
+    String? videoDescription = videoObj['description'];
 
     if (link == null && videoObj['owner_id'] != null && videoObj['id'] != null) {
-      link =
-          'https://vk.com/video_ext.php?oid=${videoObj['owner_id']}&id=${videoObj['id']}&hd=2';
+      link = 'https://vk.com/video_ext.php?oid=${videoObj['owner_id']}&id=${videoObj['id']}&hd=2';
       if (videoObj['access_key'] != null) link += '&hash=${videoObj['access_key']}';
     }
 
-    if (link != null) {
-      if (!link.startsWith('http')) link = link.replaceFirst('//', 'https://');
-      if (!link.contains('autoplay=1')) link += (link.contains('?') ? '&' : '?') + 'autoplay=1';
-      urls.add(link);
+    if (link == null) return null;
+
+    if (!link.startsWith('http')) link = link.replaceFirst('//', 'https://');
+    if (!link.contains('autoplay=1')) link += (link.contains('?') ? '&' : '?') + 'autoplay=1';
+
+    // Используем название видео, если есть, иначе текст поста
+    final title = videoTitle?.isNotEmpty == true 
+        ? videoTitle 
+        : (postText?.isNotEmpty == true ? postText!.split('\n').first : null);
+    
+    // Описание - либо описание видео, либо текст поста (без первой строки)
+    String? description;
+    if (videoDescription?.isNotEmpty == true) {
+      description = videoDescription;
+    } else if (postText?.isNotEmpty == true && postText!.contains('\n')) {
+      final lines = postText.split('\n');
+      if (lines.length > 1) {
+        description = lines.sublist(1).join('\n').trim();
+      }
     }
+
+    return VideoItem(
+      url: link,
+      title: title,
+      description: description,
+      groupName: groupName,
+      date: postDate,
+      isAvailable: true,
+    );
   }
 
   static Future<List<Article>> fetchSingleGroup(String id, String name) async {

@@ -5,8 +5,12 @@ class Event {
   final String? imageUrl;
   final String siteUrl;
   final String place;
-  final String dates;
-  final String price; // Добавим цену
+  final String city; // Город для фильтрации
+  final String dates; // Строковое представление для отображения
+  final String price;
+  final List<DateTime> eventDates; // Массив дат для календаря
+  final DateTime? startDate; // Первая дата события
+  final DateTime? endDate; // Последняя дата события (если многосерийное)
 
   Event({
     required this.id,
@@ -15,8 +19,12 @@ class Event {
     this.imageUrl,
     required this.siteUrl,
     required this.place,
+    required this.city,
     required this.dates,
     required this.price,
+    required this.eventDates,
+    this.startDate,
+    this.endDate,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -32,19 +40,71 @@ class Event {
        placeText = json['place']['title'] ?? json['place']['address'] ?? 'Адрес скрыт';
     }
 
-    // 3. Дата
-    String dateText = '';
-    if (json['dates'] != null && (json['dates'] as List).isNotEmpty) {
-      final firstDate = json['dates'][0];
-      if (firstDate['start'] != null && firstDate['start'] > 0) {
-        final dt = DateTime.fromMillisecondsSinceEpoch(firstDate['start'] * 1000);
-        dateText = "${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}";
-      } else if (firstDate['start_date'] != null) {
-        dateText = firstDate['start_date'];
+    // 3. Город
+    String cityText = '';
+    if (json['city'] != null) {
+      cityText = json['city'].toString().toUpperCase();
+    } else if (json['place'] != null && json['place'] is Map) {
+      // Пытаемся извлечь город из адреса
+      final address = json['place']['address']?.toString() ?? '';
+      if (address.contains('Москва')) {
+        cityText = 'МОСКВА';
+      } else if (address.contains('Санкт-Петербург') || address.contains('СПб')) {
+        cityText = 'САНКТ-ПЕТЕРБУРГ';
       }
     }
 
-    // 4. Очистка описания
+    // 4. Парсинг дат (поддержка массива дат для многосерийных событий)
+    List<DateTime> parsedDates = [];
+    String dateText = '';
+    
+    if (json['dates'] != null && (json['dates'] as List).isNotEmpty) {
+      for (var dateItem in json['dates']) {
+        DateTime? parsedDate;
+        if (dateItem['start'] != null && dateItem['start'] > 0) {
+          // Timestamp в секундах
+          parsedDate = DateTime.fromMillisecondsSinceEpoch(dateItem['start'] * 1000);
+        } else if (dateItem['start_date'] != null) {
+          // Строковая дата
+          try {
+            parsedDate = DateTime.parse(dateItem['start_date']);
+          } catch (_) {
+            // Пробуем другие форматы
+            try {
+              final dateStr = dateItem['start_date'].toString();
+              if (dateStr.contains('.')) {
+                final parts = dateStr.split('.');
+                if (parts.length >= 3) {
+                  parsedDate = DateTime(
+                    int.parse(parts[2]),
+                    int.parse(parts[1]),
+                    int.parse(parts[0]),
+                  );
+                }
+              }
+            } catch (_) {}
+          }
+        }
+        
+        if (parsedDate != null) {
+          parsedDates.add(parsedDate);
+        }
+      }
+      
+      // Формируем строковое представление
+      if (parsedDates.isNotEmpty) {
+        parsedDates.sort();
+        if (parsedDates.length == 1) {
+          dateText = "${parsedDates[0].day.toString().padLeft(2, '0')}.${parsedDates[0].month.toString().padLeft(2, '0')}";
+        } else {
+          final first = parsedDates.first;
+          final last = parsedDates.last;
+          dateText = "${first.day.toString().padLeft(2, '0')}.${first.month.toString().padLeft(2, '0')} - ${last.day.toString().padLeft(2, '0')}.${last.month.toString().padLeft(2, '0')}";
+        }
+      }
+    }
+
+    // 5. Очистка описания
     String rawDesc = json['description'] ?? '';
     String cleanDesc = rawDesc.replaceAll(RegExp(r'<[^>]*>'), '')
         .replaceAll('&nbsp;', ' ')
@@ -52,7 +112,7 @@ class Event {
         .replaceAll('&mdash;', '—')
         .trim();
         
-    // 5. Цена
+    // 6. Цена
     String priceText = json['price'] ?? '';
 
     return Event(
@@ -62,8 +122,12 @@ class Event {
       imageUrl: img,
       siteUrl: json['site_url'] ?? '',
       place: placeText,
+      city: cityText,
       dates: dateText,
       price: priceText,
+      eventDates: parsedDates,
+      startDate: parsedDates.isNotEmpty ? parsedDates.first : null,
+      endDate: parsedDates.length > 1 ? parsedDates.last : null,
     );
   }
 

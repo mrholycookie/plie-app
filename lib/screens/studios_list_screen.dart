@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/config_service.dart';
 import '../models/dance_studio.dart';
 import '../widgets/dance_loader.dart';
+import '../widgets/common_widgets.dart';
 
 class StudiosListScreen extends StatefulWidget {
   const StudiosListScreen({super.key});
@@ -305,45 +306,13 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
     );
   }
 
-  Widget _buildFilterButton({
-    required String label,
-    required VoidCallback onPressed,
-    bool isAccent = false,
-  }) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        side: BorderSide(color: isAccent ? const Color(0xFFCCFF00) : const Color(0xFF333333)),
-        backgroundColor: const Color(0xFF111111),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-      ),
-      child: Text(
-        label.toUpperCase(),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: GoogleFonts.unbounded(
-          color: isAccent ? const Color(0xFFCCFF00) : Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "СТУДИИ ТАНЦА",
-          style: GoogleFonts.unbounded(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: false,
-      ),
+      appBar: const CommonAppBar(title: "СТУДИИ ТАНЦА"),
       body: isLoading 
           ? const Center(child: DanceLoader(color: Color(0xFFCCFF00)))
           : Column(
@@ -355,7 +324,7 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                       Row(
                         children: [
                           Expanded(
-                            child: _buildFilterButton(
+                            child: FilterButton(
                               label: 'ВСЕ',
                               onPressed: resetFiltersToAll,
                               isAccent: selectedCity == 'ВСЕ' && selectedStyle == 'ВСЕ СТИЛИ' && selectedMetro == 'ВСЕ МЕТРО',
@@ -363,7 +332,7 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: _buildFilterButton(
+                            child: FilterButton(
                               label: selectedCity == 'ВСЕ' ? 'ГОРОД' : selectedCity,
                               onPressed: _pickCity,
                               isAccent: selectedCity != 'ВСЕ',
@@ -371,7 +340,7 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: _buildFilterButton(
+                            child: FilterButton(
                               label: selectedStyle == 'ВСЕ СТИЛИ' ? 'СТИЛЬ' : selectedStyle,
                               onPressed: _pickStyle,
                               isAccent: selectedStyle != 'ВСЕ СТИЛИ',
@@ -384,7 +353,7 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                         Row(
                           children: [
                             Expanded(
-                              child: _buildFilterButton(
+                              child: FilterButton(
                                 label: selectedMetro == 'ВСЕ МЕТРО' ? 'МЕТРО' : selectedMetro,
                                 onPressed: _pickMetro,
                                 isAccent: selectedMetro != 'ВСЕ МЕТРО',
@@ -400,7 +369,7 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                 // 3. Список
                 Expanded(
                   child: visibleStudios.isEmpty
-                      ? Center(child: Text("Студий не найдено", style: GoogleFonts.manrope(color: Colors.grey)))
+                      ? const EmptyState(message: "Студий не найдено")
                       : ListView.separated(
                           controller: _scrollController,
                           padding: const EdgeInsets.all(16),
@@ -412,7 +381,11 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                           },
                           itemBuilder: (context, index) {
                             if (index == 0) {
-                              return _buildAddStudioBanner();
+                              return const AddItemBanner(
+                                title: "ВАША СТУДИЯ НЕ В СПИСКЕ?",
+                                description: "Напишите нам, и мы добавим вашу студию в каталог",
+                                emailSubject: "Добавление студии в каталог",
+                              );
                             }
                             return buildStudioCard(visibleStudios[index - 1]);
                           },
@@ -423,65 +396,6 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
     );
   }
 
-  Widget _buildAddStudioBanner() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFCCFF00).withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(FontAwesomeIcons.circlePlus, color: const Color(0xFFCCFF00), size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  "ВАША СТУДИЯ НЕ В СПИСКЕ?",
-                  style: GoogleFonts.unbounded(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "Напишите нам, и мы добавим вашу студию в каталог",
-            style: GoogleFonts.manrope(
-              color: Colors.grey[400],
-              fontSize: 11,
-            ),
-          ),
-          const SizedBox(height: 8),
-          InkWell(
-            onTap: () async {
-              try {
-                await launchUrl(
-                  Uri.parse('mailto:apppliehelp@gmail.com?subject=Добавление студии в каталог'),
-                  mode: LaunchMode.externalApplication,
-                );
-              } catch (_) {}
-            },
-            child: Text(
-              "apppliehelp@gmail.com",
-              style: GoogleFonts.manrope(
-                color: const Color(0xFFCCFF00),
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget buildStudioCard(DanceStudio item) {
     return Container(
@@ -501,12 +415,9 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
               height: 240,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                height: 240, 
-                color: const Color(0xFF1A1A1A),
-                child: Center(
-                  child: Icon(FontAwesomeIcons.music, color: Colors.grey[800], size: 40)
-                ),
+              errorBuilder: (_, __, ___) => const ErrorImagePlaceholder(
+                icon: FontAwesomeIcons.music,
+                height: 240,
               ),
             ),
           ),
@@ -566,21 +477,7 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: () async {
-                           if (item.siteUrl.isNotEmpty) {
-                              try {
-                                await launchUrl(Uri.parse(item.siteUrl), mode: LaunchMode.externalApplication);
-                              } catch (_) {}
-                           }
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF333333)),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
-                        ),
-                        child: Text("САЙТ", style: GoogleFonts.unbounded(color: Colors.white, fontSize: 11)),
-                      ),
+                      child: SiteButton(url: item.siteUrl),
                     ),
                     const SizedBox(width: 8),
                     Expanded(

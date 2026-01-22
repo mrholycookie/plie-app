@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/config_service.dart';
 import '../models/education_institution.dart';
 import '../widgets/dance_loader.dart';
+import '../widgets/common_widgets.dart';
 
 class EducationListScreen extends StatefulWidget {
   const EducationListScreen({super.key});
@@ -109,14 +110,7 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
     super.build(context);
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "ОБРАЗОВАНИЕ",
-          style: GoogleFonts.unbounded(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: false,
-      ),
+      appBar: const CommonAppBar(title: "ОБРАЗОВАНИЕ"),
       body: isLoading 
           ? const Center(child: DanceLoader(color: Color(0xFFCCFF00)))
           : Column(
@@ -137,7 +131,7 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                 
                 Expanded(
                   child: visibleInstitutions.isEmpty
-                      ? Center(child: Text("Ничего не найдено", style: GoogleFonts.manrope(color: Colors.grey)))
+                      ? const EmptyState()
                       : ListView.separated(
                           controller: _scrollController,
                           padding: const EdgeInsets.all(16),
@@ -149,7 +143,11 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                           },
                           itemBuilder: (context, index) {
                             if (index == 0) {
-                              return _buildAddEducationBanner();
+                              return const AddItemBanner(
+                                title: "ВАШЕ УЧЕБНОЕ ЗАВЕДЕНИЕ НЕ В СПИСКЕ?",
+                                description: "Напишите нам, и мы добавим ваше учебное заведение в каталог",
+                                emailSubject: "Добавление учебного заведения в каталог",
+                              );
                             }
                             return buildEduCard(visibleInstitutions[index - 1]);
                           },
@@ -203,65 +201,6 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
     );
   }
 
-  Widget _buildAddEducationBanner() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFCCFF00).withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(FontAwesomeIcons.circlePlus, color: const Color(0xFFCCFF00), size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  "ВАШЕ УЧЕБНОЕ ЗАВЕДЕНИЕ НЕ В СПИСКЕ?",
-                  style: GoogleFonts.unbounded(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "Напишите нам, и мы добавим ваше учебное заведение в каталог",
-            style: GoogleFonts.manrope(
-              color: Colors.grey[400],
-              fontSize: 11,
-            ),
-          ),
-          const SizedBox(height: 8),
-          InkWell(
-            onTap: () async {
-              try {
-                await launchUrl(
-                  Uri.parse('mailto:apppliehelp@gmail.com?subject=Добавление учебного заведения в каталог'),
-                  mode: LaunchMode.externalApplication,
-                );
-              } catch (_) {}
-            },
-            child: Text(
-              "apppliehelp@gmail.com",
-              style: GoogleFonts.manrope(
-                color: const Color(0xFFCCFF00),
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget buildEduCard(EducationInstitution item) {
     return Container(
@@ -280,12 +219,9 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
               height: 240,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                height: 240, 
-                color: const Color(0xFF1A1A1A),
-                child: Center(
-                  child: Icon(FontAwesomeIcons.graduationCap, color: Colors.grey[800], size: 40)
-                ),
+              errorBuilder: (_, __, ___) => const ErrorImagePlaceholder(
+                icon: FontAwesomeIcons.graduationCap,
+                height: 240,
               ),
             ),
           ),
@@ -345,21 +281,7 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                 
                 SizedBox(
                   width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      if (item.siteUrl.isNotEmpty) {
-                        try {
-                          await launchUrl(Uri.parse(item.siteUrl), mode: LaunchMode.externalApplication);
-                        } catch (_) {}
-                      }
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF333333)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
-                    ),
-                    child: Text("САЙТ", style: GoogleFonts.unbounded(color: Colors.white, fontSize: 11)),
-                  ),
+                  child: SiteButton(url: item.siteUrl),
                 )
               ],
             ),
