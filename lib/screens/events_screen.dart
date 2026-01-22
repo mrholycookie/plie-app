@@ -272,18 +272,36 @@ class _EventsScreenState extends State<EventsScreen> with AutomaticKeepAliveClie
   }
 
   Future<void> _addToCalendar(Event event) async {
-    if (event.startDate == null) return;
+    if (event.startDate == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('У события не указана дата'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
     
     try {
+      // Форматируем даты для Intent
+      final startDate = event.startDate!;
+      final endDate = event.endDate ?? startDate.add(const Duration(hours: 2));
+      
+      // Создаем событие для календаря
       final eventToAdd = calendar.Event(
         title: event.title,
-        description: event.description,
+        description: event.description.isNotEmpty 
+            ? event.description 
+            : '${event.place}\n${event.price.isNotEmpty ? "Цена: ${event.price}" : ""}',
         location: event.place,
-        startDate: event.startDate!,
-        endDate: event.endDate ?? event.startDate!.add(const Duration(hours: 2)),
+        startDate: startDate,
+        endDate: endDate,
         allDay: false,
       );
       
+      // Пытаемся добавить через пакет
       final result = await calendar.Add2Calendar.addEvent2Cal(eventToAdd);
       
       if (mounted) {
@@ -296,23 +314,77 @@ class _EventsScreenState extends State<EventsScreen> with AutomaticKeepAliveClie
             ),
           );
         } else {
+          // Если пакет не сработал, пробуем через прямой Intent
+          await _addToCalendarViaIntent(event, startDate, endDate);
+        }
+      }
+    } catch (e) {
+      debugPrint('Ошибка добавления в календарь: $e');
+      // Пробуем альтернативный способ через Intent
+      try {
+        await _addToCalendarViaIntent(
+          event, 
+          event.startDate!, 
+          event.endDate ?? event.startDate!.add(const Duration(hours: 2))
+        );
+      } catch (e2) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Не удалось добавить в календарь'),
+            SnackBar(
+              content: Text('Не удалось открыть календарь. Установите приложение календаря.'),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
             ),
           );
         }
       }
-    } catch (e) {
-      if (mounted) {
+    }
+  }
+
+  Future<void> _addToCalendarViaIntent(Event event, DateTime startDate, DateTime endDate) async {
+    // Альтернативный способ через прямой Intent (для Android)
+    // Форматируем даты в миллисекундах с начала эпохи
+    final startMillis = startDate.millisecondsSinceEpoch;
+    final endMillis = endDate.millisecondsSinceEpoch;
+    
+    // Формируем описание события
+    final description = event.description.isNotEmpty 
+        ? event.description 
+        : '${event.place}${event.price.isNotEmpty ? "\nЦена: ${event.price}" : ""}';
+    
+    // Создаем Intent для Android
+    final uri = Uri.parse(
+      'content://com.android.calendar/time/${startMillis}'
+    );
+    
+    // Пробуем открыть через url_launcher как fallback
+    try {
+      // Для Android используем специальный формат
+      final androidUri = Uri.parse(
+        'https://calendar.google.com/calendar/render?action=TEMPLATE'
+        '&text=${Uri.encodeComponent(event.title)}'
+        '&dates=${startDate.toUtc().toIso8601String().replaceAll(RegExp(r'[:\-]'), '').split('.')[0]}Z'
+        '/${endDate.toUtc().toIso8601String().replaceAll(RegExp(r'[:\-]'), '').split('.')[0]}Z'
+        '&details=${Uri.encodeComponent(description)}'
+        '&location=${Uri.encodeComponent(event.place)}'
+      );
+      
+      final launched = await launchUrl(
+        androidUri,
+        mode: LaunchMode.externalApplication,
+      );
+      
+      if (!launched && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка: $e'),
+          const SnackBar(
+            content: Text('Не удалось открыть календарь. Установите приложение календаря.'),
             backgroundColor: Colors.red,
           ),
         );
       }
+    } catch (e) {
+      debugPrint('Ошибка открытия календаря через Intent: $e');
+      rethrow;
     }
   }
 
