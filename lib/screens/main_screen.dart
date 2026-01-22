@@ -3,9 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
 
-import 'feeds_screen.dart'; // В вашем файле тут NewsListWithKeepAlive внутри
+import 'feeds_screen.dart';
 import 'vk_shorts_screen.dart';
-import 'education_list_screen.dart'; // <--- Добавьте этот импорт
+import 'education_list_screen.dart';
 import 'studios_list_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -19,9 +19,9 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _widgetOptions = <Widget>[
-    const NewsListWithKeepAlive(), // <--- ОСТАВИЛ КАК БЫЛО У ВАС
+    const NewsListWithKeepAlive(),
     const VkShortsScreen(),
-    const EducationListScreen(),   // <--- ДОБАВИЛ НОВЫЙ ЭКРАН
+    const EducationListScreen(),
     const StudiosListScreen(),
   ];
 
@@ -35,9 +35,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Настраиваем цвет статус бара (светлый текст для темной темы или наоборот)
-    // В вашем коде было SystemUiOverlayStyle.dark, но фон черный.
-    // Обычно для черного фона нужен light (белые иконки). Оставляю как у вас было, если хотите.
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light); 
 
     return Scaffold(
@@ -84,7 +81,6 @@ class _MainScreenState extends State<MainScreen> {
               ),
               label: 'КЛИПЫ',
             ),
-            // --- ДОБАВЛЕН ТРЕТИЙ ПУНКТ ---
             BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.only(bottom: 4),

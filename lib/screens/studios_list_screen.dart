@@ -42,6 +42,12 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
     loadData();
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   Future<void> loadData() async {
     await ConfigService.ready;
     final data = ConfigService.getStudios();
@@ -158,7 +164,13 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                   .toList();
             }
 
-            return SafeArea(
+            return PopScope(
+              onPopInvoked: (didPop) {
+                if (didPop) {
+                  controller.dispose();
+                }
+              },
+              child: SafeArea(
               child: Padding(
                 padding: EdgeInsets.only(
                   left: 16,
@@ -242,6 +254,7 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                   ),
                 ),
               ),
+            ),
             );
           },
         );
@@ -506,12 +519,18 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () async {
-                           // Открыть карту с поиском по названию и адресу
                            try {
-                             // Формируем поисковый запрос: название + город + метро
-                             final searchQuery = Uri.encodeComponent('${item.name} ${item.city} м.${item.metro}');
-                             Uri mapUrl;
+                             // Формируем поисковый запрос: приоритет адресу, если есть
+                             String searchQuery;
+                             if (item.address != null && item.address!.isNotEmpty) {
+                               // Если есть полный адрес - используем его (самый точный вариант)
+                               searchQuery = Uri.encodeComponent('${item.name} ${item.address}');
+                             } else {
+                               // Fallback: название + город + метро
+                               searchQuery = Uri.encodeComponent('${item.name} ${item.city} м.${item.metro}');
+                             }
                              
+                             Uri mapUrl;
                              if (item.coords != null && item.coords!.length == 2) {
                                // Если есть координаты, используем их + поиск для точности
                                final lat = item.coords![0];

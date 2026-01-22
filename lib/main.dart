@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:appmetrica_plugin/appmetrica_plugin.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // 1. Импорт dotenv
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'screens/main_screen.dart';
 import 'services/config_service.dart';
@@ -11,18 +11,14 @@ import 'services/config_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Сначала загружаем ключи (до любых других сервисов)
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
     debugPrint("Warning: .env file not found or empty. Keys might be missing.");
   }
 
-  // 3. Инициализация AppMetrica с ключом из файла .env
   try {
-    // Берем ключ из переменной, или пустую строку (чтобы не упало, если забыли добавить)
     final metricaKey = dotenv.env['APPMETRICA_KEY'] ?? '';
-    
     if (metricaKey.isNotEmpty) {
       await AppMetrica.activate(
         AppMetricaConfig(metricaKey),
@@ -31,16 +27,10 @@ void main() async {
       debugPrint("AppMetrica skipped: Key not found in .env");
     }
   } catch (e) {
-    print("Metrica init error: $e");
+    debugPrint("Metrica init error: $e");
   }
 
   await initializeDateFormatting('ru', null);
-  
-  // В твоем старом коде было loadConfig. 
-  // Если ты используешь мой ConfigService из предыдущего сообщения, 
-  // убедись, что метод называется так же. 
-  // Например, если там fetchConfig, то: await ConfigService.fetchConfig();
-  // Оставил как у тебя было:
   await ConfigService.loadConfig(); 
 
   // Настройка статус-бара: Прозрачный, белые иконки (для темного фона)
