@@ -77,7 +77,7 @@ class InfoScreen extends StatelessWidget {
             ),
             
             const SizedBox(height: 40),
-            Center(child: Text("© 2026 ${AppConstants.appName}", style: GoogleFonts.manrope(color: Colors.grey[800], fontSize: 12))),
+            Center(child: Text("Все права на текст, изображение и видео принаджлежат их авторам.\nCохранена авторская точка зрения и орфография, которая может отличаться от точки зрения редакции ${AppConstants.appName}\n© 2026 ${AppConstants.appName}", style: GoogleFonts.manrope(color: Colors.grey[800], fontSize: 12))),
           ],
         ),
       ),

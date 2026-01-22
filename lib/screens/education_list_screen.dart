@@ -19,10 +19,14 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
   List<EducationInstitution> allInstitutions = [];
   List<EducationInstitution> visibleInstitutions = [];
   
-  List<String> cities = ['ВСЕ'];
+  // Ключ - город, Значение - количество
+  Map<String, int> cityCounts = {}; 
+  List<String> sortedCities = ['ВСЕ'];
   String selectedCity = 'ВСЕ';
   
-  // Контроллер для скролла вверх при смене фильтра
+  // Приоритет сортировки городов (верхний регистр для унификации)
+  final List<String> priorityCities = ['МОСКВА', 'САНКТ-ПЕТЕРБУРГ'];
+  
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -44,12 +48,36 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
     await ConfigService.ready;
     final data = ConfigService.getEducationInstitutions();
     
-    final uniqueCities = data.map((e) => e.city).toSet().toList()..sort();
+    // 1. Считаем количество для каждого города
+    final counts = <String, int>{};
+    final uniqueCitiesSet = <String>{};
+    
+    for (var item in data) {
+      final city = item.city.toUpperCase(); // Нормализуем регистр
+      counts[city] = (counts[city] ?? 0) + 1;
+      uniqueCitiesSet.add(city);
+    }
+    
+    // 2. Сортируем города: Сначала Приоритетные, потом остальные по алфавиту
+    final otherCities = uniqueCitiesSet.toList()
+      ..removeWhere((c) => priorityCities.contains(c));
+    otherCities.sort(); // Алфавит
+
+    final resultCities = <String>['ВСЕ'];
+    
+    // Добавляем приоритетные, если они реально есть в данных
+    for (var p in priorityCities) {
+      if (uniqueCitiesSet.contains(p)) {
+        resultCities.add(p);
+      }
+    }
+    resultCities.addAll(otherCities);
     
     if (mounted) {
       setState(() {
         allInstitutions = data;
-        cities = ['ВСЕ', ...uniqueCities];
+        cityCounts = counts;
+        sortedCities = resultCities;
         applyFilter();
         isLoading = false;
       });
@@ -60,7 +88,9 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
     if (selectedCity == 'ВСЕ') {
       visibleInstitutions = List.from(allInstitutions);
     } else {
-      visibleInstitutions = allInstitutions.where((e) => e.city == selectedCity).toList();
+      visibleInstitutions = allInstitutions
+          .where((e) => e.city.toUpperCase() == selectedCity)
+          .toList();
     }
   }
 
@@ -69,7 +99,6 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
       selectedCity = city;
       applyFilter();
     });
-    // Скролл вверх при смене фильтра
     if (_scrollController.hasClients) {
       _scrollController.jumpTo(0);
     }
@@ -98,10 +127,10 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: cities.length,
+                    itemCount: sortedCities.length,
                     separatorBuilder: (_, __) => const SizedBox(width: 8),
                     itemBuilder: (context, index) {
-                      return buildCityChip(cities[index]);
+                      return buildCityChip(sortedCities[index]);
                     },
                   ),
                 ),
@@ -110,7 +139,7 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                   child: visibleInstitutions.isEmpty
                       ? Center(child: Text("Ничего не найдено", style: GoogleFonts.manrope(color: Colors.grey)))
                       : ListView.separated(
-                          controller: _scrollController, // Привязали контроллер
+                          controller: _scrollController,
                           padding: const EdgeInsets.all(16),
                           itemCount: visibleInstitutions.length,
                           separatorBuilder: (_, __) => const SizedBox(height: 16),
@@ -126,24 +155,42 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
 
   Widget buildCityChip(String city) {
     final isSelected = selectedCity == city;
-    // Цвета как в Новостях
-    final color = isSelected ? Colors.black : Colors.white;
     final bgColor = isSelected ? const Color(0xFFCCFF00) : const Color(0xFF1A1A1A);
+    final textColor = isSelected ? Colors.black : Colors.white;
+    final countColor = isSelected ? Colors.black.withOpacity(0.6) : Colors.grey;
+
+    // Получаем количество
+    int count = 0;
+    if (city == 'ВСЕ') {
+      count = allInstitutions.length;
+    } else {
+      count = cityCounts[city] ?? 0;
+    }
     
     return InkWell(
       onTap: () => onCityChanged(city),
-      borderRadius: BorderRadius.circular(4), // Квадратные углы (было 20)
+      borderRadius: BorderRadius.circular(4),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(4), // Квадратные углы
+          borderRadius: BorderRadius.circular(4),
           border: Border.all(color: isSelected ? bgColor : const Color(0xFF333333)),
         ),
-        child: Text(
-          city.toUpperCase(),
-          style: GoogleFonts.unbounded(color: color, fontSize: 10, fontWeight: FontWeight.bold),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              city,
+              style: GoogleFonts.unbounded(color: textColor, fontSize: 10, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              count.toString(),
+              style: GoogleFonts.manrope(color: countColor, fontSize: 10, fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
     );
@@ -159,17 +206,15 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Картинка с заглушкой
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
             child: Image.network(
               item.imageUrl,
-              height: 140,
+              height: 240,
               width: double.infinity,
               fit: BoxFit.cover,
-              // Заглушка, если картинка битая
               errorBuilder: (_, __, ___) => Container(
-                height: 140, 
+                height: 240, 
                 color: const Color(0xFF1A1A1A),
                 child: Center(
                   child: Icon(FontAwesomeIcons.graduationCap, color: Colors.grey[800], size: 40)
@@ -214,7 +259,7 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
-                  children: item.programs.take(4).map((prog) { // Берем первые 4
+                  children: item.programs.take(4).map((prog) {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
