@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'feeds_screen.dart'; // В вашем файле тут NewsListWithKeepAlive внутри
 import 'vk_shorts_screen.dart';
 import 'education_list_screen.dart'; // <--- Добавьте этот импорт
+import 'studios_list_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -21,6 +22,7 @@ class _MainScreenState extends State<MainScreen> {
     const NewsListWithKeepAlive(), // <--- ОСТАВИЛ КАК БЫЛО У ВАС
     const VkShortsScreen(),
     const EducationListScreen(),   // <--- ДОБАВИЛ НОВЫЙ ЭКРАН
+    const StudiosListScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -89,6 +91,13 @@ class _MainScreenState extends State<MainScreen> {
                 child: Icon(FontAwesomeIcons.graduationCap, size: 20),
               ),
               label: 'ОБУЧЕНИЕ',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(FontAwesomeIcons.building, size: 20),
+              ),
+              label: 'СТУДИИ',
             ),
           ],
         ),

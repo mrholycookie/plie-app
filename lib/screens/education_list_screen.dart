@@ -278,7 +278,7 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                 
                 SizedBox(
                   width: double.infinity,
-                  child: OutlinedButton.icon(
+                  child: OutlinedButton(
                     onPressed: () async {
                       if (item.siteUrl.isNotEmpty) {
                         try {
@@ -286,13 +286,12 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                         } catch (_) {}
                       }
                     },
-                    icon: const Icon(Icons.public, size: 14, color: Color(0xFFCCFF00)),
-                    label: Text("ПЕРЕЙТИ НА САЙТ", style: GoogleFonts.unbounded(color: Colors.white, fontSize: 11)),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFF333333)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
                     ),
+                    child: Text("САЙТ", style: GoogleFonts.unbounded(color: Colors.white, fontSize: 11)),
                   ),
                 )
               ],
