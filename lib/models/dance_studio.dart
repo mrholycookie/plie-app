@@ -22,6 +22,18 @@ class DanceStudio {
   });
 
   factory DanceStudio.fromJson(Map<String, dynamic> json) {
+    // Парсим address: может быть строкой или массивом строк
+    String? parseAddress(dynamic addressData) {
+      if (addressData == null) return null;
+      if (addressData is String) return addressData.isNotEmpty ? addressData : null;
+      if (addressData is List) {
+        if (addressData.isEmpty) return null;
+        final first = addressData.first?.toString();
+        return first != null && first.isNotEmpty ? first : null;
+      }
+      return null;
+    }
+
     return DanceStudio(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
@@ -30,7 +42,7 @@ class DanceStudio {
       styles: (json['styles'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       imageUrl: json['image'] ?? '',
       siteUrl: json['url'] ?? '',
-      address: json['address'] as String?,
+      address: parseAddress(json['address']),
       coords: json['coords'] != null
           ? (json['coords'] as List<dynamic>).map((e) => (e as num).toDouble()).toList()
           : null,

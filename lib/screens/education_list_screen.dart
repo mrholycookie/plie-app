@@ -141,10 +141,17 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                       : ListView.separated(
                           controller: _scrollController,
                           padding: const EdgeInsets.all(16),
-                          itemCount: visibleInstitutions.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 16),
+                          itemCount: visibleInstitutions.length + 1, // +1 для информационного сообщения
+                          separatorBuilder: (_, index) {
+                            // Первый разделитель больше, чтобы отделить сообщение от карточек
+                            if (index == 0) return const SizedBox(height: 12);
+                            return const SizedBox(height: 16);
+                          },
                           itemBuilder: (context, index) {
-                            return buildEduCard(visibleInstitutions[index]);
+                            if (index == 0) {
+                              return _buildAddEducationBanner();
+                            }
+                            return buildEduCard(visibleInstitutions[index - 1]);
                           },
                         ),
                 ),
@@ -192,6 +199,66 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildAddEducationBanner() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFCCFF00).withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(FontAwesomeIcons.circlePlus, color: const Color(0xFFCCFF00), size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  "ВАШЕ УЧЕБНОЕ ЗАВЕДЕНИЕ НЕ В СПИСКЕ?",
+                  style: GoogleFonts.unbounded(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Напишите нам, и мы добавим ваше учебное заведение в каталог",
+            style: GoogleFonts.manrope(
+              color: Colors.grey[400],
+              fontSize: 11,
+            ),
+          ),
+          const SizedBox(height: 8),
+          InkWell(
+            onTap: () async {
+              try {
+                await launchUrl(
+                  Uri.parse('mailto:apppliehelp@gmail.com?subject=Добавление учебного заведения в каталог'),
+                  mode: LaunchMode.externalApplication,
+                );
+              } catch (_) {}
+            },
+            child: Text(
+              "apppliehelp@gmail.com",
+              style: GoogleFonts.manrope(
+                color: const Color(0xFFCCFF00),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

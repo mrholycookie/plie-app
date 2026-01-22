@@ -1,5 +1,5 @@
 class AppConstants {
-  static const String appVersion = '1.6.9';
+  static const String appVersion = '1.7.3';
   static const String appName = 'PLIÉ';
-  static const String supportEmail = 'dance.journal.app@gmail.com';
+  static const String supportEmail = 'apppliehelp@gmail.com';
 }

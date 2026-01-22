@@ -404,15 +404,82 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
                       : ListView.separated(
                           controller: _scrollController,
                           padding: const EdgeInsets.all(16),
-                          itemCount: visibleStudios.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 16),
+                          itemCount: visibleStudios.length + 1, // +1 для информационного сообщения
+                          separatorBuilder: (_, index) {
+                            // Первый разделитель больше, чтобы отделить сообщение от карточек
+                            if (index == 0) return const SizedBox(height: 12);
+                            return const SizedBox(height: 16);
+                          },
                           itemBuilder: (context, index) {
-                            return buildStudioCard(visibleStudios[index]);
+                            if (index == 0) {
+                              return _buildAddStudioBanner();
+                            }
+                            return buildStudioCard(visibleStudios[index - 1]);
                           },
                         ),
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildAddStudioBanner() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFCCFF00).withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(FontAwesomeIcons.circlePlus, color: const Color(0xFFCCFF00), size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  "ВАША СТУДИЯ НЕ В СПИСКЕ?",
+                  style: GoogleFonts.unbounded(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Напишите нам, и мы добавим вашу студию в каталог",
+            style: GoogleFonts.manrope(
+              color: Colors.grey[400],
+              fontSize: 11,
+            ),
+          ),
+          const SizedBox(height: 8),
+          InkWell(
+            onTap: () async {
+              try {
+                await launchUrl(
+                  Uri.parse('mailto:apppliehelp@gmail.com?subject=Добавление студии в каталог'),
+                  mode: LaunchMode.externalApplication,
+                );
+              } catch (_) {}
+            },
+            child: Text(
+              "apppliehelp@gmail.com",
+              style: GoogleFonts.manrope(
+                color: const Color(0xFFCCFF00),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -431,11 +498,11 @@ class _StudiosListScreenState extends State<StudiosListScreen> with AutomaticKee
             borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
             child: Image.network(
               item.imageUrl,
-              height: 140,
+              height: 240,
               width: double.infinity,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(
-                height: 140, 
+                height: 240, 
                 color: const Color(0xFF1A1A1A),
                 child: Center(
                   child: Icon(FontAwesomeIcons.music, color: Colors.grey[800], size: 40)

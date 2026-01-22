@@ -41,7 +41,7 @@ class InfoScreen extends StatelessWidget {
             
             _buildInfoCard(
               "Обратная связь",
-              "Нашли ошибку или хотите добавить свой ресурс? Напишите нам.",
+              "Нашли ошибку или хотите добавить свой ресурс? Напишите нам.\n\napppliehelp@gmail.com",
             ),
 
             const SizedBox(height: 30),
@@ -51,7 +51,10 @@ class InfoScreen extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-                  launchUrl(Uri.parse('https://t.me/trentlane'), mode: LaunchMode.externalApplication);
+                  launchUrl(
+                    Uri.parse('mailto:apppliehelp@gmail.com?subject=Обратная связь'),
+                    mode: LaunchMode.externalApplication,
+                  );
                 },
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
@@ -64,7 +67,7 @@ class InfoScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const FaIcon(FontAwesomeIcons.telegram, color: Colors.black, size: 20),
+                      const Icon(Icons.email, color: Colors.black, size: 20),
                       const SizedBox(width: 12),
                       Text(
                         "СВЯЗАТЬСЯ С РАЗРАБОТЧИКОМ", 
