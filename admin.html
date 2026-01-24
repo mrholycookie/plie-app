@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админка Dance News - Редактор JSON</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            padding: 10px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .array-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .array-input input {
+            flex: 1;
+        }
+
+        .array-list {
+            margin-top: 10px;
+        }
+
+        .array-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .array-item span {
+            flex: 1;
+        }
+
+        .items-list {
+            margin-top: 30px;
+        }
+
+        .item-card {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .item-card h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .item-card .item-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .item-card .item-info strong {
+            color: #667eea;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .gist-config {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .gist-config h3 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .gist-config input {
+            margin-bottom: 10px;
+        }
+
+        .status-message {
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 Админка Dance News</h1>
+            <p>Редактор JSON конфигурации</p>
+        </div>
+
+        <div class="status-message" id="statusMessage"></div>
+
+        <div class="controls">
+            <div class="file-input-wrapper">
+                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">
+                    📁 Загрузить JSON
+                </button>
+                <input type="file" id="fileInput" accept=".json" style="display: none;">
+            </div>
+            <button class="btn btn-primary" onclick="saveToFile()">
+                💾 Сохранить в файл
+            </button>
+            <button class="btn btn-success" onclick="saveToGist()" id="saveGistBtn" style="display: none;">
+                ☁️ Сохранить в Gist
+            </button>
+            <button class="btn btn-secondary" onclick="exportJSON()">
+                📤 Экспорт JSON
+            </button>
+            <button class="btn btn-danger" onclick="clearAll()">
+                🗑️ Очистить все
+            </button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('studios')">Студии</button>
+            <button class="tab" onclick="switchTab('education')">Образование</button>
+            <button class="tab" onclick="switchTab('events')">События</button>
+            <button class="tab" onclick="switchTab('rss')">RSS</button>
+            <button class="tab" onclick="switchTab('telegram')">Telegram</button>
+            <button class="tab" onclick="switchTab('vk')">VK</button>
+            <button class="tab" onclick="switchTab('gist')">Настройки Gist</button>
+        </div>
+
+        <!-- Студии -->
+        <div id="tab-studios" class="tab-content active">
+            <h2>Добавить студию</h2>
+            <form id="studioForm" onsubmit="addStudio(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ID *</label>
+                        <input type="text" id="studio-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Название *</label>
+                        <input type="text" id="studio-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Город *</label>
+                        <input type="text" id="studio-city" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Метро *</label>
+                        <input type="text" id="studio-metro" required>
+                    </div>
+                    <div class="form-group">
+                        <label>URL изображения *</label>
+                        <input type="url" id="studio-image" required>
+                    </div>
+                    <div class="form-group">
+                        <label>URL сайта *</label>
+                        <input type="url" id="studio-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Адрес</label>
+                        <input type="text" id="studio-address">
+                    </div>
+                    <div class="form-group">
+                        <label>Координаты (lat, lng через запятую)</label>
+                        <input type="text" id="studio-coords" placeholder="55.7558, 37.6173">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Стили танцев (через запятую) *</label>
+                        <input type="text" id="studio-styles" placeholder="Балет, Современный танец" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">➕ Добавить студию</button>
+            </form>
+            <div class="items-list" id="studiosList"></div>
+        </div>
+
+        <!-- Образование -->
+        <div id="tab-education" class="tab-content">
+            <h2>Добавить образовательное учреждение</h2>
+            <form id="educationForm" onsubmit="addEducation(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ID *</label>
+                        <input type="text" id="edu-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Название *</label>
+                        <input type="text" id="edu-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Короткое название *</label>
+                        <input type="text" id="edu-short-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Город *</label>
+                        <input type="text" id="edu-city" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Станции метро (через запятую, можно несколько для сетей) *</label>
+                        <input type="text" id="edu-metro" placeholder="Кропоткинская, Парк культуры" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Тип *</label>
+                        <select id="edu-type" required>
+                            <option value="Академия">Академия</option>
+                            <option value="Институт">Институт</option>
+                            <option value="Колледж">Колледж</option>
+                            <option value="ВУЗ">ВУЗ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>URL изображения *</label>
+                        <input type="url" id="edu-image" required>
+                    </div>
+                    <div class="form-group">
+                        <label>URL сайта *</label>
+                        <input type="url" id="edu-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Координаты (lat, lng через запятую)</label>
+                        <input type="text" id="edu-coords" placeholder="55.7558, 37.6173">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Уровни (через запятую) *</label>
+                        <input type="text" id="edu-level" placeholder="Высшее, Среднее" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Программы (через запятую) *</label>
+                        <input type="text" id="edu-programs" placeholder="Балет, Хореография" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">➕ Добавить учреждение</button>
+            </form>
+            <div class="items-list" id="educationList"></div>
+        </div>
+
+        <!-- События -->
+        <div id="tab-events" class="tab-content">
+            <h2>Добавить событие</h2>
+            <form id="eventForm" onsubmit="addEvent(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ID *</label>
+                        <input type="number" id="event-id" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Название *</label>
+                        <input type="text" id="event-title" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Описание *</label>
+                        <textarea id="event-description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>URL изображения</label>
+                        <input type="url" id="event-image">
+                    </div>
+                    <div class="form-group">
+                        <label>URL сайта *</label>
+                        <input type="url" id="event-site-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Место *</label>
+                        <input type="text" id="event-place" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Город *</label>
+                        <input type="text" id="event-city" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Цена *</label>
+                        <input type="text" id="event-price" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Дата начала (YYYY-MM-DD HH:MM) *</label>
+                        <input type="datetime-local" id="event-start-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Дата окончания (YYYY-MM-DD HH:MM)</label>
+                        <input type="datetime-local" id="event-end-date">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">➕ Добавить событие</button>
+            </form>
+            <div class="items-list" id="eventsList"></div>
+        </div>
+
+        <!-- RSS -->
+        <div id="tab-rss" class="tab-content">
+            <h2>Добавить RSS фид</h2>
+            <form id="rssForm" onsubmit="addRss(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>URL *</label>
+                        <input type="url" id="rss-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Название *</label>
+                        <input type="text" id="rss-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Категория *</label>
+                        <input type="text" id="rss-category" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Включен</label>
+                        <input type="checkbox" id="rss-enabled" checked>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">➕ Добавить RSS</button>
+            </form>
+            <div class="items-list" id="rssList"></div>
+        </div>
+
+        <!-- Telegram -->
+        <div id="tab-telegram" class="tab-content">
+            <h2>Добавить Telegram канал</h2>
+            <form id="telegramForm" onsubmit="addTelegram(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ID канала *</label>
+                        <input type="text" id="telegram-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Название *</label>
+                        <input type="text" id="telegram-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Включен</label>
+                        <input type="checkbox" id="telegram-enabled" checked>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">➕ Добавить канал</button>
+            </form>
+            <div class="items-list" id="telegramList"></div>
+        </div>
+
+        <!-- VK -->
+        <div id="tab-vk" class="tab-content">
+            <h2>Добавить VK группу</h2>
+            <form id="vkForm" onsubmit="addVk(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ID группы *</label>
+                        <input type="text" id="vk-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Название *</label>
+                        <input type="text" id="vk-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Включен</label>
+                        <input type="checkbox" id="vk-enabled" checked>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">➕ Добавить группу</button>
+            </form>
+            <div class="items-list" id="vkList"></div>
+        </div>
+
+        <!-- Настройки Gist -->
+        <div id="tab-gist" class="tab-content">
+            <div class="gist-config">
+                <h3>⚙️ Настройки GitHub Gist</h3>
+                <p>Для автоматического обновления Gist укажите:</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Gist ID</label>
+                        <input type="text" id="gist-id" placeholder="abc123def456...">
+                    </div>
+                    <div class="form-group">
+                        <label>GitHub Token (Personal Access Token)</label>
+                        <input type="password" id="gist-token" placeholder="ghp_...">
+                        <small style="margin-top: 5px; color: #6c757d; display: block;">
+                            <strong>Рекомендуется: Classic Token</strong><br>
+                            Создайте токен: Settings → Developer settings → Personal access tokens → <strong>Tokens (classic)</strong> → Generate new token (classic)<br>
+                            Нужны права: <code>gist</code><br>
+                            <em>Fine-grained tokens тоже поддерживаются, но Classic проще в настройке</em>
+                        </small>
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="saveGistConfig()">💾 Сохранить настройки</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = {
+            studios: [],
+            education: [],
+            events: [],
+            rss: [],
+            rss_world: [],
+            telegram: [],
+            vk: [],
+            vk_clips: []
+        };
+
+        let gistConfig = {
+            id: localStorage.getItem('gist_id') || '',
+            token: localStorage.getItem('gist_token') || ''
+        };
+
+        // Индексы редактируемых записей
+        let editingIndex = {
+            studios: null,
+            education: null,
+            events: null,
+            rss: null,
+            telegram: null,
+            vk: null
+        };
+
+        // Инициализация
+        document.getElementById('fileInput').addEventListener('change', handleFileLoad);
+        if (gistConfig.id && gistConfig.token) {
+            document.getElementById('saveGistBtn').style.display = 'inline-flex';
+        }
+        loadGistConfig();
+        renderAll();
+
+        function switchTab(tabName) {
+            // Сбрасываем режим редактирования при переключении вкладок
+            resetEditingMode();
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function resetEditingMode() {
+            Object.keys(editingIndex).forEach(key => {
+                if (editingIndex[key] !== null) {
+                    editingIndex[key] = null;
+                    const formId = key === 'studios' ? 'studioForm' : 
+                                  key === 'education' ? 'educationForm' :
+                                  key === 'events' ? 'eventForm' :
+                                  key === 'rss' ? 'rssForm' :
+                                  key === 'telegram' ? 'telegramForm' :
+                                  key === 'vk' ? 'vkForm' : null;
+                    if (formId) {
+                        const form = document.getElementById(formId);
+                        if (form) {
+                            form.reset();
+                            const submitBtn = form.querySelector('button[type="submit"]');
+                            if (submitBtn && submitBtn.textContent.includes('Сохранить')) {
+                                // Восстанавливаем оригинальный текст кнопки
+                                const originalTexts = {
+                                    'studioForm': '➕ Добавить студию',
+                                    'educationForm': '➕ Добавить учреждение',
+                                    'eventForm': '➕ Добавить событие',
+                                    'rssForm': '➕ Добавить RSS',
+                                    'telegramForm': '➕ Добавить канал',
+                                    'vkForm': '➕ Добавить группу'
+                                };
+                                submitBtn.textContent = originalTexts[formId] || submitBtn.textContent;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showStatus(message, type = 'success') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message ${type} show`;
+            setTimeout(() => {
+                statusEl.classList.remove('show');
+            }, 3000);
+        }
+
+        // Загрузка JSON
+        function handleFileLoad(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    data = JSON.parse(e.target.result);
+                    renderAll();
+                    showStatus('JSON успешно загружен!');
+                } catch (error) {
+                    showStatus('Ошибка при загрузке JSON: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Студии
+        function addStudio(e) {
+            e.preventDefault();
+            const coords = parseCoords(document.getElementById('studio-coords').value);
+            const studio = {
+                id: document.getElementById('studio-id').value,
+                name: document.getElementById('studio-name').value,
+                city: document.getElementById('studio-city').value,
+                metro: document.getElementById('studio-metro').value,
+                image: document.getElementById('studio-image').value,
+                url: document.getElementById('studio-url').value,
+                address: document.getElementById('studio-address').value || undefined,
+                coords: coords,
+                styles: document.getElementById('studio-styles').value.split(',').map(s => s.trim()).filter(s => s)
+            };
+            
+            if (editingIndex.studios !== null) {
+                // Редактируем существующую запись
+                data.studios[editingIndex.studios] = studio;
+                editingIndex.studios = null;
+                document.getElementById('studioForm').reset();
+                document.getElementById('studioForm').querySelector('button[type="submit"]').textContent = '➕ Добавить студию';
+                renderStudios();
+                showStatus('Студия обновлена!');
+            } else {
+                // Добавляем новую запись
+                data.studios.push(studio);
+                document.getElementById('studioForm').reset();
+                renderStudios();
+                showStatus('Студия добавлена!');
+            }
+        }
+
+        function editStudio(index) {
+            const studio = data.studios[index];
+            document.getElementById('studio-id').value = studio.id || '';
+            document.getElementById('studio-name').value = studio.name || '';
+            document.getElementById('studio-city').value = studio.city || '';
+            document.getElementById('studio-metro').value = Array.isArray(studio.metro) ? studio.metro.join(', ') : (studio.metro || '');
+            document.getElementById('studio-image').value = studio.image || '';
+            document.getElementById('studio-url').value = studio.url || '';
+            document.getElementById('studio-address').value = studio.address || '';
+            document.getElementById('studio-coords').value = studio.coords ? studio.coords.join(', ') : '';
+            document.getElementById('studio-styles').value = Array.isArray(studio.styles) ? studio.styles.join(', ') : (studio.styles || '');
+            
+            editingIndex.studios = index;
+            document.getElementById('studioForm').querySelector('button[type="submit"]').textContent = '💾 Сохранить изменения';
+            document.getElementById('studioForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderStudios() {
+            const list = document.getElementById('studiosList');
+            if (data.studios.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Нет студий. Добавьте первую!</p></div>';
+                return;
+            }
+            list.innerHTML = data.studios.map((studio, index) => {
+                const metroStr = Array.isArray(studio.metro) ? studio.metro.join(', ') : studio.metro;
+                return `
+                <div class="item-card">
+                    <h3>${studio.name}</h3>
+                    <div class="item-info">
+                        <div><strong>ID:</strong> ${studio.id}</div>
+                        <div><strong>Город:</strong> ${studio.city}</div>
+                        <div><strong>Метро:</strong> ${metroStr}</div>
+                        <div><strong>Стили:</strong> ${studio.styles?.join(', ') || ''}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editStudio(${index})">✏️ Редактировать</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteStudio(${index})">🗑️ Удалить</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function deleteStudio(index) {
+            if (confirm('Удалить эту студию?')) {
+                data.studios.splice(index, 1);
+                renderStudios();
+                showStatus('Студия удалена');
+            }
+        }
+
+        // Образование
+        function addEducation(e) {
+            e.preventDefault();
+            const coords = parseCoords(document.getElementById('edu-coords').value);
+            const edu = {
+                id: document.getElementById('edu-id').value,
+                name: document.getElementById('edu-name').value,
+                short_name: document.getElementById('edu-short-name').value,
+                city: document.getElementById('edu-city').value,
+                type: document.getElementById('edu-type').value,
+                metro: document.getElementById('edu-metro').value.split(',').map(s => s.trim()).filter(s => s),
+                image: document.getElementById('edu-image').value,
+                url: document.getElementById('edu-url').value,
+                coords: coords,
+                level: document.getElementById('edu-level').value.split(',').map(s => s.trim()).filter(s => s),
+                programs: document.getElementById('edu-programs').value.split(',').map(s => s.trim()).filter(s => s)
+            };
+            
+            if (editingIndex.education !== null) {
+                // Редактируем существующую запись
+                data.education[editingIndex.education] = edu;
+                editingIndex.education = null;
+                document.getElementById('educationForm').reset();
+                document.getElementById('educationForm').querySelector('button[type="submit"]').textContent = '➕ Добавить учреждение';
+                renderEducation();
+                showStatus('Учреждение обновлено!');
+            } else {
+                // Добавляем новую запись
+                data.education.push(edu);
+                document.getElementById('educationForm').reset();
+                renderEducation();
+                showStatus('Учреждение добавлено!');
+            }
+        }
+
+        function editEducation(index) {
+            const edu = data.education[index];
+            document.getElementById('edu-id').value = edu.id || '';
+            document.getElementById('edu-name').value = edu.name || '';
+            document.getElementById('edu-short-name').value = edu.short_name || '';
+            document.getElementById('edu-city').value = edu.city || '';
+            document.getElementById('edu-type').value = edu.type || 'ВУЗ';
+            document.getElementById('edu-metro').value = Array.isArray(edu.metro) ? edu.metro.join(', ') : '';
+            document.getElementById('edu-image').value = edu.image || '';
+            document.getElementById('edu-url').value = edu.url || '';
+            document.getElementById('edu-coords').value = edu.coords ? edu.coords.join(', ') : '';
+            document.getElementById('edu-level').value = Array.isArray(edu.level) ? edu.level.join(', ') : '';
+            document.getElementById('edu-programs').value = Array.isArray(edu.programs) ? edu.programs.join(', ') : '';
+            
+            editingIndex.education = index;
+            document.getElementById('educationForm').querySelector('button[type="submit"]').textContent = '💾 Сохранить изменения';
+            document.getElementById('educationForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderEducation() {
+            const list = document.getElementById('educationList');
+            if (data.education.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Нет учреждений. Добавьте первое!</p></div>';
+                return;
+            }
+            list.innerHTML = data.education.map((edu, index) => {
+                const metroList = Array.isArray(edu.metro) ? edu.metro.join(', ') : (edu.metro || '');
+                return `
+                <div class="item-card">
+                    <h3>${edu.name}</h3>
+                    <div class="item-info">
+                        <div><strong>ID:</strong> ${edu.id}</div>
+                        <div><strong>Город:</strong> ${edu.city}</div>
+                        <div><strong>Метро:</strong> ${metroList || 'Не указано'}</div>
+                        <div><strong>Тип:</strong> ${edu.type}</div>
+                        <div><strong>Уровни:</strong> ${edu.level?.join(', ') || ''}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editEducation(${index})">✏️ Редактировать</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteEducation(${index})">🗑️ Удалить</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function deleteEducation(index) {
+            if (confirm('Удалить это учреждение?')) {
+                data.education.splice(index, 1);
+                renderEducation();
+                showStatus('Учреждение удалено');
+            }
+        }
+
+        // События
+        function addEvent(e) {
+            e.preventDefault();
+            const startDate = new Date(document.getElementById('event-start-date').value);
+            const endDate = document.getElementById('event-end-date').value 
+                ? new Date(document.getElementById('event-end-date').value)
+                : null;
+
+            const event = {
+                id: parseInt(document.getElementById('event-id').value),
+                title: document.getElementById('event-title').value,
+                description: document.getElementById('event-description').value,
+                site_url: document.getElementById('event-site-url').value,
+                city: document.getElementById('event-city').value,
+                price: document.getElementById('event-price').value,
+                place: {
+                    title: document.getElementById('event-place').value,
+                    address: document.getElementById('event-place').value
+                },
+                images: document.getElementById('event-image').value ? [{
+                    image: document.getElementById('event-image').value
+                }] : [],
+                dates: [{
+                    start: Math.floor(startDate.getTime() / 1000),
+                    start_date: startDate.toISOString().split('T')[0]
+                }]
+            };
+
+            if (endDate) {
+                event.dates.push({
+                    start: Math.floor(endDate.getTime() / 1000),
+                    start_date: endDate.toISOString().split('T')[0]
+                });
+            }
+
+            if (editingIndex.events !== null) {
+                // Редактируем существующую запись
+                data.events[editingIndex.events] = event;
+                editingIndex.events = null;
+                document.getElementById('eventForm').reset();
+                document.getElementById('eventForm').querySelector('button[type="submit"]').textContent = '➕ Добавить событие';
+                renderEvents();
+                showStatus('Событие обновлено!');
+            } else {
+                // Добавляем новую запись
+                data.events.push(event);
+                document.getElementById('eventForm').reset();
+                renderEvents();
+                showStatus('Событие добавлено!');
+            }
+        }
+
+        function editEvent(index) {
+            const event = data.events[index];
+            document.getElementById('event-id').value = event.id || '';
+            document.getElementById('event-title').value = event.title || '';
+            document.getElementById('event-description').value = event.description || '';
+            document.getElementById('event-site-url').value = event.site_url || '';
+            document.getElementById('event-city').value = event.city || '';
+            document.getElementById('event-price').value = event.price || '';
+            document.getElementById('event-place').value = event.place?.title || event.place?.address || '';
+            document.getElementById('event-image').value = event.images?.[0]?.image || '';
+            
+            // Устанавливаем даты
+            if (event.dates && event.dates.length > 0) {
+                const firstDate = new Date(event.dates[0].start * 1000);
+                document.getElementById('event-start-date').value = firstDate.toISOString().slice(0, 16);
+                
+                if (event.dates.length > 1) {
+                    const lastDate = new Date(event.dates[event.dates.length - 1].start * 1000);
+                    document.getElementById('event-end-date').value = lastDate.toISOString().slice(0, 16);
+                }
+            }
+            
+            editingIndex.events = index;
+            document.getElementById('eventForm').querySelector('button[type="submit"]').textContent = '💾 Сохранить изменения';
+            document.getElementById('eventForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderEvents() {
+            const list = document.getElementById('eventsList');
+            if (data.events.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Нет событий. Добавьте первое!</p></div>';
+                return;
+            }
+            list.innerHTML = data.events.map((event, index) => {
+                const date = event.dates?.[0]?.start_date || 'Не указана';
+                return `
+                    <div class="item-card">
+                        <h3>${event.title}</h3>
+                        <div class="item-info">
+                            <div><strong>ID:</strong> ${event.id}</div>
+                            <div><strong>Город:</strong> ${event.city}</div>
+                            <div><strong>Место:</strong> ${event.place?.title || 'Не указано'}</div>
+                            <div><strong>Дата:</strong> ${date}</div>
+                            <div><strong>Цена:</strong> ${event.price}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn btn-primary btn-sm" onclick="editEvent(${index})">✏️ Редактировать</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteEvent(${index})">🗑️ Удалить</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function deleteEvent(index) {
+            if (confirm('Удалить это событие?')) {
+                data.events.splice(index, 1);
+                renderEvents();
+                showStatus('Событие удалено');
+            }
+        }
+
+        // RSS
+        function addRss(e) {
+            e.preventDefault();
+            const rss = {
+                url: document.getElementById('rss-url').value,
+                name: document.getElementById('rss-name').value,
+                category: document.getElementById('rss-category').value,
+                enabled: document.getElementById('rss-enabled').checked
+            };
+            
+            if (editingIndex.rss !== null) {
+                // Редактируем существующую запись
+                data.rss[editingIndex.rss] = rss;
+                editingIndex.rss = null;
+                document.getElementById('rssForm').reset();
+                document.getElementById('rssForm').querySelector('button[type="submit"]').textContent = '➕ Добавить RSS';
+                renderRss();
+                showStatus('RSS фид обновлен!');
+            } else {
+                // Добавляем новую запись
+                data.rss.push(rss);
+                document.getElementById('rssForm').reset();
+                renderRss();
+                showStatus('RSS фид добавлен!');
+            }
+        }
+
+        function editRss(index) {
+            const rss = data.rss[index];
+            document.getElementById('rss-url').value = rss.url || '';
+            document.getElementById('rss-name').value = rss.name || '';
+            document.getElementById('rss-category').value = rss.category || '';
+            document.getElementById('rss-enabled').checked = rss.enabled !== false;
+            
+            editingIndex.rss = index;
+            document.getElementById('rssForm').querySelector('button[type="submit"]').textContent = '💾 Сохранить изменения';
+            document.getElementById('rssForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderRss() {
+            const list = document.getElementById('rssList');
+            if (data.rss.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Нет RSS фидов. Добавьте первый!</p></div>';
+                return;
+            }
+            list.innerHTML = data.rss.map((rss, index) => `
+                <div class="item-card">
+                    <h3>${rss.name}</h3>
+                    <div class="item-info">
+                        <div><strong>URL:</strong> ${rss.url}</div>
+                        <div><strong>Категория:</strong> ${rss.category}</div>
+                        <div><strong>Включен:</strong> ${rss.enabled ? 'Да' : 'Нет'}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editRss(${index})">✏️ Редактировать</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteRss(${index})">🗑️ Удалить</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteRss(index) {
+            if (confirm('Удалить этот RSS фид?')) {
+                data.rss.splice(index, 1);
+                renderRss();
+                showStatus('RSS фид удален');
+            }
+        }
+
+        // Telegram
+        function addTelegram(e) {
+            e.preventDefault();
+            const telegram = {
+                id: document.getElementById('telegram-id').value,
+                name: document.getElementById('telegram-name').value,
+                enabled: document.getElementById('telegram-enabled').checked
+            };
+            
+            if (editingIndex.telegram !== null) {
+                // Редактируем существующую запись
+                data.telegram[editingIndex.telegram] = telegram;
+                editingIndex.telegram = null;
+                document.getElementById('telegramForm').reset();
+                document.getElementById('telegramForm').querySelector('button[type="submit"]').textContent = '➕ Добавить канал';
+                renderTelegram();
+                showStatus('Telegram канал обновлен!');
+            } else {
+                // Добавляем новую запись
+                data.telegram.push(telegram);
+                document.getElementById('telegramForm').reset();
+                renderTelegram();
+                showStatus('Telegram канал добавлен!');
+            }
+        }
+
+        function editTelegram(index) {
+            const telegram = data.telegram[index];
+            document.getElementById('telegram-id').value = telegram.id || '';
+            document.getElementById('telegram-name').value = telegram.name || '';
+            document.getElementById('telegram-enabled').checked = telegram.enabled !== false;
+            
+            editingIndex.telegram = index;
+            document.getElementById('telegramForm').querySelector('button[type="submit"]').textContent = '💾 Сохранить изменения';
+            document.getElementById('telegramForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderTelegram() {
+            const list = document.getElementById('telegramList');
+            if (data.telegram.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Нет каналов. Добавьте первый!</p></div>';
+                return;
+            }
+            list.innerHTML = data.telegram.map((tg, index) => `
+                <div class="item-card">
+                    <h3>${tg.name}</h3>
+                    <div class="item-info">
+                        <div><strong>ID:</strong> ${tg.id}</div>
+                        <div><strong>Включен:</strong> ${tg.enabled ? 'Да' : 'Нет'}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editTelegram(${index})">✏️ Редактировать</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteTelegram(${index})">🗑️ Удалить</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteTelegram(index) {
+            if (confirm('Удалить этот канал?')) {
+                data.telegram.splice(index, 1);
+                renderTelegram();
+                showStatus('Канал удален');
+            }
+        }
+
+        // VK
+        function addVk(e) {
+            e.preventDefault();
+            const vk = {
+                id: document.getElementById('vk-id').value,
+                name: document.getElementById('vk-name').value,
+                enabled: document.getElementById('vk-enabled').checked
+            };
+            
+            if (editingIndex.vk !== null) {
+                // Редактируем существующую запись
+                data.vk[editingIndex.vk] = vk;
+                editingIndex.vk = null;
+                document.getElementById('vkForm').reset();
+                document.getElementById('vkForm').querySelector('button[type="submit"]').textContent = '➕ Добавить группу';
+                renderVk();
+                showStatus('VK группа обновлена!');
+            } else {
+                // Добавляем новую запись
+                data.vk.push(vk);
+                document.getElementById('vkForm').reset();
+                renderVk();
+                showStatus('VK группа добавлена!');
+            }
+        }
+
+        function editVk(index) {
+            const vk = data.vk[index];
+            document.getElementById('vk-id').value = vk.id || '';
+            document.getElementById('vk-name').value = vk.name || '';
+            document.getElementById('vk-enabled').checked = vk.enabled !== false;
+            
+            editingIndex.vk = index;
+            document.getElementById('vkForm').querySelector('button[type="submit"]').textContent = '💾 Сохранить изменения';
+            document.getElementById('vkForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderVk() {
+            const list = document.getElementById('vkList');
+            if (data.vk.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Нет групп. Добавьте первую!</p></div>';
+                return;
+            }
+            list.innerHTML = data.vk.map((vk, index) => `
+                <div class="item-card">
+                    <h3>${vk.name}</h3>
+                    <div class="item-info">
+                        <div><strong>ID:</strong> ${vk.id}</div>
+                        <div><strong>Включен:</strong> ${vk.enabled ? 'Да' : 'Нет'}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editVk(${index})">✏️ Редактировать</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteVk(${index})">🗑️ Удалить</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteVk(index) {
+            if (confirm('Удалить эту группу?')) {
+                data.vk.splice(index, 1);
+                renderVk();
+                showStatus('Группа удалена');
+            }
+        }
+
+        // Утилиты
+        function parseCoords(str) {
+            if (!str || !str.trim()) return undefined;
+            const parts = str.split(',').map(s => parseFloat(s.trim()));
+            if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                return parts;
+            }
+            return undefined;
+        }
+
+        function renderAll() {
+            renderStudios();
+            renderEducation();
+            renderEvents();
+            renderRss();
+            renderTelegram();
+            renderVk();
+        }
+
+        // Сохранение
+        function saveToFile() {
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'config.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus('Файл сохранен!');
+        }
+
+        function exportJSON() {
+            const json = JSON.stringify(data, null, 2);
+            const textarea = document.createElement('textarea');
+            textarea.value = json;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showStatus('JSON скопирован в буфер обмена!');
+        }
+
+        async function saveToGist() {
+            if (!gistConfig.id || !gistConfig.token) {
+                showStatus('Сначала настройте Gist в разделе "Настройки Gist"', 'error');
+                return;
+            }
+
+            try {
+                const json = JSON.stringify(data, null, 2);
+                // Определяем тип токена: fine-grained начинается с ghp_, classic может начинаться с ghp_ или gho_
+                // Для совместимости пробуем оба формата
+                const token = gistConfig.token.trim();
+                const authHeader = token.startsWith('ghp_') || token.startsWith('gho_') 
+                    ? `token ${token}`  // Classic token
+                    : `Bearer ${token}`; // Fine-grained token (на случай если используется)
+                
+                const response = await fetch(`https://api.github.com/gists/${gistConfig.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': authHeader,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json',
+                        'X-GitHub-Api-Version': '2022-11-28'
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            'config.json': {
+                                content: json
+                            }
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    showStatus('✅ Gist успешно обновлен!');
+                } else {
+                    const error = await response.json();
+                    showStatus('Ошибка при обновлении Gist: ' + (error.message || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (error) {
+                showStatus('Ошибка: ' + error.message, 'error');
+            }
+        }
+
+        function saveGistConfig() {
+            gistConfig.id = document.getElementById('gist-id').value;
+            gistConfig.token = document.getElementById('gist-token').value;
+            localStorage.setItem('gist_id', gistConfig.id);
+            localStorage.setItem('gist_token', gistConfig.token);
+            if (gistConfig.id && gistConfig.token) {
+                document.getElementById('saveGistBtn').style.display = 'inline-flex';
+            }
+            showStatus('Настройки Gist сохранены!');
+        }
+
+        function loadGistConfig() {
+            document.getElementById('gist-id').value = gistConfig.id;
+            document.getElementById('gist-token').value = gistConfig.token;
+        }
+
+        function clearAll() {
+            if (confirm('⚠️ ВНИМАНИЕ! Это удалит все данные. Продолжить?')) {
+                data = {
+                    studios: [],
+                    education: [],
+                    events: [],
+                    rss: [],
+                    rss_world: [],
+                    telegram: [],
+                    vk: [],
+                    vk_clips: []
+                };
+                renderAll();
+                showStatus('Все данные очищены');
+            }
+        }
+    </script>
+</body>
+</html>

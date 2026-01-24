@@ -245,6 +245,19 @@ class _EducationListScreenState extends State<EducationListScreen> with Automati
                       ),
                     ),
                     const SizedBox(width: 8),
+                    if (item.metro.isNotEmpty) ...[
+                      Icon(
+                        FontAwesomeIcons.locationDot,
+                        size: 10,
+                        color: const Color(0xFFCCFF00),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        item.metro.join(', '),
+                        style: GoogleFonts.manrope(color: const Color(0xFFCCFF00), fontSize: 11, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     Text(
                       item.city,
                       style: GoogleFonts.manrope(color: Colors.grey, fontSize: 12),

@@ -7,7 +7,7 @@ import 'feeds_screen.dart';
 import 'vk_shorts_screen.dart';
 import 'education_list_screen.dart';
 import 'studios_list_screen.dart';
-import 'events_screen.dart';
+// import 'events_screen.dart'; // Временно скрыто до версии 1.7.7+25
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -24,7 +24,7 @@ class _MainScreenState extends State<MainScreen> {
     const VkShortsScreen(),
     const EducationListScreen(),
     const StudiosListScreen(),
-    const EventsScreen(),
+    // const EventsScreen(), // Временно скрыто до версии 1.7.7+25
   ];
 
   void _onItemTapped(int index) {
@@ -97,13 +97,13 @@ class _MainScreenState extends State<MainScreen> {
               ),
               label: 'СТУДИИ',
             ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Icon(FontAwesomeIcons.calendarDays, size: 20),
-              ),
-              label: 'АФИША',
-            ),
+            // BottomNavigationBarItem( // Временно скрыто до версии 1.7.7+25
+            //   icon: Padding(
+            //     padding: EdgeInsets.only(bottom: 4),
+            //     child: Icon(FontAwesomeIcons.calendarDays, size: 20),
+            //   ),
+            //   label: 'АФИША',
+            // ),
           ],
         ),
       ),
