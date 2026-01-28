@@ -4,7 +4,7 @@ class EducationInstitution {
   final String shortName;
   final String city;
   final String type; // 'Академия', 'Институт', 'Колледж'
-  final List<String> metro; // Список станций метро (может быть несколько для сетей)
+  final String metro; // Станция метро
   final List<String> level; // 'Высшее', 'Среднее'
   final List<String> programs; // Направления
   final String imageUrl;
@@ -26,16 +26,16 @@ class EducationInstitution {
   });
 
   factory EducationInstitution.fromJson(Map<String, dynamic> json) {
-    // Парсим metro: может быть строкой, массивом строк, или отсутствовать
-    List<String> parseMetro(dynamic metroData) {
-      if (metroData == null) return [];
+    // Парсим metro: может быть строкой, массивом строк (берем первую), или отсутствовать
+    String parseMetro(dynamic metroData) {
+      if (metroData == null) return '';
       if (metroData is String) {
-        return metroData.isNotEmpty ? [metroData] : [];
+        return metroData.trim();
       }
-      if (metroData is List) {
-        return metroData.map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
+      if (metroData is List && metroData.isNotEmpty) {
+        return metroData.first?.toString().trim() ?? '';
       }
-      return [];
+      return '';
     }
 
     return EducationInstitution(

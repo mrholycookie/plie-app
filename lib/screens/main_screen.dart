@@ -5,8 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'feeds_screen.dart';
 import 'vk_shorts_screen.dart';
-import 'education_list_screen.dart';
-import 'studios_list_screen.dart';
+import 'studios_education_screen.dart';
 // import 'events_screen.dart'; // Временно скрыто до версии 1.7.7+25
 
 class MainScreen extends StatefulWidget {
@@ -22,8 +21,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _widgetOptions = <Widget>[
     const NewsListWithKeepAlive(),
     const VkShortsScreen(),
-    const EducationListScreen(),
-    const StudiosListScreen(),
+    const StudiosEducationScreen(),
     // const EventsScreen(), // Временно скрыто до версии 1.7.7+25
   ];
 
@@ -86,16 +84,9 @@ class _MainScreenState extends State<MainScreen> {
             BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.only(bottom: 4),
-                child: Icon(FontAwesomeIcons.graduationCap, size: 20),
-              ),
-              label: 'ОБУЧЕНИЕ',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
                 child: Icon(FontAwesomeIcons.building, size: 20),
               ),
-              label: 'СТУДИИ',
+              label: 'ОБУЧЕНИЕ',
             ),
             // BottomNavigationBarItem( // Временно скрыто до версии 1.7.7+25
             //   icon: Padding(

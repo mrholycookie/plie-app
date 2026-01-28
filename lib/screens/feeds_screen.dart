@@ -316,23 +316,33 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                            decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(2)),
-                            child: Text(getSourceShort(article), style: GoogleFonts.manrope(color: Colors.black, fontSize: 8, fontWeight: FontWeight.w800)),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: badgeColor.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            child: Text(
+                              getSourceShort(article),
+                              style: GoogleFonts.manrope(
+                                color: Colors.black,
+                                fontSize: 8,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ),
                           if (_isNewArticle(article)) ...[
                             const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFCCFF00),
-                                borderRadius: BorderRadius.circular(2),
+                                borderRadius: BorderRadius.circular(3),
                               ),
                               child: Text(
                                 'НОВОЕ',
                                 style: GoogleFonts.manrope(
                                   color: Colors.black,
-                                  fontSize: 7,
+                                  fontSize: 8,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),

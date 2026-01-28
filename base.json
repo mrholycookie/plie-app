@@ -1,5 +1,1128 @@
 {
   "version": 1,
+  "studios": [
+    {
+      "id": "todes_msk_zil",
+      "name": "TODES «Зиларт»",
+      "city": "Москва",
+      "metro": "Зил",
+      "image": "https://avatars.mds.yandex.net/get-altay/14456919/2a00000194c6f7d4b4eadc83defd5c0cc699/XXL_height",
+      "url": "https://todes.ru",
+      "address": [
+        "Москва, б-р Братьев Весниных, д. 2"
+      ],
+      "coords": [
+        55.729606,
+        37.637775
+      ],
+      "styles": [
+        "Modern",
+        "Hip-Hop",
+        "Contemporary",
+        "Детские группы"
+      ]
+    },
+    {
+      "id": "pro_tancy_msk",
+      "name": "PRO ТАНЦЫ",
+      "city": "Москва",
+      "metro": "Тверская",
+      "styles": [
+        "Vogue",
+        "Dancehall",
+        "Jazz-Funk",
+        "High Heels"
+      ],
+      "address": [
+        "Саввинская наб., 12, стр. 8, Москва"
+      ],
+      "image": "https://avatars.mds.yandex.net/get-altay/13078542/2a000001908021924ee3014ac0f88c4fb178/L_height",
+      "url": "https://tancy.pro/",
+      "coords": [
+        55.760241,
+        37.613945
+      ]
+    },
+    {
+      "id": "model_357_msk",
+      "name": "Model-357",
+      "city": "Москва",
+      "metro": "Белорусская",
+      "styles": [
+        "Hip-Hop",
+        "Jazz-Funk",
+        "High Heels",
+        "Contemporary",
+        "Vogue",
+        "Dancehall"
+      ],
+      "address": [
+        "Москва, ул. Правды, д. 24, стр. 7"
+      ],
+      "image": "https://images.unsplash.com/photo-1545959795-35633527027a?q=80&w=1000",
+      "url": "https://model-357.ru/",
+      "coords": [
+        55.7865,
+        37.5842
+      ]
+    },
+    {
+      "id": "9_zaloov_msk",
+      "name": "9 ZALOOV",
+      "city": "Москва",
+      "metro": "Чистые пруды",
+      "styles": [
+        "Contemporary",
+        "Hip-Hop",
+        "Dancehall",
+        "Jazz-Funk",
+        "Stretching",
+        "Afro"
+      ],
+      "address": [
+        "Москва, ул. Мясницкая, д. 15"
+      ],
+      "image": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=1000",
+      "url": "https://9zalov.ru/",
+      "coords": [
+        55.7644,
+        37.6361
+      ]
+    },
+    {
+      "id": "mdc_nrg_msk",
+      "name": "MDC NRG",
+      "city": "Москва",
+      "metro": "Новокузнецкая",
+      "styles": [
+        "Hip-Hop",
+        "Jazz-Funk",
+        "K-Pop",
+        "High Heels",
+        "Dancehall",
+        "Twerk"
+      ],
+      "address": [
+        "Москва, ул. Пятницкая, д. 6/1 стр. 8"
+      ],
+      "image": "https://images.unsplash.com/photo-1518834107812-67b0b7c58434?q=80&w=1000",
+      "url": "https://nrg-style.ru/",
+      "coords": [
+        55.7441,
+        37.6273
+      ]
+    },
+    {
+      "id": "mainstream_msk",
+      "name": "MainStream",
+      "city": "Москва",
+      "metro": "Электрозаводская",
+      "styles": [
+        "Hip-Hop",
+        "House",
+        "Krump",
+        "Locking",
+        "Popping",
+        "Breaking"
+      ],
+      "address": [
+        "Москва, ул. Малая Семеновская, д. 5, стр. 1"
+      ],
+      "image": "https://images.unsplash.com/photo-1552569263-1250325b5978?q=80&w=1000",
+      "url": "https://msdance.ru/",
+      "coords": [
+        55.7872,
+        37.7065
+      ]
+    },
+    {
+      "id": "ivara_msk",
+      "name": "Ivara",
+      "city": "Москва",
+      "metro": "Белорусская",
+      "styles": [
+        "Hustle",
+        "Bachata",
+        "West Coast Swing",
+        "Zouk",
+        "Salsa"
+      ],
+      "address": [
+        "Москва, 3-я улица Ямского поля, д. 24, 4 этаж"
+      ],
+      "image": "https://images.unsplash.com/photo-1533174072545-e8d4aa97d848?q=80&w=1000",
+      "url": "https://ivara.ru/",
+      "coords": [
+        55.7834,
+        37.5812
+      ]
+    },
+    {
+      "id": "kannondance_spb",
+      "name": "KannonDance",
+      "city": "Санкт-Петербург",
+      "metro": "Невский проспект",
+      "styles": [
+        "Contemporary",
+        "Импровизация",
+        "Детские группы"
+      ],
+      "address": [
+        "Санкт-Петербуг, Казанская ул. 7В, этаж 3, офис 316"
+      ],
+      "image": "https://optim.tildacdn.com/tild6164-3837-4366-b461-636430313039/-/format/webp/noroot.png.webp",
+      "url": "https://kannondance.ru/",
+      "coords": [
+        59.9332,
+        30.3235
+      ]
+    },
+    {
+      "id": "s17_spb",
+      "name": "S17",
+      "city": "Санкт-Петербург",
+      "metro": "Невский проспект",
+      "styles": [
+        "Contemporary",
+        "HIGH HEELS",
+        "Hip-hop",
+        "Reggaeton",
+        "Twerk",
+        "Jumping",
+        "DanceHall",
+        "Waacking",
+        "STRIP",
+        "Femme Choreo",
+        "Dancemix",
+        "JAZZ-FUNK",
+        "Popping",
+        "Vogue",
+        "Afro",
+        "Классический танец"
+      ],
+      "address": [
+        "Санкт-Петербуг, Конюшенная площадь, 2В (м. Невский проспект)"
+      ],
+      "image": "https://static.tildacdn.com/tild3737-6238-4331-b162-373030626339/DSC_4088.jpg",
+      "url": "https://kannondance.ru/",
+      "coords": [
+        59.9405,
+        30.3278
+      ]
+    },
+    {
+      "id": "25point5_spb",
+      "name": "25.5",
+      "city": "Санкт-Петербург",
+      "metro": "Садовая",
+      "styles": [
+        "Contemporary",
+        "HIGH HEELS",
+        "Hip-hop",
+        "Sals",
+        "Twerk",
+        "Jumping",
+        "DanceHall",
+        "Waacking",
+        "STRIP",
+        "Femme Choreo",
+        "Dancemix",
+        "JAZZ-FUNK",
+        "Popping",
+        "Vogue",
+        "Классический танец"
+      ],
+      "address": [
+        "Садовая 28-30, к. 33, 4 этаж"
+      ],
+      "image": "https://25point5.ru/wp-content/uploads/2025/09/hip-hop.jpg",
+      "url": "https://kannondance.ru/",
+      "coords": [
+        59.9315,
+        30.3255
+      ]
+    },
+    {
+      "id": "context_spb",
+      "name": "CONTEXT",
+      "city": "Санкт-Петербург",
+      "metro": "Адмиралтейская",
+      "styles": [
+        "Классический танец",
+        "Балет",
+        "Детские группы"
+      ],
+      "address": [
+        "Наб. Адмиралтейского канала д.2, здание Бутылка, 3 этаж"
+      ],
+      "image": "https://optim.tildacdn.com/tild6361-6638-4133-b163-643936343666/-/format/webp/vert3.webp",
+      "url": "https://kannondance.ru/",
+      "coords": [
+        59.9298,
+        30.2875
+      ]
+    },
+    {
+      "id": "vamp_spb",
+      "name": "Vamp Dance Studio",
+      "city": "Санкт-Петербург",
+      "metro": "Петроградская",
+      "styles": [
+        "Strip",
+        "High Heels",
+        "Jazz-Funk",
+        "Girly Hip-Hop",
+        "Stretching"
+      ],
+      "address": [
+        "Санкт-Петербург, ул. Газовая, д. 10Н"
+      ],
+      "image": "https://images.unsplash.com/photo-1621976498727-9e5926639c2c?q=80&w=1000",
+      "url": "https://vampdance.ru/",
+      "coords": [
+        59.9692,
+        30.2945
+      ]
+    },
+    {
+      "id": "idc_spb",
+      "name": "IDC (International Dance Center)",
+      "city": "Санкт-Петербург",
+      "metro": "Петроградская",
+      "styles": [
+        "Contemporary",
+        "Hip-Hop",
+        "Jazz-Funk",
+        "Vogue",
+        "Improvisation"
+      ],
+      "address": [
+        "Санкт-Петербург, Каменноостровский пр-т, 42"
+      ],
+      "image": "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?q=80&w=1000",
+      "url": "https://idcdance.ru/",
+      "coords": [
+        59.9675,
+        30.3112
+      ]
+    },
+    {
+      "id": "escabo_spb",
+      "name": "ESCABO Stage",
+      "city": "Санкт-Петербург",
+      "metro": "Чкаловская",
+      "styles": [
+        "Contemporary",
+        "Performance",
+        "Improvisation",
+        "Physical Theatre"
+      ],
+      "address": [
+        "Санкт-Петербург, Пионерская ул., д. 50"
+      ],
+      "image": "https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1?q=80&w=1000",
+      "url": "https://vk.com/escabo",
+      "coords": [
+        59.9615,
+        30.2838
+      ]
+    },
+    {
+      "id": "galladance_spb",
+      "name": "GallaDance (Krestovsky)",
+      "city": "Санкт-Петербург",
+      "metro": "Крестовский остров",
+      "styles": [
+        "Ballroom",
+        "Latin",
+        "Arg. Tango",
+        "Caribbean Mix",
+        "Pro-Am"
+      ],
+      "address": [
+        "Санкт-Петербург, ул. Кемская, д. 1"
+      ],
+      "image": "https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=1000",
+      "url": "https://www.galladance.com/",
+      "coords": [
+        59.9722,
+        30.2605
+      ]
+    },
+    {
+      "id": "diva_spb",
+      "name": "Diva",
+      "city": "Санкт-Петербург",
+      "metro": "Пионерская",
+      "styles": [
+        "Pole Dance",
+        "Strip",
+        "Aerial Silk",
+        "Stretching",
+        "Exotic"
+      ],
+      "address": [
+        "Санкт-Петербург, Светлановский пр., д. 1"
+      ],
+      "image": "https://images.unsplash.com/photo-1595181234128-26e6802613e5?q=80&w=1000",
+      "url": "https://divastudio.ru/",
+      "coords": [
+        60.0028,
+        30.3232
+      ]
+    },
+    {
+      "id": "fraules_nsk",
+      "name": "Fraules Dance Centre",
+      "city": "Новосибирск",
+      "metro": "Берёзовая роща",
+      "styles": [
+        "Dancehall",
+        "Twerk",
+        "Vogue",
+        "Hip-Hop",
+        "High Heels"
+      ],
+      "address": [
+        "Новосибирск, ул. Гоголя, 204г"
+      ],
+      "image": "https://images.unsplash.com/photo-1535525153412-5a42439a210d?q=80&w=1000",
+      "url": "https://fraulesdc.ru/",
+      "coords": [
+        55.0461,
+        82.9636
+      ]
+    },
+    {
+      "id": "shake_it_nsk",
+      "name": "Shake It",
+      "city": "Новосибирск",
+      "metro": "Заельцовская",
+      "styles": [
+        "High Heels",
+        "Strip",
+        "Contemporary",
+        "K-Pop",
+        "Jazz-Funk"
+      ],
+      "address": [
+        "Новосибирск, Красный проспект, 220 к10"
+      ],
+      "image": "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?q=80&w=1000",
+      "url": "https://shake-it.su/",
+      "coords": [
+        55.0592,
+        82.9125
+      ]
+    },
+    {
+      "id": "prostranstvo_nsk",
+      "name": "PROSTRANSTVO",
+      "city": "Новосибирск",
+      "metro": "Октябрьская",
+      "styles": [
+        "Contemporary",
+        "Experimental",
+        "Improvisation",
+        "Hip-Hop"
+      ],
+      "address": [
+        "Новосибирск, ул. Сибревкома, 7/1"
+      ],
+      "image": "https://images.unsplash.com/photo-1550026593-f32b8537b0d5?q=80&w=1000",
+      "url": "https://vk.com/d_a_space",
+      "coords": [
+        55.0235,
+        82.9348
+      ]
+    },
+    {
+      "id": "maxdance_ekb",
+      "name": "MaxDance",
+      "city": "Екатеринбург",
+      "metro": "Геологическая",
+      "styles": [
+        "Bachata",
+        "Salsa",
+        "Kizomba",
+        "Zouk",
+        "Solo Latina"
+      ],
+      "address": [
+        "Екатеринбург, ул. 8 Марта, 8Д, ТЦ Мытный двор"
+      ],
+      "image": "https://images.unsplash.com/photo-1516651029879-199bb638686d?q=80&w=1000",
+      "url": "https://max-dance.ru/",
+      "coords": [
+        56.8385,
+        60.5978
+      ]
+    },
+    {
+      "id": "promodance_ekb",
+      "name": "Promodance",
+      "city": "Екатеринбург",
+      "metro": "Площадь 1905 года",
+      "styles": [
+        "Vogue",
+        "High Heels",
+        "Hip-Hop",
+        "Dancehall",
+        "Jazz-Funk"
+      ],
+      "address": [
+        "Екатеринбург, ул. Карла Либкнехта, 22"
+      ],
+      "image": "https://images.unsplash.com/photo-1533174072545-e8d4aa97d848?q=80&w=1000",
+      "url": "https://www.promo-dance.com/",
+      "coords": [
+        56.8432,
+        60.6065
+      ]
+    },
+    {
+      "id": "2dance_ekb",
+      "name": "2Dance",
+      "city": "Екатеринбург",
+      "metro": "Динамо",
+      "styles": [
+        "Salsa",
+        "Bachata",
+        "Tango",
+        "Swing",
+        "Reggaeton"
+      ],
+      "address": [
+        "Екатеринбург, ул. Тургенева, 13"
+      ],
+      "image": "https://images.unsplash.com/photo-1546427660-eb346c344ca5?q=80&w=1000",
+      "url": "https://2dance-academy.ru/",
+      "coords": [
+        56.8405,
+        60.6152
+      ]
+    },
+    {
+      "id": "kingstep_kzn",
+      "name": "KingStep",
+      "city": "Казань",
+      "metro": "Площадь Тукая",
+      "styles": [
+        "Hip-Hop",
+        "Choreo",
+        "Experimental",
+        "Jazz-Funk"
+      ],
+      "address": [
+        "Казань, ул. Островского, 84"
+      ],
+      "image": "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?q=80&w=1000",
+      "url": "https://kingstepkazan.ru/",
+      "coords": [
+        55.7765,
+        49.1352
+      ]
+    },
+    {
+      "id": "chikibro_kzn",
+      "name": "Chikibro",
+      "city": "Казань",
+      "metro": "Площадь Тукая",
+      "styles": [
+        "Hip-Hop",
+        "Break Dance",
+        "K-Pop",
+        "House",
+        "All Styles"
+      ],
+      "address": [
+        "Казань, ул. Баумана, 25"
+      ],
+      "image": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?q=80&w=1000",
+      "url": "https://chikibro.com/",
+      "coords": [
+        55.7925,
+        49.1118
+      ]
+    },
+    {
+      "id": "todes_kzn",
+      "name": "TODES (Казань)",
+      "city": "Казань",
+      "metro": "Козья слобода",
+      "styles": [
+        "Modern",
+        "Hip-Hop",
+        "Contemporary",
+        "Детские группы"
+      ],
+      "address": [
+        "Казань, пр. Ямашева, 100А"
+      ],
+      "image": "https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=1000",
+      "url": "https://school.todes.ru/schools/studios/KZN/YAMASHEVA",
+      "coords": [
+        55.8265,
+        49.1362
+      ]
+    },
+    {
+      "id": "dvizh_spb",
+      "name": "Движ",
+      "city": "Санкт-Петербург",
+      "metro": "Фрунзенская",
+      "image": "https://sun9-81.userapi.com/s/v1/ig2/kNkSRc9ASIn8zbka2C2s99Oqh_d4wzS0_g-UnC5LSfbdO-ET9H0KaF6rVAdOfP8voVqTQpB9_sCiBUzusFl6i_ry.jpg?quality=96&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1000x1000&from=bu&cs=1000x0",
+      "url": "https://dvizhschool.ru/",
+      "address": [
+        "Киевская ул., 3, корп. 1Б"
+      ],
+      "coords": [
+        59.90261,
+        30.322319
+      ],
+      "yandex_map_url": "https://yandex.ru/maps/-/CLxEQO9e",
+      "styles": [
+        "High Heels",
+        "Растяжка",
+        "Детские группы"
+      ]
+    },
+    {
+      "id": "bs2l_spb",
+      "name": "Балет с 2 лет",
+      "city": "Санкт-Петербург",
+      "metro": "Фрунзенская",
+      "image": "https://balet.spb.ru/wp-content/uploads/2024/10/slide1.png",
+      "url": "https://balet.spb.ru/",
+      "address": [
+        "Московский просп., 73, корп. 5"
+      ],
+      "coords": [
+        59.904177,
+        30.312315
+      ],
+      "yandex_map_url": "https://yandex.ru/maps/-/CLxEbF36",
+      "styles": [
+        "Классический танец",
+        "Растяжка",
+        "Детские группы"
+      ]
+    },
+    {
+      "id": "Polefavor_spb",
+      "name": "Polefavor",
+      "city": "Санкт-Петербург",
+      "metro": "Электросила",
+      "image": "https://optim.tildacdn.com/tild6466-3931-4137-b538-623934313361/-/format/webp/stretching.jpg.webp",
+      "url": "https://polefavor.ru/",
+      "address": [
+        "Сызранская ул., 16"
+      ],
+      "coords": [
+        59.877413,
+        30.335827
+      ],
+      "yandex_map_url": "https://yandex.ru/maps/-/CLxEfVIT",
+      "styles": [
+        "Pole dance",
+        "Растяжка"
+      ]
+    },
+    {
+      "id": "artdancespb_spb",
+      "name": "ArtDanceSPb",
+      "city": "Санкт-Петербург",
+      "metro": "Московские ворота",
+      "image": "https://artdancespb.ru/wp-content/uploads/2023/08/img_5343.jpg",
+      "url": "https://artdancespb.ru/",
+      "address": [
+        "Цветочная ул., 6Д"
+      ],
+      "coords": [
+        59.892574,
+        30.330171
+      ],
+      "yandex_map_url": "https://yandex.ru/maps/-/CLxEjCIh",
+      "styles": [
+        "Бальные танцы",
+        "Детские группы"
+      ]
+    },
+    {
+      "id": "wedancestudio_spb",
+      "name": "We Dance Studio",
+      "city": "Санкт-Петерубрг",
+      "metro": "Москвоская",
+      "image": "https://wedancestudio.ru/wp-content/uploads/2025/01/jazzfunk.jpg",
+      "url": "https://wedancestudio.ru/",
+      "address": [
+        "Московский просп., 183-185Ак2"
+      ],
+      "coords": [
+        59.855489,
+        30.316434
+      ],
+      "yandex_map_url": "https://yandex.ru/maps/-/CLxEnRpW",
+      "styles": [
+        "Hip-Hop",
+        "Girly Choreo",
+        "Dancehall",
+        "Арабские танцы",
+        "High Heels",
+        "Jazz Funk",
+        "Solo Latina",
+        "Растяжка",
+        "Stretching"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": "mgah",
+      "name": "Московская государственная академия хореографии",
+      "short_name": "МГАХ",
+      "city": "Москва",
+      "type": "Академия",
+      "level": [
+        "Среднее профессиональное",
+        "Высшее",
+        "Доп. образование"
+      ],
+      "programs": [
+        "Артист балета",
+        "Педагогика балета",
+        "Хореографическое искусство"
+      ],
+      "image": "https://www.culture.ru/_next/image?url=https%3A%2F%2Fcdn.culture.ru%2Fimages%2F792f2431-7689-59af-a136-a15cd2abab57%2Fw_884%2Ch_442%2Cc_fill%2Cg_center%2Ffea8219becc077c7ce3107b92b2c6c6d-jpg.webp&w=1920&q=75",
+      "url": "https://balletacademy.ru/",
+      "coords": [
+        55.736467,
+        37.587874
+      ]
+    },
+    {
+      "id": "vaganova",
+      "name": "Академия Русского балета имени А.Я. Вагановой",
+      "short_name": "АРБ им. Вагановой",
+      "city": "Санкт-Петербург",
+      "type": "Академия",
+      "level": [
+        "Среднее профессиональное",
+        "Высшее"
+      ],
+      "programs": [
+        "Артист балета",
+        "Педагогика балета",
+        "Менеджмент в хореографии"
+      ],
+      "image": "https://sun9-65.userapi.com/s/v1/ig1/jmtXeEmCGxOKuDc351nmxCePROn4S35uNxXkjC7MzlJDPEKNPhkGwyhbauWMV7UNKbSLcPN3.jpg?quality=96&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,680x680&from=bu&cs=680x0",
+      "url": "https://vaganovaacademy.ru/",
+      "coords": [
+        59.931792,
+        30.332305
+      ]
+    },
+    {
+      "id": "gitis",
+      "name": "Российский институт театрального искусства",
+      "short_name": "ГИТИС",
+      "city": "Москва",
+      "type": "Институт",
+      "level": [
+        "Высшее"
+      ],
+      "programs": [
+        "Искусство балетмейстера",
+        "Педагогика балета"
+      ],
+      "image": "https://gitis.net/upload/images_def/background.jpg",
+      "url": "https://gitis.net/",
+      "coords": [
+        55.752367,
+        37.602517
+      ]
+    },
+    {
+      "id": "mgik",
+      "name": "Московский государственный институт культуры",
+      "short_name": "МГИК",
+      "city": "Москва",
+      "type": "Институт",
+      "level": [
+        "Высшее"
+      ],
+      "programs": [
+        "Руководство хореографическим коллективом",
+        "Современный танец",
+        "Народный танец"
+      ],
+      "image": "https://sun9-60.userapi.com/s/v1/ig2/tPJxU17KvevT70mRgsqiSmcniHKeOp6HMreZkX9xV8n84LMBQ8VhF9bgKUedzgr1ZlMDcNafdjs3msYpCKMsrGQB.jpg?quality=95&as=32x31,48x47,72x70,108x106,160x157,240x235,360x352,480x470,540x528,640x626,720x705,1080x1057,1280x1253,1351x1322&from=bu&cs=1351x0",
+      "url": "https://www.mgik.org/",
+      "coords": [
+        55.897044,
+        37.478954
+      ]
+    },
+    {
+      "id": "spbgik",
+      "name": "Санкт-Петербургский государственный институт культуры",
+      "short_name": "СПбГИК",
+      "city": "Санкт-Петербург",
+      "type": "Институт",
+      "level": [
+        "Высшее"
+      ],
+      "programs": [
+        "Хореографическое искусство",
+        "Народная художественная культура"
+      ],
+      "image": "https://www.culture.ru/_next/image?url=https%3A%2F%2Fcdn.culture.ru%2Fimages%2F5d9b5d72-0364-5ef8-afda-e4e47b3c846d%2Fw_884%2Ch_442%2Cc_fill%2Cg_center%2F0a4e2fa5e3a4fd72166da44de11b2f6e-png.webp&w=1920&q=75",
+      "url": "https://spbgik.ru/",
+      "coords": [
+        59.932675,
+        30.331294
+      ]
+    },
+    {
+      "id": "kazgik",
+      "name": "Казанский государственный институт культуры",
+      "short_name": "КазГИК",
+      "city": "Казань",
+      "type": "Институт",
+      "level": [
+        "Высшее"
+      ],
+      "programs": [
+        "Педагогика хореографии",
+        "Народный танец",
+        "Современный танец"
+      ],
+      "image": "https://www.culture.ru/_next/image?url=https%3A%2F%2Fcdn.culture.ru%2Fimages%2F2ffbb9b3-e9ae-549a-963c-a4e6286e5a6b%2Fw_884%2Ch_442%2Cc_fill%2Cg_center%2F61604047a6f6eec560e0095acb35dd36-jpg.webp&w=1920&q=75",
+      "url": "https://kazgik.ru/",
+      "coords": [
+        55.766324,
+        49.155708
+      ]
+    },
+    {
+      "id": "sgik",
+      "name": "Самарский государственный институт культуры",
+      "short_name": "СГИК",
+      "city": "Самара",
+      "type": "Институт",
+      "level": [
+        "Высшее"
+      ],
+      "programs": [
+        "Хореографическое искусство"
+      ],
+      "image": "https://sun9-26.userapi.com/s/v1/ig2/o1WnHWg61XO6lIhysRGuDyO2DpJNO4JDlFXVt4g74ATicXa0D9D2eXZnSkRkht88mB6c5zAfwMX6pckJnj-ePV-d.jpg?quality=96&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x481,540x541,640x641,720x721,1080x1081,1280x1282,1440x1442,2157x2160&from=bu&cs=2157x0",
+      "url": "https://samgik.ru/",
+      "coords": [
+        53.196307,
+        50.098418
+      ]
+    },
+    {
+      "id": "ural_conservatory",
+      "name": "Уральский государственный педагогический университет",
+      "short_name": "УрГПУ",
+      "city": "Екатеринбург",
+      "type": "Университет",
+      "level": [
+        "Высшее"
+      ],
+      "programs": [
+        "Хореографическое искусство"
+      ],
+      "image": "https://sun9-34.userapi.com/s/v1/ig2/pmcZjeZjYjo10zPXnc-fBvKxcUyI_LyIjSGdMoAcjl7FOuX573-kBPEVy9cIF_DYi1ctgXEvLM2ZDlwUDpvm4ems.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,2560x2560&from=bu&cs=2560x0",
+      "url": "https://uspu.ru/",
+      "coords": [
+        56.887968,
+        60.601007
+      ]
+    },
+    {
+      "id": "krasnodar_culture",
+      "name": "Краснодарский государственный институт культуры",
+      "short_name": "КГИК",
+      "city": "Краснодар",
+      "type": "Институт",
+      "level": [
+        "Высшее",
+        "Колледж"
+      ],
+      "programs": [
+        "Хореографическое искусство",
+        "Народная художественная культура"
+      ],
+      "image": "https://sun9-53.userapi.com/s/v1/ig2/OIzsCPl805W90sEBS6GBibuSGOnGOilQQqPdSNx3nmLIHS4wHasvlEi0itR_wBQ8O_Rv8PAgo1xuvZdNREYJUNUM.jpg?quality=95&as=32x24,48x36,72x53,108x80,160x119,240x178,360x267,480x356,540x400,640x474,720x534,1080x801,1253x929&from=bu&cs=1253x0",
+      "url": "https://kgik1966.ru/",
+      "coords": [
+        45.056985,
+        39.006935
+      ]
+    },
+    {
+      "id": "novosibirsk_college",
+      "name": "Новосибирское хореографическое училище",
+      "short_name": "НГХК",
+      "city": "Новосибирск",
+      "type": "Училище",
+      "level": [
+        "Среднее профессиональное"
+      ],
+      "programs": [
+        "Артист балета"
+      ],
+      "image": "https://www.nghk-nsk.ru/upload/iblock/4ae/i77tiw06qt4bgd9inxsao4ag8fh0qa7j/20220517_190831.webp",
+      "url": "https://nghk.ru/",
+      "coords": [
+        55.03056,
+        82.921319
+      ]
+    },
+    {
+      "id": "perm_college",
+      "name": "Пермское государственное хореографическое училище",
+      "short_name": "ПГХУ",
+      "city": "Пермь",
+      "type": "Училище",
+      "level": [
+        "Среднее профессиональное"
+      ],
+      "programs": [
+        "Артист балета"
+      ],
+      "image": "https://balletperm.ru/images/parallax_pic.png",
+      "url": "https://ballet59.ru/",
+      "coords": [
+        58.010834,
+        56.243553
+      ]
+    }
+  ],
+  "events": [
+    {
+      "id": 301,
+      "title": "Корсар",
+      "description": "Балет в трех актах. Либретто Жюля-Анри де Сен-Жоржа и Жозефа Мазилье в редакции Михаила Мессерера. Яркий и динамичный спектакль с восточным колоритом.",
+      "images": [
+        {
+          "image": "https://mikhailovsky.ru/upload/iblock/corsair_main.jpg"
+        }
+      ],
+      "site_url": "https://mikhailovsky.ru/afisha/performances/2026/01/24/",
+      "city": "Санкт-Петербург",
+      "place": {
+        "title": "Михайловский театр",
+        "address": "пл. Искусств, 1, Санкт-Петербург"
+      },
+      "dates": [
+        {
+          "start_date": "2026-01-24",
+          "time": "18:00"
+        }
+      ],
+      "price": "от 2500 ₽"
+    },
+    {
+      "id": 302,
+      "title": "Спектакль-балет «Превью»",
+      "description": "Новая программа театра танца Аллы Духовой TODES. Зрелищное танцевальное шоу, объединяющее сложные хореографические элементы и театральную драматургию.",
+      "images": [
+        {
+          "image": "https://todestheater.ru/images/preview_show.jpg"
+        }
+      ],
+      "site_url": "https://afisha7.ru/surgut/teatr",
+      "city": "Сургут",
+      "place": {
+        "title": "Сургутская филармония",
+        "address": "ул. Энгельса, 18, Сургут"
+      },
+      "dates": [
+        {
+          "start_date": "2026-02-15",
+          "time": "19:00"
+        }
+      ],
+      "price": "от 1800 ₽"
+    },
+    {
+      "id": 303,
+      "title": "Жизель",
+      "description": "Романтический балет в двух актах. История о любви, предательстве и мистических виллисах. Постановка сохраняет традиции классической хореографии.",
+      "images": [
+        {
+          "image": "https://tzaropera.ru/images/giselle.jpg"
+        }
+      ],
+      "site_url": "https://afisha7.ru/volgograd/teatry/5488pl",
+      "city": "Волгоград",
+      "place": {
+        "title": "Царицынская опера",
+        "address": "пр. Ленина, 31, Волгоград"
+      },
+      "dates": [
+        {
+          "start_date": "2026-02-14",
+          "time": "17:00"
+        }
+      ],
+      "price": "от 600 ₽"
+    },
+    {
+      "id": 304,
+      "title": "Movement without borders (Движение без границ)",
+      "description": "Вечер современной хореографии с участием артистов театра «Балет Евгения Панфилова» (Пермь) и приглашенных солистов.",
+      "images": [
+        {
+          "image": "https://panfilov-ballet.ru/images/movement.jpg"
+        }
+      ],
+      "site_url": "https://afisha7.ru/yakutsk/koncerty/6384066mk",
+      "city": "Якутск",
+      "place": {
+        "title": "Центр культуры и современного искусства",
+        "address": "ул. Гагарина, 8, Якутск"
+      },
+      "dates": [
+        {
+          "start_date": "2026-03-10",
+          "time": "18:30"
+        }
+      ],
+      "price": "от 1000 ₽"
+    },
+    {
+      "id": 305,
+      "title": "Спартак",
+      "description": "Грандиозный балет Арама Хачатуряна. Масштабные декорации и мощная энергетика в одном из самых больших театров России.",
+      "images": [
+        {
+          "image": "https://novat.ru/upload/spartacus_novat.jpg"
+        }
+      ],
+      "site_url": "https://novat.ru/afisha/performances/2026/01/28/",
+      "city": "Новосибирск",
+      "place": {
+        "title": "НОВАТ (Оперный театр)",
+        "address": "Красный пр., 36, Новосибирск"
+      },
+      "dates": [
+        {
+          "start_date": "2026-01-28",
+          "time": "19:00"
+        }
+      ],
+      "price": "от 1500 ₽"
+    }
+  ],
+  "rss": [
+    {
+      "url": "https://oteatre.info/news/feed/",
+      "name": "О театре",
+      "category": "blog",
+      "enabled": true
+    },
+    {
+      "url": "https://www.classicalmusicnews.ru/tag/ballet/feed/",
+      "name": "classicalmusicnews",
+      "category": "blog",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:nofixedpoints.com&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "No Fixed Points",
+      "category": "blog",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:dance.ru/news&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "Dance.ru",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:todes.ru/news&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "TODES",
+      "category": "news",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:diletant.media/rss/reviews/theatre&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "Diletant",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:www.mariinsky.ru/news1&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "Мариинский театр",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:bolshoi.ru/news&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "Большой театр",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:kannondance.ru//news&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "kannondance",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:idcdance.ru/#IdcNews/news&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "idcdance",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:zidans.ru/blogs/blog&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "Zidans",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:www.kommersant.ru/theme/470&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "Коммерсант",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:rg.ru/tema/kultura/teatr/tanets&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "Российская газета",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:moderndancecenter.ru/news&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "moderndancecenter",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:ponadance.ru/news/&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "ЧТСТ",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:balletmagazine.ru/&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "Diletant",
+      "category": "reviews",
+      "enabled": true
+    },
+    {
+      "url": "https://news.google.com/rss/search?q=site:dancesing.ru/journal/all&hl=ru&gl=RU&ceid=RU:ru",
+      "name": "dancesing",
+      "category": "reviews",
+      "enabled": true
+    }
+  ],
   "telegram": [
     {
       "id": "dancelab",
@@ -153,1150 +1276,5 @@
       "name": "ЖуранлDance",
       "enabled": true
     }
-  ],
-  "vk_clips": [
-    {
-      "id": "dancejournal",
-      "name": "Dance Journal",
-      "enabled": true
-    }
-  ],
-  "rss": [
-    {
-      "url": "https://oteatre.info/news/feed/",
-      "name": "О театре",
-      "category": "blog",
-      "enabled": true
-    },
-    {
-      "url": "https://www.classicalmusicnews.ru/tag/ballet/feed/",
-      "name": "classicalmusicnews",
-      "category": "blog",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:nofixedpoints.com&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "No Fixed Points",
-      "category": "blog",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:dance.ru/news&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "Dance.ru",
-      "category": "news",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:todes.ru/news&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "TODES",
-      "category": "news",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:diletant.media/rss/reviews/theatre&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "Diletant",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:www.mariinsky.ru/news1&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "Мариинский театр",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:bolshoi.ru/news&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "Большой театр",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:kannondance.ru//news&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "kannondance",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:idcdance.ru/#IdcNews/news&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "idcdance",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:zidans.ru/blogs/blog&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "Zidans",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:www.kommersant.ru/theme/470&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "Коммерсант",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:rg.ru/tema/kultura/teatr/tanets&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "Российская газета",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:moderndancecenter.ru/news&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "moderndancecenter",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:ponadance.ru/news/&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "ЧТСТ",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:balletmagazine.ru/&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "Diletant",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:dancesing.ru/journal/all&hl=ru&gl=RU&ceid=RU:ru",
-      "name": "dancesing",
-      "category": "reviews",
-      "enabled": true
-    }
-  ],
-  "rss_world": [
-    {
-      "url": "https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/arts/dance/rss.xml",
-      "name": "NY Times Dance",
-      "category": "world",
-      "enabled": true
-    },
-    {
-      "url": "https://www.dance-enthusiast.com/rss",
-      "name": "Dance Enthusiast",
-      "category": "world",
-      "enabled": true
-    },
-    {
-      "url": "https://dancemagazine.com/feed/",
-      "name": "dancemagazine",
-      "category": "world",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:danceeurope.net/",
-      "name": "danceeurope",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://pointemagazine.com/feed/",
-      "name": "pointemagazine",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:fjordreview.com/",
-      "name": "fjordreview",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://feeds.feedburner.com/Gramilano",
-      "name": "Gramilano",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://news.google.com/rss/search?q=site:danceaustralia.com.au/",
-      "name": "danceaustralia",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://www.danceinforma.com/feed/",
-      "name": "danceinforma",
-      "category": "reviews",
-      "enabled": true
-    },
-    {
-      "url": "https://criticaldance.org/feed/",
-      "name": "criticaldance",
-      "category": "reviews",
-      "enabled": true
-    }
-  ],
-  "education": [
-    {
-      "id": "mgah",
-      "name": "Московская государственная академия хореографии",
-      "short_name": "МГАХ",
-      "city": "Москва",
-      "type": "Академия",
-      "level": [
-        "Среднее профессиональное",
-        "Высшее",
-        "Доп. образование"
-      ],
-      "programs": [
-        "Артист балета",
-        "Педагогика балета",
-        "Хореографическое искусство"
-      ],
-      "image": "https://www.culture.ru/_next/image?url=https%3A%2F%2Fcdn.culture.ru%2Fimages%2F792f2431-7689-59af-a136-a15cd2abab57%2Fw_884%2Ch_442%2Cc_fill%2Cg_center%2Ffea8219becc077c7ce3107b92b2c6c6d-jpg.webp&w=1920&q=75",
-      "url": "https://balletacademy.ru/",
-      "coords": [
-        55.736467,
-        37.587874
-      ],
-      "metro": []
-    },
-    {
-      "id": "vaganova",
-      "name": "Академия Русского балета имени А.Я. Вагановой",
-      "short_name": "АРБ им. Вагановой",
-      "city": "Санкт-Петербург",
-      "type": "Академия",
-      "level": [
-        "Среднее профессиональное",
-        "Высшее"
-      ],
-      "programs": [
-        "Артист балета",
-        "Педагогика балета",
-        "Менеджмент в хореографии"
-      ],
-      "image": "https://sun9-65.userapi.com/s/v1/ig1/jmtXeEmCGxOKuDc351nmxCePROn4S35uNxXkjC7MzlJDPEKNPhkGwyhbauWMV7UNKbSLcPN3.jpg?quality=96&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,680x680&from=bu&cs=680x0",
-      "url": "https://vaganovaacademy.ru/",
-      "coords": [
-        59.931792,
-        30.332305
-      ],
-      "metro": []
-    },
-    {
-      "id": "gitis",
-      "name": "Российский институт театрального искусства",
-      "short_name": "ГИТИС",
-      "city": "Москва",
-      "type": "Институт",
-      "level": [
-        "Высшее"
-      ],
-      "programs": [
-        "Искусство балетмейстера",
-        "Педагогика балета"
-      ],
-      "image": "https://gitis.net/upload/images_def/background.jpg",
-      "url": "https://gitis.net/",
-      "coords": [
-        55.752367,
-        37.602517
-      ],
-      "metro": []
-    },
-    {
-      "id": "mgik",
-      "name": "Московский государственный институт культуры",
-      "short_name": "МГИК",
-      "city": "Москва",
-      "type": "Институт",
-      "level": [
-        "Высшее"
-      ],
-      "programs": [
-        "Руководство хореографическим коллективом",
-        "Современный танец",
-        "Народный танец"
-      ],
-      "image": "https://sun9-60.userapi.com/s/v1/ig2/tPJxU17KvevT70mRgsqiSmcniHKeOp6HMreZkX9xV8n84LMBQ8VhF9bgKUedzgr1ZlMDcNafdjs3msYpCKMsrGQB.jpg?quality=95&as=32x31,48x47,72x70,108x106,160x157,240x235,360x352,480x470,540x528,640x626,720x705,1080x1057,1280x1253,1351x1322&from=bu&cs=1351x0",
-      "url": "https://www.mgik.org/",
-      "coords": [
-        55.897044,
-        37.478954
-      ],
-      "metro": []
-    },
-    {
-      "id": "spbgik",
-      "name": "Санкт-Петербургский государственный институт культуры",
-      "short_name": "СПбГИК",
-      "city": "Санкт-Петербург",
-      "type": "Институт",
-      "level": [
-        "Высшее"
-      ],
-      "programs": [
-        "Хореографическое искусство",
-        "Народная художественная культура"
-      ],
-      "image": "https://www.culture.ru/_next/image?url=https%3A%2F%2Fcdn.culture.ru%2Fimages%2F5d9b5d72-0364-5ef8-afda-e4e47b3c846d%2Fw_884%2Ch_442%2Cc_fill%2Cg_center%2F0a4e2fa5e3a4fd72166da44de11b2f6e-png.webp&w=1920&q=75",
-      "url": "https://spbgik.ru/",
-      "coords": [
-        59.932675,
-        30.331294
-      ],
-      "metro": []
-    },
-    {
-      "id": "kazgik",
-      "name": "Казанский государственный институт культуры",
-      "short_name": "КазГИК",
-      "city": "Казань",
-      "type": "Институт",
-      "level": [
-        "Высшее"
-      ],
-      "programs": [
-        "Педагогика хореографии",
-        "Народный танец",
-        "Современный танец"
-      ],
-      "image": "https://www.culture.ru/_next/image?url=https%3A%2F%2Fcdn.culture.ru%2Fimages%2F2ffbb9b3-e9ae-549a-963c-a4e6286e5a6b%2Fw_884%2Ch_442%2Cc_fill%2Cg_center%2F61604047a6f6eec560e0095acb35dd36-jpg.webp&w=1920&q=75",
-      "url": "https://kazgik.ru/",
-      "coords": [
-        55.766324,
-        49.155708
-      ],
-      "metro": []
-    },
-    {
-      "id": "sgik",
-      "name": "Самарский государственный институт культуры",
-      "short_name": "СГИК",
-      "city": "Самара",
-      "type": "Институт",
-      "level": [
-        "Высшее"
-      ],
-      "programs": [
-        "Хореографическое искусство"
-      ],
-      "image": "https://sun9-26.userapi.com/s/v1/ig2/o1WnHWg61XO6lIhysRGuDyO2DpJNO4JDlFXVt4g74ATicXa0D9D2eXZnSkRkht88mB6c5zAfwMX6pckJnj-ePV-d.jpg?quality=96&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x481,540x541,640x641,720x721,1080x1081,1280x1282,1440x1442,2157x2160&from=bu&cs=2157x0",
-      "url": "https://samgik.ru/",
-      "coords": [
-        53.196307,
-        50.098418
-      ],
-      "metro": []
-    },
-    {
-      "id": "ural_conservatory",
-      "name": "Уральский государственный педагогический университет",
-      "short_name": "УрГПУ",
-      "city": "Екатеринбург",
-      "type": "Университет",
-      "level": [
-        "Высшее"
-      ],
-      "programs": [
-        "Хореографическое искусство"
-      ],
-      "image": "https://sun9-34.userapi.com/s/v1/ig2/pmcZjeZjYjo10zPXnc-fBvKxcUyI_LyIjSGdMoAcjl7FOuX573-kBPEVy9cIF_DYi1ctgXEvLM2ZDlwUDpvm4ems.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440,2560x2560&from=bu&cs=2560x0",
-      "url": "https://uspu.ru/",
-      "coords": [
-        56.887968,
-        60.601007
-      ],
-      "metro": []
-    },
-    {
-      "id": "krasnodar_culture",
-      "name": "Краснодарский государственный институт культуры",
-      "short_name": "КГИК",
-      "city": "Краснодар",
-      "type": "Институт",
-      "level": [
-        "Высшее",
-        "Колледж"
-      ],
-      "programs": [
-        "Хореографическое искусство",
-        "Народная художественная культура"
-      ],
-      "image": "https://sun9-53.userapi.com/s/v1/ig2/OIzsCPl805W90sEBS6GBibuSGOnGOilQQqPdSNx3nmLIHS4wHasvlEi0itR_wBQ8O_Rv8PAgo1xuvZdNREYJUNUM.jpg?quality=95&as=32x24,48x36,72x53,108x80,160x119,240x178,360x267,480x356,540x400,640x474,720x534,1080x801,1253x929&from=bu&cs=1253x0",
-      "url": "https://kgik1966.ru/",
-      "coords": [
-        45.056985,
-        39.006935
-      ],
-      "metro": []
-    },
-    {
-      "id": "novosibirsk_college",
-      "name": "Новосибирское хореографическое училище",
-      "short_name": "НГХК",
-      "city": "Новосибирск",
-      "type": "Училище",
-      "level": [
-        "Среднее профессиональное"
-      ],
-      "programs": [
-        "Артист балета"
-      ],
-      "image": "https://www.nghk-nsk.ru/upload/iblock/4ae/i77tiw06qt4bgd9inxsao4ag8fh0qa7j/20220517_190831.webp",
-      "url": "https://nghk.ru/",
-      "coords": [
-        55.03056,
-        82.921319
-      ],
-      "metro": []
-    },
-    {
-      "id": "perm_college",
-      "name": "Пермское государственное хореографическое училище",
-      "short_name": "ПГХУ",
-      "city": "Пермь",
-      "type": "Училище",
-      "level": [
-        "Среднее профессиональное"
-      ],
-      "programs": [
-        "Артист балета"
-      ],
-      "image": "https://balletperm.ru/images/parallax_pic.png",
-      "url": "https://ballet59.ru/",
-      "coords": [
-        58.010834,
-        56.243553
-      ],
-      "metro": []
-    }
-  ],
-  "studios": [
-    {
-      "id": "todes_msk_zil",
-      "name": "TODES (Зиларт)",
-      "city": "Москва",
-      "metro": [
-        "Зил"
-      ],
-      "styles": [
-        "Modern",
-        "Hip-Hop",
-        "Contemporary",
-        "Детские группы"
-      ],
-      "address": [
-        "Москва, б-р Братьев Весниных, д. 2"
-      ],
-      "image": "https://avatars.mds.yandex.net/get-altay/14456919/2a00000194c6f7d4b4eadc83defd5c0cc699/XXL_height",
-      "url": "https://school.todes.ru/schools/studios/MSC/ZIL",
-      "coords": [
-        55.729606,
-        37.637775
-      ]
-    },
-    {
-      "id": "pro_tancy_msk",
-      "name": "PRO ТАНЦЫ",
-      "city": "Москва",
-      "metro": [
-        "Тверская"
-      ],
-      "styles": [
-        "Vogue",
-        "Dancehall",
-        "Jazz-Funk",
-        "High Heels"
-      ],
-      "address": [
-        "Саввинская наб., 12, стр. 8, Москва"
-      ],
-      "image": "https://avatars.mds.yandex.net/get-altay/13078542/2a000001908021924ee3014ac0f88c4fb178/L_height",
-      "url": "https://tancy.pro/",
-      "coords": [
-        55.760241,
-        37.613945
-      ]
-    },
-    {
-      "id": "model_357_msk",
-      "name": "Model-357",
-      "city": "Москва",
-      "metro": [
-        "Белорусская"
-      ],
-      "styles": [
-        "Hip-Hop",
-        "Jazz-Funk",
-        "High Heels",
-        "Contemporary",
-        "Vogue",
-        "Dancehall"
-      ],
-      "address": [
-        "Москва, ул. Правды, д. 24, стр. 7"
-      ],
-      "image": "https://images.unsplash.com/photo-1545959795-35633527027a?q=80&w=1000",
-      "url": "https://model-357.ru/",
-      "coords": [
-        55.7865,
-        37.5842
-      ]
-    },
-    {
-      "id": "9_zaloov_msk",
-      "name": "9 ZALOOV",
-      "city": "Москва",
-      "metro": [
-        "Чистые пруды"
-      ],
-      "styles": [
-        "Contemporary",
-        "Hip-Hop",
-        "Dancehall",
-        "Jazz-Funk",
-        "Stretching",
-        "Afro"
-      ],
-      "address": [
-        "Москва, ул. Мясницкая, д. 15"
-      ],
-      "image": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=1000",
-      "url": "https://9zalov.ru/",
-      "coords": [
-        55.7644,
-        37.6361
-      ]
-    },
-    {
-      "id": "mdc_nrg_msk",
-      "name": "MDC NRG",
-      "city": "Москва",
-      "metro": [
-        "Новокузнецкая"
-      ],
-      "styles": [
-        "Hip-Hop",
-        "Jazz-Funk",
-        "K-Pop",
-        "High Heels",
-        "Dancehall",
-        "Twerk"
-      ],
-      "address": [
-        "Москва, ул. Пятницкая, д. 6/1 стр. 8"
-      ],
-      "image": "https://images.unsplash.com/photo-1518834107812-67b0b7c58434?q=80&w=1000",
-      "url": "https://nrg-style.ru/",
-      "coords": [
-        55.7441,
-        37.6273
-      ]
-    },
-    {
-      "id": "mainstream_msk",
-      "name": "MainStream",
-      "city": "Москва",
-      "metro": [
-        "Электрозаводская"
-      ],
-      "styles": [
-        "Hip-Hop",
-        "House",
-        "Krump",
-        "Locking",
-        "Popping",
-        "Breaking"
-      ],
-      "address": [
-        "Москва, ул. Малая Семеновская, д. 5, стр. 1"
-      ],
-      "image": "https://images.unsplash.com/photo-1552569263-1250325b5978?q=80&w=1000",
-      "url": "https://msdance.ru/",
-      "coords": [
-        55.7872,
-        37.7065
-      ]
-    },
-    {
-      "id": "ivara_msk",
-      "name": "Ivara",
-      "city": "Москва",
-      "metro": [
-        "Белорусская"
-      ],
-      "styles": [
-        "Hustle",
-        "Bachata",
-        "West Coast Swing",
-        "Zouk",
-        "Salsa"
-      ],
-      "address": [
-        "Москва, 3-я улица Ямского поля, д. 24, 4 этаж"
-      ],
-      "image": "https://images.unsplash.com/photo-1533174072545-e8d4aa97d848?q=80&w=1000",
-      "url": "https://ivara.ru/",
-      "coords": [
-        55.7834,
-        37.5812
-      ]
-    },
-    {
-      "id": "kannondance_spb",
-      "name": "KannonDance",
-      "city": "Санкт-Петербург",
-      "metro": [
-        "Невский проспект"
-      ],
-      "styles": [
-        "Contemporary",
-        "Импровизация",
-        "Детские группы"
-      ],
-      "address": [
-        "Санкт-Петербуг, Казанская ул. 7В, этаж 3, офис 316"
-      ],
-      "image": "https://optim.tildacdn.com/tild6164-3837-4366-b461-636430313039/-/format/webp/noroot.png.webp",
-      "url": "https://kannondance.ru/",
-      "coords": [
-        59.9332,
-        30.3235
-      ]
-    },
-    {
-      "id": "s17_spb",
-      "name": "S17",
-      "city": "Санкт-Петербург",
-      "metro": [
-        "Невский проспект"
-      ],
-      "styles": [
-        "Contemporary",
-        "HIGH HEELS",
-        "Hip-hop",
-        "Reggaeton",
-        "Twerk",
-        "Jumping",
-        "DanceHall",
-        "Waacking",
-        "STRIP",
-        "Femme Choreo",
-        "Dancemix",
-        "JAZZ-FUNK",
-        "Popping",
-        "Vogue",
-        "Afro",
-        "Классический танец"
-      ],
-      "address": [
-        "Санкт-Петербуг, Конюшенная площадь, 2В (м. Невский проспект)"
-      ],
-      "image": "https://static.tildacdn.com/tild3737-6238-4331-b162-373030626339/DSC_4088.jpg",
-      "url": "https://kannondance.ru/",
-      "coords": [
-        59.9405,
-        30.3278
-      ]
-    },
-    {
-      "id": "25point5_spb",
-      "name": "25.5",
-      "city": "Санкт-Петербург",
-      "metro": [
-        "Садовая"
-      ],
-      "styles": [
-        "Contemporary",
-        "HIGH HEELS",
-        "Hip-hop",
-        "Sals",
-        "Twerk",
-        "Jumping",
-        "DanceHall",
-        "Waacking",
-        "STRIP",
-        "Femme Choreo",
-        "Dancemix",
-        "JAZZ-FUNK",
-        "Popping",
-        "Vogue",
-        "Классический танец"
-      ],
-      "address": [
-        "Садовая 28-30, к. 33, 4 этаж"
-      ],
-      "image": "https://25point5.ru/wp-content/uploads/2025/09/hip-hop.jpg",
-      "url": "https://kannondance.ru/",
-      "coords": [
-        59.9315,
-        30.3255
-      ]
-    },
-    {
-      "id": "context_spb",
-      "name": "CONTEXT",
-      "city": "Санкт-Петербург",
-      "metro": [
-        "Адмиралтейская"
-      ],
-      "styles": [
-        "Классический танец",
-        "Балет",
-        "Детские группы"
-      ],
-      "address": [
-        "Наб. Адмиралтейского канала д.2, здание Бутылка, 3 этаж"
-      ],
-      "image": "https://optim.tildacdn.com/tild6361-6638-4133-b163-643936343666/-/format/webp/vert3.webp",
-      "url": "https://kannondance.ru/",
-      "coords": [
-        59.9298,
-        30.2875
-      ]
-    },
-    {
-      "id": "vamp_spb",
-      "name": "Vamp Dance Studio",
-      "city": "Санкт-Петербург",
-      "metro": [
-        "Петроградская"
-      ],
-      "styles": [
-        "Strip",
-        "High Heels",
-        "Jazz-Funk",
-        "Girly Hip-Hop",
-        "Stretching"
-      ],
-      "address": [
-        "Санкт-Петербург, ул. Газовая, д. 10Н"
-      ],
-      "image": "https://images.unsplash.com/photo-1621976498727-9e5926639c2c?q=80&w=1000",
-      "url": "https://vampdance.ru/",
-      "coords": [
-        59.9692,
-        30.2945
-      ]
-    },
-    {
-      "id": "idc_spb",
-      "name": "IDC (International Dance Center)",
-      "city": "Санкт-Петербург",
-      "metro": [
-        "Петроградская"
-      ],
-      "styles": [
-        "Contemporary",
-        "Hip-Hop",
-        "Jazz-Funk",
-        "Vogue",
-        "Improvisation"
-      ],
-      "address": [
-        "Санкт-Петербург, Каменноостровский пр-т, 42"
-      ],
-      "image": "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?q=80&w=1000",
-      "url": "https://idcdance.ru/",
-      "coords": [
-        59.9675,
-        30.3112
-      ]
-    },
-    {
-      "id": "escabo_spb",
-      "name": "ESCABO Stage",
-      "city": "Санкт-Петербург",
-      "metro": [
-        "Чкаловская"
-      ],
-      "styles": [
-        "Contemporary",
-        "Performance",
-        "Improvisation",
-        "Physical Theatre"
-      ],
-      "address": [
-        "Санкт-Петербург, Пионерская ул., д. 50"
-      ],
-      "image": "https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1?q=80&w=1000",
-      "url": "https://vk.com/escabo",
-      "coords": [
-        59.9615,
-        30.2838
-      ]
-    },
-    {
-      "id": "galladance_spb",
-      "name": "GallaDance (Krestovsky)",
-      "city": "Санкт-Петербург",
-      "metro": [
-        "Крестовский остров"
-      ],
-      "styles": [
-        "Ballroom",
-        "Latin",
-        "Arg. Tango",
-        "Caribbean Mix",
-        "Pro-Am"
-      ],
-      "address": [
-        "Санкт-Петербург, ул. Кемская, д. 1"
-      ],
-      "image": "https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=1000",
-      "url": "https://www.galladance.com/",
-      "coords": [
-        59.9722,
-        30.2605
-      ]
-    },
-    {
-      "id": "diva_spb",
-      "name": "Diva",
-      "city": "Санкт-Петербург",
-      "metro": [
-        "Пионерская"
-      ],
-      "styles": [
-        "Pole Dance",
-        "Strip",
-        "Aerial Silk",
-        "Stretching",
-        "Exotic"
-      ],
-      "address": [
-        "Санкт-Петербург, Светлановский пр., д. 1"
-      ],
-      "image": "https://images.unsplash.com/photo-1595181234128-26e6802613e5?q=80&w=1000",
-      "url": "https://divastudio.ru/",
-      "coords": [
-        60.0028,
-        30.3232
-      ]
-    },
-    {
-      "id": "fraules_nsk",
-      "name": "Fraules Dance Centre",
-      "city": "Новосибирск",
-      "metro": [
-        "Берёзовая роща"
-      ],
-      "styles": [
-        "Dancehall",
-        "Twerk",
-        "Vogue",
-        "Hip-Hop",
-        "High Heels"
-      ],
-      "address": [
-        "Новосибирск, ул. Гоголя, 204г"
-      ],
-      "image": "https://images.unsplash.com/photo-1535525153412-5a42439a210d?q=80&w=1000",
-      "url": "https://fraulesdc.ru/",
-      "coords": [
-        55.0461,
-        82.9636
-      ]
-    },
-    {
-      "id": "shake_it_nsk",
-      "name": "Shake It",
-      "city": "Новосибирск",
-      "metro": [
-        "Заельцовская"
-      ],
-      "styles": [
-        "High Heels",
-        "Strip",
-        "Contemporary",
-        "K-Pop",
-        "Jazz-Funk"
-      ],
-      "address": [
-        "Новосибирск, Красный проспект, 220 к10"
-      ],
-      "image": "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?q=80&w=1000",
-      "url": "https://shake-it.su/",
-      "coords": [
-        55.0592,
-        82.9125
-      ]
-    },
-    {
-      "id": "prostranstvo_nsk",
-      "name": "PROSTRANSTVO",
-      "city": "Новосибирск",
-      "metro": [
-        "Октябрьская"
-      ],
-      "styles": [
-        "Contemporary",
-        "Experimental",
-        "Improvisation",
-        "Hip-Hop"
-      ],
-      "address": [
-        "Новосибирск, ул. Сибревкома, 7/1"
-      ],
-      "image": "https://images.unsplash.com/photo-1550026593-f32b8537b0d5?q=80&w=1000",
-      "url": "https://vk.com/d_a_space",
-      "coords": [
-        55.0235,
-        82.9348
-      ]
-    },
-    {
-      "id": "maxdance_ekb",
-      "name": "MaxDance",
-      "city": "Екатеринбург",
-      "metro": [
-        "Геологическая"
-      ],
-      "styles": [
-        "Bachata",
-        "Salsa",
-        "Kizomba",
-        "Zouk",
-        "Solo Latina"
-      ],
-      "address": [
-        "Екатеринбург, ул. 8 Марта, 8Д, ТЦ Мытный двор"
-      ],
-      "image": "https://images.unsplash.com/photo-1516651029879-199bb638686d?q=80&w=1000",
-      "url": "https://max-dance.ru/",
-      "coords": [
-        56.8385,
-        60.5978
-      ]
-    },
-    {
-      "id": "promodance_ekb",
-      "name": "Promodance",
-      "city": "Екатеринбург",
-      "metro": [
-        "Площадь 1905 года"
-      ],
-      "styles": [
-        "Vogue",
-        "High Heels",
-        "Hip-Hop",
-        "Dancehall",
-        "Jazz-Funk"
-      ],
-      "address": [
-        "Екатеринбург, ул. Карла Либкнехта, 22"
-      ],
-      "image": "https://images.unsplash.com/photo-1533174072545-e8d4aa97d848?q=80&w=1000",
-      "url": "https://www.promo-dance.com/",
-      "coords": [
-        56.8432,
-        60.6065
-      ]
-    },
-    {
-      "id": "2dance_ekb",
-      "name": "2Dance",
-      "city": "Екатеринбург",
-      "metro": [
-        "Динамо"
-      ],
-      "styles": [
-        "Salsa",
-        "Bachata",
-        "Tango",
-        "Swing",
-        "Reggaeton"
-      ],
-      "address": [
-        "Екатеринбург, ул. Тургенева, 13"
-      ],
-      "image": "https://images.unsplash.com/photo-1546427660-eb346c344ca5?q=80&w=1000",
-      "url": "https://2dance-academy.ru/",
-      "coords": [
-        56.8405,
-        60.6152
-      ]
-    },
-    {
-      "id": "kingstep_kzn",
-      "name": "KingStep",
-      "city": "Казань",
-      "metro": [
-        "Площадь Тукая"
-      ],
-      "styles": [
-        "Hip-Hop",
-        "Choreo",
-        "Experimental",
-        "Jazz-Funk"
-      ],
-      "address": [
-        "Казань, ул. Островского, 84"
-      ],
-      "image": "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?q=80&w=1000",
-      "url": "https://kingstepkazan.ru/",
-      "coords": [
-        55.7765,
-        49.1352
-      ]
-    },
-    {
-      "id": "chikibro_kzn",
-      "name": "Chikibro",
-      "city": "Казань",
-      "metro": [
-        "Площадь Тукая"
-      ],
-      "styles": [
-        "Hip-Hop",
-        "Break Dance",
-        "K-Pop",
-        "House",
-        "All Styles"
-      ],
-      "address": [
-        "Казань, ул. Баумана, 25"
-      ],
-      "image": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?q=80&w=1000",
-      "url": "https://chikibro.com/",
-      "coords": [
-        55.7925,
-        49.1118
-      ]
-    },
-    {
-      "id": "todes_kzn",
-      "name": "TODES (Казань)",
-      "city": "Казань",
-      "metro": [
-        "Козья слобода"
-      ],
-      "styles": [
-        "Modern",
-        "Hip-Hop",
-        "Contemporary",
-        "Детские группы"
-      ],
-      "address": [
-        "Казань, пр. Ямашева, 100А"
-      ],
-      "image": "https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=1000",
-      "url": "https://school.todes.ru/schools/studios/KZN/YAMASHEVA",
-      "coords": [
-        55.8265,
-        49.1362
-      ]
-    }
-  ],
-  "events": [
-    {
-      "id": 301,
-      "title": "Корсар",
-      "description": "Балет в трех актах. Либретто Жюля-Анри де Сен-Жоржа и Жозефа Мазилье в редакции Михаила Мессерера. Яркий и динамичный спектакль с восточным колоритом.",
-      "images": [
-        {
-          "image": "https://mikhailovsky.ru/upload/iblock/corsair_main.jpg"
-        }
-      ],
-      "site_url": "https://mikhailovsky.ru/afisha/performances/2026/01/24/",
-      "city": "Санкт-Петербург",
-      "place": {
-        "title": "Михайловский театр",
-        "address": "пл. Искусств, 1, Санкт-Петербург"
-      },
-      "dates": [
-        {
-          "start_date": "2026-01-24",
-          "time": "18:00"
-        }
-      ],
-      "price": "от 2500 ₽"
-    },
-    {
-      "id": 302,
-      "title": "Спектакль-балет «Превью»",
-      "description": "Новая программа театра танца Аллы Духовой TODES. Зрелищное танцевальное шоу, объединяющее сложные хореографические элементы и театральную драматургию.",
-      "images": [
-        {
-          "image": "https://todestheater.ru/images/preview_show.jpg"
-        }
-      ],
-      "site_url": "https://afisha7.ru/surgut/teatr",
-      "city": "Сургут",
-      "place": {
-        "title": "Сургутская филармония",
-        "address": "ул. Энгельса, 18, Сургут"
-      },
-      "dates": [
-        {
-          "start_date": "2026-02-15",
-          "time": "19:00"
-        }
-      ],
-      "price": "от 1800 ₽"
-    },
-    {
-      "id": 303,
-      "title": "Жизель",
-      "description": "Романтический балет в двух актах. История о любви, предательстве и мистических виллисах. Постановка сохраняет традиции классической хореографии.",
-      "images": [
-        {
-          "image": "https://tzaropera.ru/images/giselle.jpg"
-        }
-      ],
-      "site_url": "https://afisha7.ru/volgograd/teatry/5488pl",
-      "city": "Волгоград",
-      "place": {
-        "title": "Царицынская опера",
-        "address": "пр. Ленина, 31, Волгоград"
-      },
-      "dates": [
-        {
-          "start_date": "2026-02-14",
-          "time": "17:00"
-        }
-      ],
-      "price": "от 600 ₽"
-    },
-    {
-      "id": 304,
-      "title": "Movement without borders (Движение без границ)",
-      "description": "Вечер современной хореографии с участием артистов театра «Балет Евгения Панфилова» (Пермь) и приглашенных солистов.",
-      "images": [
-        {
-          "image": "https://panfilov-ballet.ru/images/movement.jpg"
-        }
-      ],
-      "site_url": "https://afisha7.ru/yakutsk/koncerty/6384066mk",
-      "city": "Якутск",
-      "place": {
-        "title": "Центр культуры и современного искусства",
-        "address": "ул. Гагарина, 8, Якутск"
-      },
-      "dates": [
-        {
-          "start_date": "2026-03-10",
-          "time": "18:30"
-        }
-      ],
-      "price": "от 1000 ₽"
-    },
-    {
-      "id": 305,
-      "title": "Спартак",
-      "description": "Грандиозный балет Арама Хачатуряна. Масштабные декорации и мощная энергетика в одном из самых больших театров России.",
-      "images": [
-        {
-          "image": "https://novat.ru/upload/spartacus_novat.jpg"
-        }
-      ],
-      "site_url": "https://novat.ru/afisha/performances/2026/01/28/",
-      "city": "Новосибирск",
-      "place": {
-        "title": "НОВАТ (Оперный театр)",
-        "address": "Красный пр., 36, Новосибирск"
-      },
-      "dates": [
-        {
-          "start_date": "2026-01-28",
-          "time": "19:00"
-        }
-      ],
-      "price": "от 1500 ₽"
-    }
-  ],
-  "web_parser": []
+  ]
 }

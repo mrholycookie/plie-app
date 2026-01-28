@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import '../services/config_service.dart';
 import '../services/vk_service.dart';
-import '../services/favorites_service.dart';
 import '../models/video_item.dart';
 import '../widgets/dance_loader.dart';
 import '../widgets/common_widgets.dart';
@@ -148,13 +147,11 @@ class _VideoCard extends StatefulWidget {
 class _VideoCardState extends State<_VideoCard> {
   late final WebViewController _controller;
   bool _isLoaded = false;
-  bool _isFavorite = false;
   bool _showInfo = false;
 
   @override
   void initState() {
     super.initState();
-    _loadFavoriteStatus();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.black)
@@ -164,24 +161,6 @@ class _VideoCardState extends State<_VideoCard> {
         }),
       )
       ..loadRequest(Uri.parse(widget.videoItem.url));
-  }
-
-  Future<void> _loadFavoriteStatus() async {
-    final isFav = await FavoritesService.isFavoriteVideo(widget.videoItem.url);
-    if (mounted) {
-      setState(() => _isFavorite = isFav);
-    }
-  }
-
-  Future<void> _toggleFavorite() async {
-    if (_isFavorite) {
-      await FavoritesService.removeFavoriteVideo(widget.videoItem.url);
-    } else {
-      await FavoritesService.addFavoriteVideo(widget.videoItem.url);
-    }
-    if (mounted) {
-      setState(() => _isFavorite = !_isFavorite);
-    }
   }
 
   Future<void> _shareVideo() async {
@@ -288,26 +267,6 @@ class _VideoCardState extends State<_VideoCard> {
                               child: Icon(
                                 Icons.share,
                                 color: Colors.white,
-                                size: 24
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        GestureDetector(
-                          onTap: _toggleFavorite,
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                _isFavorite ? Icons.favorite : Icons.favorite_border,
-                                color: _isFavorite ? Colors.red : Colors.white,
                                 size: 24
                               ),
                             ),

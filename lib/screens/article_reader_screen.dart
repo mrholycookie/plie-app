@@ -42,7 +42,7 @@ class _ArticleReaderScreenState extends State<ArticleReaderScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white, // Светлый бар
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2D2D2D)),
@@ -50,11 +50,11 @@ class _ArticleReaderScreenState extends State<ArticleReaderScreen> {
         ),
         title: Text(
           "Просмотр новости",
-          style: GoogleFonts.rubik(color: const Color(0xFF2D2D2D), fontSize: 16),
+          style: GoogleFonts.unbounded(color: const Color(0xFF2D2D2D), fontSize: 16, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share_outlined, color: Color(0xFF645CE9)), // Индиго
+            icon: const Icon(Icons.share_outlined, color: Color(0xFFCCFF00)),
             onPressed: () {
               Share.share('${widget.title}\n\n${widget.url}');
             },
@@ -65,8 +65,8 @@ class _ArticleReaderScreenState extends State<ArticleReaderScreen> {
                 preferredSize: const Size.fromHeight(2),
                 child: LinearProgressIndicator(
                   value: _progress,
-                  backgroundColor: Colors.transparent,
-                  color: const Color(0xFF645CE9),
+                  backgroundColor: Colors.grey[200],
+                  color: const Color(0xFFCCFF00),
                 ),
               )
             : null,
