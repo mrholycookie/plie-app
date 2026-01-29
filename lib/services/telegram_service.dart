@@ -28,10 +28,8 @@ class TelegramService {
     return articles;
   }
 
-  // Метод _fetchChannel остается БЕЗ изменений
   static Future<List<Article>> _fetchChannel(String slug, String name) async {
-      // ... старый код ...
-      List<Article> items = [];
+    List<Article> items = [];
     try {
       final url = 'https://t.me/s/$slug';
       final response = await http.get(Uri.parse(url));
