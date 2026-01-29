@@ -124,6 +124,13 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
           .where((e) => e.city.toUpperCase() == selectedCity)
           .toList();
     }
+    // Сортируем студии по рейтингу (сначала с рейтингом, по убыванию, затем без рейтинга)
+    filteredStudios.sort((a, b) {
+      if (a.rating == null && b.rating == null) return 0;
+      if (a.rating == null) return 1; // Без рейтинга в конец
+      if (b.rating == null) return -1; // Без рейтинга в конец
+      return b.rating!.compareTo(a.rating!); // По убыванию рейтинга
+    });
   }
 
   void onCityChanged(String? city) {
@@ -641,6 +648,29 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
                     ),
                   ),
                   const SizedBox(height: 4),
+                  // Рейтинг (если есть)
+                  if (item.rating != null) ...[
+                    Row(
+                      children: [
+                        const Icon(
+                          FontAwesomeIcons.star,
+                          size: 10,
+                          color: Color(0xFFCCFF00),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          item.rating!.toStringAsFixed(1),
+                          style: GoogleFonts.manrope(
+                            color: const Color(0xFFCCFF00),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                  ],
                   // Метро
                   Row(
                     children: [
@@ -860,34 +890,24 @@ class _AllItemsScreenState extends State<_AllItemsScreen> {
 
                 return Marker(
                   point: LatLng(lat, lng),
-                  width: 40,
-                  height: 40,
+                  width: 28,
+                  height: 28,
                   child: GestureDetector(
                     onTap: () {
                       _showMarkerInfo(item);
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: item.type == PlaceType.studio
-                            ? const Color(0xFFCCFF00)
-                            : const Color(0xFF2AABEE),
+                        color: Colors.black,
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withOpacity(0.5),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
                         ],
-                      ),
-                      // Лого приложения вместо ноты
-                      child: Padding(
-                        padding: const EdgeInsets.all(7),
-                        child: Image.asset(
-                          'assets/icon/icon_fg.png',
-                          fit: BoxFit.contain,
-                        ),
                       ),
                     ),
                   ),
@@ -1168,6 +1188,29 @@ class _AllItemsScreenState extends State<_AllItemsScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
+                  // Рейтинг (если есть)
+                  if (item.rating != null) ...[
+                    Row(
+                      children: [
+                        const Icon(
+                          FontAwesomeIcons.star,
+                          size: 10,
+                          color: Color(0xFFCCFF00),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          item.rating!.toStringAsFixed(1),
+                          style: GoogleFonts.manrope(
+                            color: const Color(0xFFCCFF00),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                  ],
                   Row(
                     children: [
                       const Icon(

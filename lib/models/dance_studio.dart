@@ -9,6 +9,8 @@ class DanceStudio {
   final String? address; // Полный адрес для точного поиска на карте
   final List<double>? coords; // Координаты [lat, lng] - опционально, для точности
   final String? yandexMapUrl; // Ссылка на Яндекс карты для построения маршрута
+  final double? rating; // Рейтинг студии (0.0 - 5.0)
+  final String? yandexOrgId; // ID организации в Яндекс.Картах для отзывов
 
   DanceStudio({
     required this.id,
@@ -21,6 +23,8 @@ class DanceStudio {
     this.address,
     this.coords,
     this.yandexMapUrl,
+    this.rating,
+    this.yandexOrgId,
   });
 
   factory DanceStudio.fromJson(Map<String, dynamic> json) {
@@ -49,6 +53,8 @@ class DanceStudio {
           ? (json['coords'] as List<dynamic>).map((e) => (e as num).toDouble()).toList()
           : null,
       yandexMapUrl: json['yandex_map_url'] as String?,
+      rating: json['rating'] != null ? (json['rating'] as num).toDouble() : null,
+      yandexOrgId: json['yandex_org_id'] as String?,
     );
   }
 }

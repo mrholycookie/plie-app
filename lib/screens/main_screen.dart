@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
 
 import 'feeds_screen.dart';
-import 'vk_shorts_screen.dart';
 import 'studios_education_screen.dart';
 // import 'events_screen.dart'; // Временно скрыто до версии 1.7.7+25
 
@@ -20,7 +19,6 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _widgetOptions = <Widget>[
     const NewsListWithKeepAlive(),
-    const VkShortsScreen(),
     const StudiosEducationScreen(),
     // const EventsScreen(), // Временно скрыто до версии 1.7.7+25
   ];
@@ -73,13 +71,6 @@ class _MainScreenState extends State<MainScreen> {
                 child: Icon(FontAwesomeIcons.newspaper, size: 20),
               ),
               label: 'НОВОСТИ',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Icon(FontAwesomeIcons.play, size: 20),
-              ),
-              label: 'КЛИПЫ',
             ),
             BottomNavigationBarItem(
               icon: Padding(

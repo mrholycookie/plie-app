@@ -74,11 +74,10 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/icon.png"
-  min_sdk_android: 21
-  # Android adaptive icon, чтобы не было эффекта "квадрат внутри иконки"
+  image_path: "assets/icon/icon_fixed.png"
   adaptive_icon_background: "#000000"
   adaptive_icon_foreground: "assets/icon/icon_fg.png"
+  min_sdk_android: 21
 
 # Основной блок Flutter (должен быть ОДИН)
 flutter:

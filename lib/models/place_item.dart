@@ -20,6 +20,8 @@ class PlaceItem {
   List<double>? get coords => type == PlaceType.studio ? studio!.coords : education!.coords;
   String? get address => type == PlaceType.studio ? studio!.address : null;
   String? get yandexMapUrl => type == PlaceType.studio ? studio!.yandexMapUrl : null;
+  double? get rating => type == PlaceType.studio ? studio!.rating : null;
+  String? get yandexOrgId => type == PlaceType.studio ? studio!.yandexOrgId : null;
   
   // Получить локацию для отображения: метро (если есть) или адрес (если метро нет)
   String get displayLocation {

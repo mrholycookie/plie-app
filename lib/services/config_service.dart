@@ -64,12 +64,6 @@ class ConfigService {
     return _parseIdNameList(config?['vk']);
   }
 
-  static Map<String, String> getVkClipSources() {
-    final clips = _parseIdNameList(config?['vk_clips']);
-    if (clips.isNotEmpty) return clips;
-    return getVkGroups();
-  }
-
   static List<Map<String, String>> getRssFeeds() {
     return _parseRssList(config?['rss']);
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../models/place_item.dart';
 import '../widgets/common_widgets.dart';
@@ -65,13 +66,51 @@ class DetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Название
-                  Text(
-                    item.name,
-                    style: GoogleFonts.unbounded(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.name,
+                          style: GoogleFonts.unbounded(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      // Рейтинг (если есть)
+                      if (item.rating != null) ...[
+                        const SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFCCFF00).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFCCFF00), width: 1),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                FontAwesomeIcons.star,
+                                size: 14,
+                                color: Color(0xFFCCFF00),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                item.rating!.toStringAsFixed(1),
+                                style: GoogleFonts.unbounded(
+                                  color: const Color(0xFFCCFF00),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 16),
                   
@@ -95,10 +134,10 @@ class DetailScreen extends StatelessWidget {
                                 color: const Color(0xFFCCFF00).withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 FontAwesomeIcons.locationDot,
                                 size: 14,
-                                color: const Color(0xFFCCFF00),
+                                color: Color(0xFFCCFF00),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -208,6 +247,60 @@ class DetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  
+                  // Секция отзывов (если есть yandex_org_id)
+                  if (item.yandexOrgId != null && item.yandexOrgId!.isNotEmpty) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF111111),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFF222222)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFCCFF00).withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'ОТЗЫВЫ',
+                                  style: GoogleFonts.unbounded(
+                                    color: const Color(0xFFCCFF00),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 400,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: WebViewWidget(
+                                controller: WebViewController()
+                                  ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                                  ..setBackgroundColor(Colors.transparent)
+                                  ..loadRequest(
+                                    Uri.parse(
+                                      'https://yandex.ru/maps-reviews-widget/${item.yandexOrgId}?comments'
+                                    ),
+                                  ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                   
                   // Кнопки
                   Row(

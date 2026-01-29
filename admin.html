@@ -464,6 +464,20 @@
                             Ссылка для построения маршрута (можно получить через "Поделиться" в Яндекс картах)
                         </small>
                     </div>
+                    <div class="form-group">
+                        <label>Рейтинг (0.0 - 5.0)</label>
+                        <input type="number" id="studio-rating" step="0.1" min="0" max="5" placeholder="4.5">
+                        <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+                            Рейтинг студии для сортировки и отображения
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label>ID организации в Яндекс.Картах</label>
+                        <input type="text" id="studio-yandex-org-id" placeholder="1234567890">
+                        <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+                            ID организации для отображения отзывов (можно найти в URL страницы организации)
+                        </small>
+                    </div>
                     <div class="form-group full-width">
                         <label>Стили танцев (через запятую) *</label>
                         <div id="styles-container" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
@@ -925,6 +939,8 @@
             document.getElementById('studio-address').value = Array.isArray(studio.address) ? studio.address[0] || '' : (studio.address || '');
             document.getElementById('studio-coords').value = studio.coords ? studio.coords.join(', ') : '';
             document.getElementById('studio-yandex-map').value = studio.yandex_map_url || '';
+            document.getElementById('studio-rating').value = studio.rating || '';
+            document.getElementById('studio-yandex-org-id').value = studio.yandex_org_id || '';
             document.getElementById('studio-styles').value = Array.isArray(studio.styles) ? studio.styles.join(', ') : (studio.styles || '');
             
             // Генерируем новый ID
@@ -1021,6 +1037,8 @@
                 address: document.getElementById('studio-address').value ? [document.getElementById('studio-address').value] : undefined,
                 coords: coords,
                 yandex_map_url: document.getElementById('studio-yandex-map').value.trim() || undefined,
+                rating: document.getElementById('studio-rating').value ? parseFloat(document.getElementById('studio-rating').value) : undefined,
+                yandex_org_id: document.getElementById('studio-yandex-org-id').value.trim() || undefined,
                 styles: document.getElementById('studio-styles').value.split(',').map(s => s.trim()).filter(s => s)
             };
             
@@ -1054,6 +1072,8 @@
             document.getElementById('studio-address').value = Array.isArray(studio.address) ? studio.address[0] || '' : (studio.address || '');
             document.getElementById('studio-coords').value = studio.coords ? studio.coords.join(', ') : '';
             document.getElementById('studio-yandex-map').value = studio.yandex_map_url || '';
+            document.getElementById('studio-rating').value = studio.rating || '';
+            document.getElementById('studio-yandex-org-id').value = studio.yandex_org_id || '';
             document.getElementById('studio-styles').value = Array.isArray(studio.styles) ? studio.styles.join(', ') : (studio.styles || '');
             
             editingIndex.studios = index;
@@ -1082,6 +1102,8 @@
                         <div><strong>Адрес:</strong> ${addressStr || '—'}</div>
                         <div><strong>Координаты:</strong> ${coordsStr || '—'}</div>
                         <div><strong>Я.Карты:</strong> ${studio.yandex_map_url ? '✓' : '—'}</div>
+                        <div><strong>Рейтинг:</strong> ${studio.rating ? studio.rating.toFixed(1) : '—'}</div>
+                        <div><strong>Я.Карты ID:</strong> ${studio.yandex_org_id || '—'}</div>
                         <div><strong>Сайт:</strong> ${studio.url ? '✓' : '—'}</div>
                         <div class="full-width"><strong>Стили:</strong> ${stylesStr || '—'}</div>
                     </div>
