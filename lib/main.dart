@@ -20,9 +20,7 @@ void main() async {
   try {
     final metricaKey = dotenv.env['APPMETRICA_KEY'] ?? '';
     if (metricaKey.isNotEmpty) {
-      await AppMetrica.activate(
-        AppMetricaConfig(metricaKey),
-      );
+      await AppMetrica.activate(AppMetricaConfig(metricaKey));
     } else {
       debugPrint("AppMetrica skipped: Key not found in .env");
     }
@@ -31,14 +29,16 @@ void main() async {
   }
 
   await initializeDateFormatting('ru', null);
-  await ConfigService.loadConfig(); 
+  await ConfigService.loadConfig();
 
   // Настройка статус-бара: Прозрачный, белые иконки (для темного фона)
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    statusBarBrightness: Brightness.dark,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+    ),
+  );
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -64,21 +64,36 @@ class MyApp extends StatelessWidget {
         // Типографика 5.0
         textTheme: TextTheme(
           // Заголовки - Unbounded (широкий, модный)
-          displayLarge: GoogleFonts.unbounded(fontWeight: FontWeight.bold, color: Colors.white),
-          headlineSmall: GoogleFonts.unbounded(fontWeight: FontWeight.w600, color: Colors.white),
-          titleLarge: GoogleFonts.unbounded(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 18),
+          displayLarge: GoogleFonts.unbounded(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          headlineSmall: GoogleFonts.unbounded(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+          titleLarge: GoogleFonts.unbounded(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+            fontSize: 18,
+          ),
 
           // Основной текст - Manrope (читабельный гротеск)
-          bodyLarge: GoogleFonts.manrope(color: const Color(0xFFE0E0E0), fontSize: 16),
-          bodyMedium: GoogleFonts.manrope(color: const Color(0xFFB0B0B0), fontSize: 14),
+          bodyLarge: GoogleFonts.manrope(
+            color: const Color(0xFFE0E0E0),
+            fontSize: 16,
+          ),
+          bodyMedium: GoogleFonts.manrope(
+            color: const Color(0xFFB0B0B0),
+            fontSize: 14,
+          ),
           labelSmall: GoogleFonts.manrope(color: Colors.grey, fontSize: 11),
         ),
 
         colorScheme: const ColorScheme.dark(
           primary: Colors.white,
           secondary: Color(0xFFCCFF00), // Acid Lime (акцент)
-          surface: Color(0xFF161616),   // Цвет карточек (Dark Gray)
-          background: Colors.black,
+          surface: Color(0xFF161616),
         ),
 
         appBarTheme: AppBarTheme(
@@ -86,10 +101,10 @@ class MyApp extends StatelessWidget {
           elevation: 0,
           scrolledUnderElevation: 0,
           titleTextStyle: GoogleFonts.unbounded(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: 1.0
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            letterSpacing: 1.0,
           ),
           iconTheme: const IconThemeData(color: Colors.white),
         ),

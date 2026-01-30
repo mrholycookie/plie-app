@@ -1,3 +1,5 @@
+import 'review.dart';
+
 class DanceStudio {
   final String id;
   final String name;
@@ -11,6 +13,8 @@ class DanceStudio {
   final String? yandexMapUrl; // Ссылка на Яндекс карты для построения маршрута
   final double? rating; // Рейтинг студии (0.0 - 5.0)
   final String? yandexOrgId; // ID организации в Яндекс.Картах для отзывов
+  final List<Review> reviews; // Отзывы (первые 5)
+  final String? phone; // Телефон студии
 
   DanceStudio({
     required this.id,
@@ -25,7 +29,9 @@ class DanceStudio {
     this.yandexMapUrl,
     this.rating,
     this.yandexOrgId,
-  });
+    List<Review>? reviews,
+    this.phone,
+  }) : reviews = reviews ?? [];
 
   factory DanceStudio.fromJson(Map<String, dynamic> json) {
     // Парсим address: может быть строкой или массивом строк
@@ -50,11 +56,58 @@ class DanceStudio {
       siteUrl: json['url'] ?? '',
       address: parseAddress(json['address']),
       coords: json['coords'] != null
-          ? (json['coords'] as List<dynamic>).map((e) => (e as num).toDouble()).toList()
+          ? (() {
+              try {
+                if (json['coords'] is List) {
+                  final coordsList = (json['coords'] as List<dynamic>)
+                      .map((e) {
+                        try {
+                          return (e as num).toDouble();
+                        } catch (_) {
+                          return null;
+                        }
+                      })
+                      .whereType<double>()
+                      .toList();
+                  return coordsList.length == 2 ? coordsList : null;
+                }
+                return null;
+              } catch (_) {
+                return null;
+              }
+            })()
           : null,
       yandexMapUrl: json['yandex_map_url'] as String?,
-      rating: json['rating'] != null ? (json['rating'] as num).toDouble() : null,
+      rating: json['rating'] != null
+          ? (() {
+              try {
+                if (json['rating'] is num) {
+                  return (json['rating'] as num).toDouble();
+                } else if (json['rating'] is String) {
+                  return double.tryParse(json['rating'] as String);
+                }
+                return null;
+              } catch (_) {
+                return null;
+              }
+            })()
+          : null,
       yandexOrgId: json['yandex_org_id'] as String?,
+      reviews: (json['reviews'] as List<dynamic>?)
+              ?.map((e) {
+                try {
+                  if (e is Map<String, dynamic>) {
+                    return Review.fromJson(e);
+                  }
+                  return null;
+                } catch (_) {
+                  return null;
+                }
+              })
+              .whereType<Review>()
+              .toList() ??
+          [],
+      phone: json['phone'] as String?,
     );
   }
 }

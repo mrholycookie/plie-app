@@ -48,8 +48,6 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final Color? backgroundColor;
   final double? elevation;
-  final bool showSearchButton;
-  final VoidCallback? onSearchTap;
 
   const CommonAppBar({
     super.key,
@@ -57,27 +55,10 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.backgroundColor,
     this.elevation,
-    this.showSearchButton = false,
-    this.onSearchTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> finalActions = [];
-    
-    if (showSearchButton) {
-      finalActions.add(
-        IconButton(
-          icon: const Icon(Icons.search, color: Colors.white),
-          onPressed: onSearchTap,
-        ),
-      );
-    }
-    
-    if (actions != null) {
-      finalActions.addAll(actions!);
-    }
-    
     return AppBar(
       backgroundColor: backgroundColor ?? Colors.black,
       elevation: elevation ?? 0,
@@ -89,7 +70,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: false,
-      actions: finalActions,
+      actions: actions,
     );
   }
 
@@ -124,7 +105,8 @@ class AddItemBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(FontAwesomeIcons.circlePlus, color: const Color(0xFFCCFF00), size: 16),
+              const Icon(FontAwesomeIcons.circlePlus,
+                  color: Color(0xFFCCFF00), size: 16),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -151,7 +133,8 @@ class AddItemBanner extends StatelessWidget {
             onTap: () async {
               try {
                 await launchUrl(
-                  Uri.parse('mailto:apppliehelp@gmail.com?subject=$emailSubject'),
+                  Uri.parse(
+                      'mailto:apppliehelp@gmail.com?subject=$emailSubject'),
                   mode: LaunchMode.externalApplication,
                 );
               } catch (_) {}
@@ -232,7 +215,8 @@ class SiteButton extends StatelessWidget {
       onPressed: url.isNotEmpty
           ? () async {
               try {
-                await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                await launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalApplication);
               } catch (_) {}
             }
           : null,

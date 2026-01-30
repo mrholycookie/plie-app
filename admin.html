@@ -383,7 +383,7 @@
                 ☁️ Загрузить из Gist
             </button>
             <button class="btn btn-primary" onclick="saveToFile()">
-                💾 Сохранить в файл
+                📥 Скачать JSON
             </button>
             <button class="btn btn-success" onclick="saveToGist()" id="saveGistBtn" style="display: none;">
                 ☁️ Сохранить в Gist
@@ -473,9 +473,38 @@
                     </div>
                     <div class="form-group">
                         <label>ID организации в Яндекс.Картах</label>
-                        <input type="text" id="studio-yandex-org-id" placeholder="1234567890">
+                        <div style="display: flex; gap: 8px; align-items: flex-start;">
+                            <input type="text" id="studio-yandex-org-id" placeholder="1234567890" style="flex: 1;">
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="parseYandexFullInfo()" id="parse-full-info-btn" style="white-space: nowrap; min-width: 140px;">
+                                    🔍 Вся информация
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="parseYandexReviews()" id="parse-reviews-btn" style="white-space: nowrap; min-width: 140px;">
+                                    💬 Только отзывы
+                                </button>
+                            </div>
+                        </div>
+                        <small style="color: #ff6b6b; font-size: 12px; margin-top: 4px; display: block;">
+                            ⚠️ <strong>Важно:</strong> CORS proxy имеет ограничения. Делайте паузу 10-15 секунд между парсингом разных организаций, иначе будут ошибки 408/520. ID организации можно найти в URL страницы организации.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="tel" id="studio-phone" placeholder="+7 (999) 123-45-67">
                         <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
-                            ID организации для отображения отзывов (можно найти в URL страницы организации)
+                            Телефон студии для кнопки "Позвонить"
+                        </small>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Отзывы (первые 5)</label>
+                        <div id="reviews-container">
+                            <!-- Отзывы будут добавлены динамически -->
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addReview()" style="margin-top: 10px;">
+                            ➕ Добавить отзыв
+                        </button>
+                        <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+                            Добавьте до 5 отзывов. Формат: Имя автора, Текст отзыва, Дата (ДД.ММ.ГГГГ), Рейтинг (опционально, 1-5)
                         </small>
                     </div>
                     <div class="form-group full-width">
@@ -772,6 +801,11 @@
                         const form = document.getElementById(formId);
                         if (form) {
                             form.reset();
+                            // Сбрасываем отзывы для студий
+                            if (formId === 'studioForm') {
+                                reviewsData = [];
+                                renderReviews();
+                            }
                             const submitBtn = form.querySelector('button[type="submit"]');
                             if (submitBtn && submitBtn.textContent.includes('Сохранить')) {
                                 // Восстанавливаем оригинальный текст кнопки
@@ -899,6 +933,78 @@
             stylesInput.focus();
         }
 
+        // Работа с отзывами
+        let reviewsData = [];
+
+        function addReview() {
+            if (reviewsData.length >= 5) {
+                showStatus('Можно добавить максимум 5 отзывов', 'error');
+                return;
+            }
+            reviewsData.push({
+                author_name: '',
+                text: '',
+                date: '',
+                rating: null
+            });
+            renderReviews();
+        }
+
+        function removeReview(index) {
+            reviewsData.splice(index, 1);
+            renderReviews();
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviews-container');
+            container.innerHTML = '';
+            
+            reviewsData.forEach((review, index) => {
+                const reviewDiv = document.createElement('div');
+                reviewDiv.className = 'array-item';
+                reviewDiv.style.cssText = 'margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 6px;';
+                reviewDiv.innerHTML = `
+                    <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="font-size: 11px; color: #666;">Имя автора *</label>
+                            <input type="text" class="review-author" data-index="${index}" value="${review.author_name || ''}" placeholder="Иван Иванов" style="width: 100%; padding: 6px; font-size: 12px;">
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: #666;">Дата (ДД.ММ.ГГГГ)</label>
+                            <input type="text" class="review-date" data-index="${index}" value="${review.date || ''}" placeholder="15.01.2024" style="width: 100%; padding: 6px; font-size: 12px;">
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <label style="font-size: 11px; color: #666;">Текст отзыва *</label>
+                            <textarea class="review-text" data-index="${index}" placeholder="Отличная студия!" style="width: 100%; padding: 6px; font-size: 12px; min-height: 60px; resize: vertical;">${review.text || ''}</textarea>
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: #666;">Рейтинг (1-5, опционально)</label>
+                            <input type="number" class="review-rating" data-index="${index}" value="${(review.rating != null && review.rating !== '' && review.rating !== undefined) ? review.rating : ''}" min="1" max="5" step="0.1" placeholder="5.0" style="width: 100%; padding: 6px; font-size: 12px;">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeReview(${index})" style="margin-left: 10px;">🗑️</button>
+                `;
+                container.appendChild(reviewDiv);
+            });
+
+            // Добавляем обработчики изменений
+            container.querySelectorAll('.review-author, .review-text, .review-date, .review-rating').forEach(input => {
+                input.addEventListener('input', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const field = this.className.replace('review-', '');
+                    if (field === 'author') {
+                        reviewsData[index].author_name = this.value;
+                    } else if (field === 'text') {
+                        reviewsData[index].text = this.value;
+                    } else if (field === 'date') {
+                        reviewsData[index].date = this.value;
+                    } else if (field === 'rating') {
+                        reviewsData[index].rating = this.value ? parseFloat(this.value) : null;
+                    }
+                });
+            });
+        }
+
         // Генерация автоматического ID для студии
         function generateStudioId() {
             const idInput = document.getElementById('studio-id');
@@ -941,7 +1047,17 @@
             document.getElementById('studio-yandex-map').value = studio.yandex_map_url || '';
             document.getElementById('studio-rating').value = studio.rating || '';
             document.getElementById('studio-yandex-org-id').value = studio.yandex_org_id || '';
+            document.getElementById('studio-phone').value = studio.phone || '';
             document.getElementById('studio-styles').value = Array.isArray(studio.styles) ? studio.styles.join(', ') : (studio.styles || '');
+            
+            // Загружаем отзывы
+            reviewsData = Array.isArray(studio.reviews) ? studio.reviews.map(r => ({
+                author_name: r.author_name || r.authorName || '',
+                text: r.text || '',
+                date: r.date || '',
+                rating: r.rating || null
+            })) : [];
+            renderReviews();
             
             // Генерируем новый ID
             generateStudioId();
@@ -1039,6 +1155,13 @@
                 yandex_map_url: document.getElementById('studio-yandex-map').value.trim() || undefined,
                 rating: document.getElementById('studio-rating').value ? parseFloat(document.getElementById('studio-rating').value) : undefined,
                 yandex_org_id: document.getElementById('studio-yandex-org-id').value.trim() || undefined,
+                phone: document.getElementById('studio-phone').value.trim() || undefined,
+                reviews: reviewsData.filter(r => r.author_name && r.text).map(r => ({
+                    author_name: r.author_name,
+                    text: r.text,
+                    date: r.date || '',
+                    rating: r.rating || undefined
+                })),
                 styles: document.getElementById('studio-styles').value.split(',').map(s => s.trim()).filter(s => s)
             };
             
@@ -1047,6 +1170,8 @@
                 data.studios[editingIndex.studios] = studio;
                 editingIndex.studios = null;
                 document.getElementById('studioForm').reset();
+                reviewsData = [];
+                renderReviews();
                 document.getElementById('studioForm').querySelector('button[type="submit"]').textContent = '➕ Добавить студию';
                 renderStudios();
                 renderStyles(); // Обновляем список стилей
@@ -1055,6 +1180,8 @@
                 // Добавляем новую запись
                 data.studios.push(studio);
                 document.getElementById('studioForm').reset();
+                reviewsData = [];
+                renderReviews();
                 renderStudios();
                 renderStyles(); // Обновляем список стилей
                 showStatus('Студия добавлена!');
@@ -1074,7 +1201,17 @@
             document.getElementById('studio-yandex-map').value = studio.yandex_map_url || '';
             document.getElementById('studio-rating').value = studio.rating || '';
             document.getElementById('studio-yandex-org-id').value = studio.yandex_org_id || '';
+            document.getElementById('studio-phone').value = studio.phone || '';
             document.getElementById('studio-styles').value = Array.isArray(studio.styles) ? studio.styles.join(', ') : (studio.styles || '');
+            
+            // Загружаем отзывы
+            reviewsData = Array.isArray(studio.reviews) ? studio.reviews.map(r => ({
+                author_name: r.author_name || r.authorName || '',
+                text: r.text || '',
+                date: r.date || '',
+                rating: r.rating || null
+            })) : [];
+            renderReviews();
             
             editingIndex.studios = index;
             document.getElementById('studioForm').querySelector('button[type="submit"]').textContent = '💾 Сохранить изменения';
@@ -1104,6 +1241,7 @@
                         <div><strong>Я.Карты:</strong> ${studio.yandex_map_url ? '✓' : '—'}</div>
                         <div><strong>Рейтинг:</strong> ${studio.rating ? studio.rating.toFixed(1) : '—'}</div>
                         <div><strong>Я.Карты ID:</strong> ${studio.yandex_org_id || '—'}</div>
+                        <div><strong>Отзывов:</strong> ${studio.reviews ? studio.reviews.length : 0}</div>
                         <div><strong>Сайт:</strong> ${studio.url ? '✓' : '—'}</div>
                         <div class="full-width"><strong>Стили:</strong> ${stylesStr || '—'}</div>
                     </div>
@@ -1616,10 +1754,6 @@
 
                 if (response.ok) {
                     showStatus('✅ Gist успешно обновлен!');
-                    // После успешного сохранения в Gist, автоматически скачиваем обновленный base.json
-                    setTimeout(() => {
-                        saveToFile();
-                    }, 500);
                 } else {
                     const error = await response.json();
                     showStatus('Ошибка при обновлении Gist: ' + (error.message || 'Неизвестная ошибка'), 'error');
@@ -1756,6 +1890,794 @@
                 };
                 renderAll();
                 showStatus('Все данные очищены');
+            }
+        }
+
+        // Парсинг отзывов с Яндекс.Карт
+        // Общий парсинг всей информации со страницы Яндекс карт
+        async function parseYandexFullInfo() {
+            const orgId = document.getElementById('studio-yandex-org-id').value.trim();
+            if (!orgId) {
+                showStatus('Сначала укажите ID организации', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('parse-full-info-btn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Парсинг...';
+
+            try {
+                showStatus('Начинаю парсинг информации...', 'info');
+                
+                // Добавляем параметр lang=ru для русской локали
+                const targetUrl = `https://yandex.ru/maps/org/eto/${orgId}/?lang=ru`;
+                
+                // Пробуем несколько CORS proxy по очереди
+                const proxies = [
+                    'https://api.allorigins.win/raw?url=',
+                    'https://corsproxy.io/?',
+                    'https://api.codetabs.com/v1/proxy?quest='
+                ];
+                
+                let response;
+                let lastError;
+                
+                for (let i = 0; i < proxies.length; i++) {
+                    const proxyUrl = proxies[i];
+                    const url = proxyUrl + encodeURIComponent(targetUrl);
+                    
+                    try {
+                        showStatus(`Попытка ${i + 1} из ${proxies.length}...`, 'info');
+                        
+                        const headers = {
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                            'Accept-Language': 'ru-RU,ru;q=0.9',
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                        };
+                        
+                        response = await fetch(url, {
+                            method: 'GET',
+                            headers: headers,
+                            mode: 'cors',
+                            credentials: 'omit'
+                        });
+                        
+                        if (response.ok) {
+                            break;
+                        } else {
+                            lastError = new Error(`HTTP ${response.status}`);
+                            if (i < proxies.length - 1) {
+                                await new Promise(resolve => setTimeout(resolve, 2000));
+                                continue;
+                            }
+                        }
+                    } catch (fetchError) {
+                        lastError = fetchError;
+                        if (i < proxies.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            continue;
+                        }
+                    }
+                }
+                
+                if (!response || !response.ok) {
+                    throw lastError || new Error('Не удалось загрузить страницу');
+                }
+
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // Парсим название
+                let name = '';
+                const nameSelectors = [
+                    'h1[itemprop="name"]',
+                    '.orgpage-header-view__header h1',
+                    '.business-card-title-view__title',
+                    'h1'
+                ];
+                for (const selector of nameSelectors) {
+                    const el = doc.querySelector(selector);
+                    if (el && el.textContent.trim()) {
+                        name = el.textContent.trim();
+                        break;
+                    }
+                }
+
+                // Парсим адрес
+                let address = '';
+                const addressSelectors = [
+                    '[itemprop="address"]',
+                    '.orgpage-header-view__address',
+                    '.business-card-title-view__address',
+                    '.card-feature-view__text'
+                ];
+                for (const selector of addressSelectors) {
+                    const el = doc.querySelector(selector);
+                    if (el && el.textContent.trim()) {
+                        address = el.textContent.trim();
+                        break;
+                    }
+                }
+
+                // Парсим телефон
+                let phone = '';
+                const phoneSelectors = [
+                    'a[href^="tel:"]',
+                    '[itemprop="telephone"]',
+                    '.business-contacts-view__phone',
+                    '.card-feature-view__text a[href^="tel:"]'
+                ];
+                for (const selector of phoneSelectors) {
+                    const el = doc.querySelector(selector);
+                    if (el) {
+                        const href = el.getAttribute('href');
+                        if (href) {
+                            phone = href.replace('tel:', '').trim();
+                        } else {
+                            phone = el.textContent.trim();
+                        }
+                        if (phone) break;
+                    }
+                }
+
+                // Парсим координаты из JSON-LD или meta тегов
+                let coords = null;
+                const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                for (const script of jsonLdScripts) {
+                    try {
+                        const jsonData = JSON.parse(script.textContent);
+                        if (jsonData['@type'] === 'LocalBusiness' && jsonData.geo) {
+                            const lat = jsonData.geo.latitude;
+                            const lng = jsonData.geo.longitude;
+                            if (lat && lng) {
+                                coords = [parseFloat(lat), parseFloat(lng)];
+                                break;
+                            }
+                        }
+                    } catch (e) {
+                        // Продолжаем
+                    }
+                }
+
+                // Парсим рейтинг
+                let rating = null;
+                const ratingSelectors = [
+                    '[itemprop="ratingValue"]',
+                    '.business-rating-badge-view__rating',
+                    '.orgpage-header-view__rating',
+                    '.business-rating-view__rating-text',
+                    '.orgpage-header-view__rating-text'
+                ];
+                for (const selector of ratingSelectors) {
+                    const el = doc.querySelector(selector);
+                    if (el) {
+                        const content = el.getAttribute('content') || el.textContent.trim();
+                        // Ищем число с точкой (например 4.5) или целое число
+                        // Поддерживаем форматы: "4.5", "4,5", "4", "4.0"
+                        const match = content.match(/(\d+[.,]?\d*)/);
+                        if (match) {
+                            // Заменяем запятую на точку для parseFloat
+                            const ratingStr = match[1].replace(',', '.');
+                            rating = parseFloat(ratingStr);
+                            // Проверяем что рейтинг в допустимом диапазоне
+                            if (!isNaN(rating) && rating >= 0 && rating <= 5) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Парсим стили танцев из раздела "Танцы"
+                let styles = [];
+                
+                // Ищем все элементы с категориями/стилями
+                const allFeatureElements = doc.querySelectorAll(
+                    '.card-feature-view, .business-card-view__features, .orgpage-header-view__features, [class*="feature"]'
+                );
+                
+                for (const featureEl of allFeatureElements) {
+                    const text = featureEl.textContent || '';
+                    // Ищем раздел "Танцы" или похожие
+                    if (text.toLowerCase().includes('танц') || text.toLowerCase().includes('dance')) {
+                        // Ищем стили в этом разделе
+                        const styleElements = featureEl.querySelectorAll(
+                            '.card-feature-view__text, .business-card-view__feature-text, span, div'
+                        );
+                        
+                        for (const styleEl of styleElements) {
+                            const styleText = styleEl.textContent.trim();
+                            // Пропускаем если это само слово "Танцы" или слишком короткий текст
+                            if (styleText && 
+                                styleText.length > 2 && 
+                                !styleText.toLowerCase().includes('танц') &&
+                                !styleText.toLowerCase().includes('dance') &&
+                                styleText.length < 50) { // Ограничиваем длину
+                                // Разбиваем по запятым, точкам с запятой, переносам строк
+                                const parts = styleText
+                                    .split(/[,;，；\n]/)
+                                    .map(s => s.trim())
+                                    .filter(s => s && s.length > 1 && s.length < 30);
+                                if (parts.length > 0) {
+                                    styles.push(...parts);
+                                } else {
+                                    // Если не разбилось, добавляем как один стиль
+                                    styles.push(styleText);
+                                }
+                            }
+                        }
+                        break; // Нашли раздел "Танцы", больше не ищем
+                    }
+                }
+                
+                // Альтернативный способ: ищем в категориях/тегах если не нашли в разделе "Танцы"
+                if (styles.length === 0) {
+                    const categorySelectors = [
+                        '.business-card-view__category',
+                        '.orgpage-header-view__category',
+                        '[data-category]',
+                        '.card-feature-view__category',
+                        '.business-card-view__tag'
+                    ];
+                    for (const selector of categorySelectors) {
+                        const elements = doc.querySelectorAll(selector);
+                        for (const el of elements) {
+                            const text = el.textContent.trim();
+                            if (text && text.length > 2 && text.length < 30 && 
+                                !text.toLowerCase().includes('танц') &&
+                                !text.toLowerCase().includes('dance')) {
+                                styles.push(text);
+                            }
+                        }
+                        if (styles.length > 0) break;
+                    }
+                }
+                
+                // Убираем дубликаты и ограничиваем количество
+                styles = [...new Set(styles)].slice(0, 10);
+
+                // Парсим ссылку на Яндекс.Карты (типа https://yandex.ru/maps/-/CPAur2-o)
+                let yandexMapUrl = '';
+                
+                // 1. Ищем в мета-тегах (самый надежный способ)
+                const metaUrl = doc.querySelector('meta[property="og:url"], meta[name="og:url"]');
+                if (metaUrl) {
+                    const content = metaUrl.getAttribute('content');
+                    if (content && content.includes('/maps/')) {
+                        yandexMapUrl = content;
+                    }
+                }
+                
+                // 2. Ищем ссылку "Поделиться" или прямую ссылку на карту
+                if (!yandexMapUrl) {
+                    const shareLinks = doc.querySelectorAll('a[href*="yandex.ru/maps"], a[href*="maps.yandex.ru"]');
+                    for (const link of shareLinks) {
+                        const href = link.getAttribute('href');
+                        if (href) {
+                            // Ищем ссылки типа /maps/-/CPAur2-o
+                            if (href.includes('/maps/-/')) {
+                                yandexMapUrl = href.startsWith('http') ? href : `https://yandex.ru${href}`;
+                                break;
+                            }
+                            // Или ссылки на организацию
+                            if (href.includes(`/org/eto/${orgId}`)) {
+                                yandexMapUrl = href.startsWith('http') ? href : `https://yandex.ru${href}`;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // 3. Ищем в JSON-LD
+                if (!yandexMapUrl) {
+                    const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                    for (const script of jsonLdScripts) {
+                        try {
+                            const jsonData = JSON.parse(script.textContent);
+                            if (jsonData.url && jsonData.url.includes('/maps/')) {
+                                yandexMapUrl = jsonData.url;
+                                break;
+                            }
+                            if (jsonData['@id'] && jsonData['@id'].includes('/maps/')) {
+                                yandexMapUrl = jsonData['@id'];
+                                break;
+                            }
+                        } catch (e) {
+                            // Продолжаем
+                        }
+                    }
+                }
+                
+                // 4. Если не нашли, формируем базовую ссылку (но без короткого кода)
+                if (!yandexMapUrl) {
+                    yandexMapUrl = `https://yandex.ru/maps/org/eto/${orgId}/`;
+                }
+
+                // Парсим сайт организации
+                let siteUrl = '';
+                const siteSelectors = [
+                    'a[href^="http"]:not([href*="yandex.ru"]):not([href^="tel:"]):not([href^="mailto:"])',
+                    '[itemprop="url"]',
+                    '.business-contacts-view__website a',
+                    '.card-feature-view__website a',
+                    'a.business-card-view__website'
+                ];
+                for (const selector of siteSelectors) {
+                    const elements = doc.querySelectorAll(selector);
+                    for (const el of elements) {
+                        const href = el.getAttribute('href');
+                        const text = el.textContent.trim();
+                        // Пропускаем ссылки на Яндекс, телефон, email
+                        if (href && 
+                            href.startsWith('http') && 
+                            !href.includes('yandex.ru') &&
+                            !href.includes('yandex.com') &&
+                            href.length > 10) {
+                            siteUrl = href;
+                            break;
+                        }
+                    }
+                    if (siteUrl) break;
+                }
+
+                // Заполняем поля формы
+                if (name) {
+                    document.getElementById('studio-name').value = name;
+                }
+                if (address) {
+                    document.getElementById('studio-address').value = address;
+                }
+                if (phone) {
+                    document.getElementById('studio-phone').value = phone;
+                }
+                if (coords) {
+                    document.getElementById('studio-coords').value = coords.join(', ');
+                }
+                if (rating) {
+                    document.getElementById('studio-rating').value = rating;
+                }
+                if (yandexMapUrl) {
+                    document.getElementById('studio-yandex-map').value = yandexMapUrl;
+                }
+                if (siteUrl) {
+                    document.getElementById('studio-url').value = siteUrl;
+                }
+                if (styles.length > 0) {
+                    // Добавляем стили к существующим или заменяем
+                    const currentStyles = document.getElementById('studio-styles').value.trim();
+                    const existingStyles = currentStyles ? currentStyles.split(',').map(s => s.trim()) : [];
+                    const allStyles = [...new Set([...existingStyles, ...styles])]; // Убираем дубликаты
+                    document.getElementById('studio-styles').value = allStyles.join(', ');
+                }
+
+                const foundItems = [];
+                if (name) foundItems.push('название');
+                if (address) foundItems.push('адрес');
+                if (phone) foundItems.push('телефон');
+                if (coords) foundItems.push('координаты');
+                if (rating) foundItems.push('рейтинг');
+                if (yandexMapUrl) foundItems.push('ссылка на Яндекс.Карты');
+                if (siteUrl) foundItems.push('сайт');
+                if (styles.length > 0) foundItems.push(`стили (${styles.length})`);
+                
+                showStatus(`✅ Основная информация спарсена! Найдено: ${foundItems.join(', ')}`, 'success');
+
+                // Автоматически парсим отзывы после парсинга основной информации
+                showStatus('Начинаю парсинг отзывов...', 'info');
+                try {
+                    await parseYandexReviewsInternal(orgId);
+                    showStatus('✅ Парсинг завершен! Вся информация и отзывы загружены.', 'success');
+                } catch (reviewError) {
+                    console.error('Ошибка парсинга отзывов:', reviewError);
+                    showStatus(`⚠️ Основная информация загружена, но не удалось загрузить отзывы: ${reviewError.message}`, 'warning');
+                }
+
+            } catch (error) {
+                console.error('Ошибка парсинга:', error);
+                showStatus(`❌ Ошибка парсинга: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // Внутренняя функция для парсинга отзывов (используется и отдельно, и из parseYandexFullInfo)
+        async function parseYandexReviewsInternal(orgId) {
+            // Эмуляция браузера: случайная задержка от 3 до 8 секунд
+            const delay = 3000 + Math.random() * 5000;
+            showStatus(`Ожидание перед запросом отзывов (${Math.round(delay/1000)} сек)...`, 'info');
+            await new Promise(resolve => setTimeout(resolve, delay));
+            
+            // Добавляем параметр lang=ru для русской локали
+            const targetUrl = `https://yandex.ru/maps/org/eto/${orgId}/reviews?lang=ru`;
+            
+            // Пробуем несколько CORS proxy по очереди
+            const proxies = [
+                'https://api.allorigins.win/raw?url=',
+                'https://corsproxy.io/?',
+                'https://api.codetabs.com/v1/proxy?quest='
+            ];
+            
+            let response;
+            let lastError;
+            
+            for (let i = 0; i < proxies.length; i++) {
+                const proxyUrl = proxies[i];
+                const url = proxyUrl + encodeURIComponent(targetUrl);
+                
+                try {
+                    showStatus(`Попытка ${i + 1} из ${proxies.length}...`, 'info');
+                    
+                    const headers = {
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                        'Accept-Language': 'ru-RU,ru;q=0.9',
+                        'Accept-Encoding': 'gzip, deflate, br',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache',
+                        'Sec-Fetch-Dest': 'document',
+                        'Sec-Fetch-Mode': 'navigate',
+                        'Sec-Fetch-Site': 'none',
+                        'Sec-Fetch-User': '?1',
+                        'Upgrade-Insecure-Requests': '1',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    };
+                    
+                    response = await fetch(url, {
+                        method: 'GET',
+                        headers: headers,
+                        mode: 'cors',
+                        credentials: 'omit'
+                    });
+                    
+                    if (response.ok) {
+                        break;
+                    } else {
+                        lastError = new Error(`HTTP ${response.status}`);
+                        if (i < proxies.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            continue;
+                        }
+                    }
+                } catch (fetchError) {
+                    lastError = fetchError;
+                    if (i < proxies.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        continue;
+                    }
+                }
+            }
+            
+            if (!response || !response.ok) {
+                if (lastError && (lastError.message.includes('Failed to fetch') || lastError.message.includes('CORS'))) {
+                    throw new Error('Ошибка CORS или сети. Все CORS proxy недоступны. Подождите 30-60 секунд перед следующей попыткой.');
+                }
+                throw lastError || new Error('Не удалось загрузить страницу');
+            }
+
+            if (!response.ok) {
+                if (response.status === 408) {
+                    throw new Error('Превышено время ожидания (408). CORS proxy перегружен из-за частых запросов. Сделайте паузу 30-60 секунд перед следующей попыткой.');
+                }
+                if (response.status === 500) {
+                    throw new Error('Ошибка сервера (500). CORS proxy временно недоступен. Подождите 30-60 секунд.');
+                }
+                if (response.status === 520 || response.status === 522) {
+                    throw new Error(`Ошибка сервера (${response.status}). CORS proxy не может обработать запрос. Подождите 60 секунд и попробуйте снова.`);
+                }
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const html = await response.text();
+            const parser = new DOMParser();
+            let doc = parser.parseFromString(html, 'text/html');
+
+            const parsedReviews = [];
+            
+            // Пробуем разные селекторы для отзывов Яндекс.Карт
+            const reviewSelectors = [
+                '.business-review-view',
+                '.review-item',
+                '[data-review-id]',
+                '.org-reviews-item',
+                '.reviews-item',
+                '.business-reviews-view__review'
+            ];
+
+            let reviewElements = [];
+            for (const selector of reviewSelectors) {
+                reviewElements = Array.from(doc.querySelectorAll(selector));
+                if (reviewElements.length > 0) break;
+            }
+
+            // Если не нашли через селекторы, пробуем парсить из JSON-LD
+            if (reviewElements.length === 0) {
+                const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                for (const script of jsonLdScripts) {
+                    try {
+                        const jsonData = JSON.parse(script.textContent);
+                        if (jsonData['@type'] === 'LocalBusiness' && jsonData.aggregateRating && jsonData.aggregateRating.review) {
+                            const reviews = Array.isArray(jsonData.aggregateRating.review) 
+                                ? jsonData.aggregateRating.review 
+                                : [jsonData.aggregateRating.review];
+                            
+                            reviews.slice(0, 5).forEach(review => {
+                                if (review.reviewBody) {
+                                    parsedReviews.push({
+                                        author_name: review.author?.name || 'Аноним',
+                                        text: review.reviewBody,
+                                        date: formatDate(review.datePublished),
+                                        rating: review.reviewRating?.ratingValue || null
+                                    });
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        // Продолжаем
+                    }
+                }
+            } else {
+                // Парсим из HTML элементов - берем только первые 5 отзывов
+                reviewElements.slice(0, 5).forEach(element => {
+                    try {
+                        const authorEl = element.querySelector('.business-review-view__author, .review-author, [itemprop="author"], .business-reviews-view__author');
+                        const textEl = element.querySelector('.business-review-view__body, .review-text, [itemprop="reviewBody"], .business-reviews-view__text');
+                        const dateEl = element.querySelector('.business-review-view__date, .review-date, [itemprop="datePublished"], .business-reviews-view__date');
+
+                        const authorName = authorEl?.textContent?.trim() || 'Аноним';
+                        const text = textEl?.textContent?.trim() || '';
+                        let date = dateEl?.textContent?.trim() || '';
+                        let rating = null;
+
+                        // Парсинг рейтинга
+                        const ratingStars = element.querySelector('.business-rating-badge-view__stars[aria-label]');
+                        if (ratingStars) {
+                            const ariaLabel = ratingStars.getAttribute('aria-label') || '';
+                            const ariaMatch = ariaLabel.match(/Оценка\s+(\d+)\s+Из\s+5/i);
+                            if (ariaMatch) {
+                                rating = parseFloat(ariaMatch[1]);
+                            }
+                        }
+                        
+                        if (!rating) {
+                            const ratingContainer = element.querySelector('.business-review-view__rating');
+                            if (ratingContainer) {
+                                const starsEl = ratingContainer.querySelector('.business-rating-badge-view__stars');
+                                if (starsEl) {
+                                    const ariaLabel = starsEl.getAttribute('aria-label') || '';
+                                    const ariaMatch = ariaLabel.match(/Оценка\s+(\d+)\s+Из\s+5/i);
+                                    if (ariaMatch) {
+                                        rating = parseFloat(ariaMatch[1]);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if (!rating) {
+                            const ratingMeta = element.querySelector('meta[itemprop="ratingValue"]');
+                            if (ratingMeta) {
+                                const ratingValue = ratingMeta.getAttribute('content');
+                                if (ratingValue) {
+                                    rating = parseFloat(ratingValue);
+                                }
+                            }
+                        }
+                        
+                        if (!rating) {
+                            const allElements = element.querySelectorAll('[aria-label*="Оценка"]');
+                            for (const el of allElements) {
+                                const ariaLabel = el.getAttribute('aria-label') || '';
+                                const ariaMatch = ariaLabel.match(/Оценка\s+(\d+)\s+Из\s+5/i);
+                                if (ariaMatch) {
+                                    rating = parseFloat(ariaMatch[1]);
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Форматируем дату - сразу конвертируем в нужный формат
+                        if (date) {
+                            date = formatDate(date);
+                        } else {
+                            date = formatDate(new Date());
+                        }
+
+                        if (text) {
+                            const finalRating = (rating !== null && !isNaN(rating) && rating > 0) ? rating : null;
+                            parsedReviews.push({
+                                author_name: authorName,
+                                text: text,
+                                date: date,
+                                rating: finalRating
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Ошибка парсинга отзыва:', e);
+                    }
+                });
+            }
+
+            if (parsedReviews.length === 0) {
+                throw new Error('Не удалось найти отзывы. Проверьте ID организации или попробуйте позже.');
+            }
+            
+            // Очищаем существующие отзывы и добавляем новые
+            reviewsData = parsedReviews.slice(0, 5).map(r => ({
+                author_name: r.author_name || '',
+                text: r.text || '',
+                date: r.date || '',
+                rating: (r.rating != null && !isNaN(r.rating) && r.rating > 0) ? r.rating : null
+            }));
+            renderReviews();
+        }
+
+        async function parseYandexReviews() {
+            const orgId = document.getElementById('studio-yandex-org-id').value.trim();
+            if (!orgId) {
+                showStatus('Сначала укажите ID организации', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('parse-reviews-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '⏳ Парсинг...';
+            showStatus('Парсинг отзывов...', 'info');
+
+            try {
+                await parseYandexReviewsInternal(orgId);
+                showStatus('✅ Отзывы успешно загружены!', 'success');
+            } catch (error) {
+                console.error('Ошибка парсинга отзывов:', error);
+                let errorMessage = 'Ошибка при парсинге отзывов: ' + error.message;
+                
+                // Более детальные сообщения об ошибках
+                if (error.message.includes('408') || error.message.includes('timeout')) {
+                    errorMessage = 'Превышено время ожидания. CORS proxy перегружен из-за частых запросов. Рекомендация: делайте паузу 60 секунд между парсингом разных организаций.';
+                } else if (error.message.includes('500') || error.message.includes('522')) {
+                    errorMessage = 'CORS proxy временно недоступен. Подождите 30-60 секунд и попробуйте снова.';
+                } else if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Проблема с CORS proxy. Возможно, слишком много запросов подряд. Подождите минуту перед следующей попыткой.';
+                }
+                
+                showStatus(errorMessage, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        // Функция для парсинга даты для сортировки (возвращает Date объект)
+        function parseDateForSorting(dateValue) {
+            if (!dateValue) return new Date(0);
+            
+            try {
+                // Если это уже строка в формате "DD.MM.YYYY"
+                if (typeof dateValue === 'string' && /^\d{2}\.\d{2}\.\d{4}$/.test(dateValue)) {
+                    const [day, month, year] = dateValue.split('.');
+                    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                }
+                
+                // Пробуем стандартный парсинг
+                const date = new Date(dateValue);
+                if (!isNaN(date.getTime())) {
+                    return date;
+                }
+                
+                // Пробуем парсить русские/английские форматы
+                const monthNames = {
+                    'january': 0, 'jan': 0, 'января': 0, 'янв': 0,
+                    'february': 1, 'feb': 1, 'февраля': 1, 'фев': 1,
+                    'march': 2, 'mar': 2, 'марта': 2, 'мар': 2,
+                    'april': 3, 'apr': 3, 'апреля': 3, 'апр': 3,
+                    'may': 4, 'мая': 4,
+                    'june': 5, 'jun': 5, 'июня': 5, 'июн': 5,
+                    'july': 6, 'jul': 6, 'июля': 6, 'июл': 6,
+                    'august': 7, 'aug': 7, 'августа': 7, 'авг': 7,
+                    'september': 8, 'sep': 8, 'сентября': 8, 'сен': 8,
+                    'october': 9, 'oct': 9, 'октября': 9, 'окт': 9,
+                    'november': 10, 'nov': 10, 'ноября': 10, 'ноя': 10,
+                    'december': 11, 'dec': 11, 'декабря': 11, 'дек': 11
+                };
+                
+                const dateMatch = dateValue.match(/(\w+)\s+(\d+),?\s+(\d{4})|(\d+)\s+(\w+)\s+(\d{4})/i);
+                if (dateMatch) {
+                    let day, month, year;
+                    if (dateMatch[1]) { // "March 14, 2025"
+                        month = monthNames[dateMatch[1].toLowerCase()];
+                        day = parseInt(dateMatch[2]);
+                        year = parseInt(dateMatch[3]);
+                    } else { // "14 March 2025"
+                        day = parseInt(dateMatch[4]);
+                        month = monthNames[dateMatch[5].toLowerCase()];
+                        year = parseInt(dateMatch[6]);
+                    }
+                    if (month !== undefined && !isNaN(day) && !isNaN(year)) {
+                        return new Date(year, month, day);
+                    }
+                }
+                
+                return new Date(0); // Если не удалось распарсить
+            } catch (e) {
+                return new Date(0);
+            }
+        }
+
+        function formatDate(dateValue) {
+            if (!dateValue) return '';
+            
+            // Если это уже строка в формате "DD.MM.YYYY", возвращаем как есть
+            if (typeof dateValue === 'string' && /^\d{2}\.\d{2}\.\d{4}$/.test(dateValue)) {
+                return dateValue;
+            }
+            
+            try {
+                let date;
+                
+                // Пробуем разные форматы даты
+                if (typeof dateValue === 'string') {
+                    // Формат "March 14, 2025" или "14 March 2025"
+                    const monthNames = {
+                        'january': 0, 'jan': 0, 'января': 0, 'янв': 0,
+                        'february': 1, 'feb': 1, 'февраля': 1, 'фев': 1,
+                        'march': 2, 'mar': 2, 'марта': 2, 'мар': 2,
+                        'april': 3, 'apr': 3, 'апреля': 3, 'апр': 3,
+                        'may': 4, 'мая': 4,
+                        'june': 5, 'jun': 5, 'июня': 5, 'июн': 5,
+                        'july': 6, 'jul': 6, 'июля': 6, 'июл': 6,
+                        'august': 7, 'aug': 7, 'августа': 7, 'авг': 7,
+                        'september': 8, 'sep': 8, 'сентября': 8, 'сен': 8,
+                        'october': 9, 'oct': 9, 'октября': 9, 'окт': 9,
+                        'november': 10, 'nov': 10, 'ноября': 10, 'ноя': 10,
+                        'december': 11, 'dec': 11, 'декабря': 11, 'дек': 11
+                    };
+                    
+                    // Пробуем парсить как "March 14, 2025" или "14 March 2025"
+                    let dateMatch = dateValue.match(/(\w+)\s+(\d+),?\s+(\d{4})/i);
+                    if (dateMatch) {
+                        const monthName = dateMatch[1].toLowerCase();
+                        const day = parseInt(dateMatch[2]);
+                        const year = parseInt(dateMatch[3]);
+                        const month = monthNames[monthName];
+                        if (month !== undefined) {
+                            date = new Date(year, month, day);
+                        }
+                    }
+                    
+                    // Пробуем парсить как "11 ноября 2025 года" или "11 ноября 2025"
+                    if (!date || isNaN(date.getTime())) {
+                        dateMatch = dateValue.match(/(\d+)\s+(\w+)\s+(\d{4})\s*(года)?/i);
+                        if (dateMatch) {
+                            const day = parseInt(dateMatch[1]);
+                            const monthName = dateMatch[2].toLowerCase();
+                            const year = parseInt(dateMatch[3]);
+                            const month = monthNames[monthName];
+                            if (month !== undefined) {
+                                date = new Date(year, month, day);
+                            }
+                        }
+                    }
+                    
+                    // Если не получилось, пробуем стандартный парсер
+                    if (!date || isNaN(date.getTime())) {
+                        date = new Date(dateValue);
+                    }
+                } else {
+                    date = new Date(dateValue);
+                }
+                
+                // Проверяем валидность даты
+                if (isNaN(date.getTime())) {
+                    return dateValue.toString();
+                }
+                
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}.${month}.${year}`;
+            } catch (e) {
+                // Если не удалось распарсить, возвращаем исходное значение
+                return dateValue.toString();
             }
         }
     </script>

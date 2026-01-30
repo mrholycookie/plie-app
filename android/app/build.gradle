@@ -11,6 +11,27 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+// Читаем .env файл для API ключей
+def envProperties = new Properties()
+def envFile = rootProject.file('../.env')
+if (envFile.exists()) {
+    envFile.eachLine { line ->
+        line = line.trim()
+        if (line && !line.startsWith('#')) {
+            def parts = line.split('=', 2)
+            if (parts.length == 2) {
+                def key = parts[0].trim()
+                def value = parts[1].trim()
+                // Убираем кавычки если есть
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    value = value.substring(1, value.length() - 1)
+                }
+                envProperties[key] = value
+            }
+        }
+    }
+}
+
 android {
     signingConfigs {
        release {
@@ -22,16 +43,23 @@ android {
    }
 
     namespace = "com.dancejournal.app"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = '21'
+    }
+
+    // Настройка toolchain для Java 21
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
     }
 
     defaultConfig {
@@ -39,11 +67,13 @@ android {
         applicationId = "com.dancejournal.app"
         
         // НАСТРОЙКИ ВЕРСИЙ ANDROID:
-        minSdk = 24               // ИСПРАВЛЕНО: было flutter.minSdkVersion (ставим 24 для библиотек)
-        targetSdk = 35            // ИСПРАВЛЕНО: было flutter.targetSdkVersion (Android 14)
+        minSdk = 26
+        targetSdk = 36            // Обновлено для совместимости с compileSdk
         
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        manifestPlaceholders = [:]
     }
 
     buildTypes {

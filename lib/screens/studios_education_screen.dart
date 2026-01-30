@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -114,8 +115,8 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
 
   void applyFilter() {
     if (selectedCity == 'ВСЕ') {
-      filteredStudios = List.from(allStudios);
-      filteredEducation = List.from(allEducation);
+      filteredStudios = allStudios;
+      filteredEducation = allEducation;
     } else {
       filteredStudios = allStudios
           .where((s) => s.city.toUpperCase() == selectedCity)
@@ -717,7 +718,6 @@ class _AllItemsScreenState extends State<_AllItemsScreen> {
   bool _showMap = false;
   final MapController _mapController = MapController();
   late final List<PlaceItem> _itemsWithCoords;
-  bool _schematicTiles = false;
 
   @override
   void initState() {
@@ -762,11 +762,14 @@ class _AllItemsScreenState extends State<_AllItemsScreen> {
                 color: const Color(0xFFCCFF00),
               ),
               onPressed: () {
+                debugPrint("Map/List toggle pressed. Current: $_showMap, Items: ${_itemsWithCoords.length}");
                 setState(() {
                   _showMap = !_showMap;
                 });
+                debugPrint("After toggle: _showMap = $_showMap");
                 // Центрируем карту после переключения на карту
                 if (_showMap && _itemsWithCoords.isNotEmpty) {
+                  debugPrint("Switching to map view, will center on ${_itemsWithCoords.length} items");
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _centerMapOnItems(_itemsWithCoords);
                   });
@@ -785,36 +788,7 @@ class _AllItemsScreenState extends State<_AllItemsScreen> {
   void _centerMapOnItems(List<PlaceItem> items) {
     if (items.isEmpty) return;
 
-    // Вычисляем центр всех координат
-    double totalLat = 0;
-    double totalLng = 0;
-    int count = 0;
-
-    for (var item in items) {
-      if (item.coords != null && item.coords!.length >= 2) {
-        totalLat += item.coords![0];
-        totalLng += item.coords![1];
-        count++;
-      }
-    }
-
-    if (count > 0) {
-      final center = LatLng(totalLat / count, totalLng / count);
-      _mapController.move(center, 12.0);
-    }
-  }
-
-  Widget _buildMapView(List<PlaceItem> items) {
     // Вычисляем границы для автоматического зума
-    if (items.isEmpty) {
-      return const Center(
-        child: Text(
-          'Нет элементов с координатами',
-          style: TextStyle(color: Colors.white),
-        ),
-      );
-    }
-
     double minLat = double.infinity;
     double maxLat = -double.infinity;
     double minLng = double.infinity;
@@ -831,130 +805,128 @@ class _AllItemsScreenState extends State<_AllItemsScreen> {
       }
     }
 
+    if (minLat != double.infinity) {
+      final center = LatLng(
+        (minLat + maxLat) / 2,
+        (minLng + maxLng) / 2,
+      );
+      
+      // Вычисляем приблизительный зум
+      final latDiff = maxLat - minLat;
+      final lngDiff = maxLng - minLng;
+      final maxDiff = latDiff > lngDiff ? latDiff : lngDiff;
+      double zoom = 12.0;
+      if (maxDiff > 0.1) {
+        zoom = 10.0;
+      } else if (maxDiff > 0.05) {
+        zoom = 11.0;
+      } else if (maxDiff > 0.02) {
+        zoom = 12.0;
+      } else if (maxDiff > 0.01) {
+        zoom = 13.0;
+      } else {
+        zoom = 14.0;
+      }
+
+      _mapController.move(center, zoom);
+    }
+  }
+
+  Widget _buildMapView(List<PlaceItem> items) {
+    debugPrint("_buildMapView called with ${items.length} items");
+    
+    if (items.isEmpty) {
+      return const Center(
+        child: Text(
+          'Нет элементов с координатами',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+
     // Вычисляем центр для начальной позиции
+    double minLat = double.infinity;
+    double maxLat = -double.infinity;
+    double minLng = double.infinity;
+    double maxLng = -double.infinity;
+
+    for (var item in items) {
+      if (item.coords != null && item.coords!.length >= 2) {
+        final lat = item.coords![0];
+        final lng = item.coords![1];
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
+      }
+    }
+
     final center = LatLng(
       (minLat + maxLat) / 2,
       (minLng + maxLng) / 2,
     );
 
-    // Вычисляем приблизительный зум на основе границ
+    // Вычисляем приблизительный зум
     final latDiff = maxLat - minLat;
     final lngDiff = maxLng - minLng;
     final maxDiff = latDiff > lngDiff ? latDiff : lngDiff;
-    double initialZoom = 12.0;
+    double zoom = 12.0;
     if (maxDiff > 0.1) {
-      initialZoom = 10.0;
-    } else if (maxDiff > 0.05)
-      initialZoom = 11.0;
-    else if (maxDiff > 0.02)
-      initialZoom = 12.0;
-    else if (maxDiff > 0.01)
-      initialZoom = 13.0;
-    else
-      initialZoom = 14.0;
+      zoom = 10.0;
+    } else if (maxDiff > 0.05) {
+      zoom = 11.0;
+    } else if (maxDiff > 0.02) {
+      zoom = 12.0;
+    } else if (maxDiff > 0.01) {
+      zoom = 13.0;
+    } else {
+      zoom = 14.0;
+    }
 
-    return Stack(
-      children: [
-        FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            initialCenter: center,
-            initialZoom: initialZoom,
-            minZoom: 10.0,
-            maxZoom: 18.0,
-            onTap: (tapPosition, point) {
-              // Закрываем открытые попапы при клике на карту
-            },
+    // Создаем маркеры
+    final markers = items
+        .where((item) => item.coords != null && item.coords!.length >= 2)
+        .map((item) {
+      final lat = item.coords![0];
+      final lng = item.coords![1];
+      
+      debugPrint("Creating marker for ${item.name} at $lat, $lng");
+      
+      return Marker(
+        point: LatLng(lat, lng),
+        width: 30,
+        height: 40,
+        child: GestureDetector(
+          onTap: () {
+            debugPrint("Marker tapped: ${item.name}");
+            _showMarkerInfo(item);
+          },
+          child: CustomPaint(
+            size: const Size(30, 40),
+            painter: _PinPainter(),
           ),
-          children: [
-            TileLayer(
-              // "Схематичная" подложка = более минималистичная тема (не схема метро),
-              // просто другой стиль тайлов.
-              urlTemplate: _schematicTiles
-                  ? 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
-                  : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.dance_news.app',
-              maxZoom: 19,
-            ),
-            MarkerLayer(
-              markers: items.map((item) {
-                if (item.coords == null || item.coords!.length < 2) {
-                  return const Marker(
-                    point: LatLng(0, 0),
-                    child: SizedBox.shrink(),
-                  );
-                }
-
-                final lat = item.coords![0];
-                final lng = item.coords![1];
-
-                return Marker(
-                  point: LatLng(lat, lng),
-                  width: 28,
-                  height: 28,
-                  child: GestureDetector(
-                    onTap: () {
-                      _showMarkerInfo(item);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.5),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
         ),
-        Positioned(
-          right: 12,
-          top: 12,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(10),
-              onTap: () {
-                setState(() {
-                  _schematicTiles = !_schematicTiles;
-                });
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF111111).withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF333333)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.layers,
-                        color: Color(0xFFCCFF00), size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      _schematicTiles ? 'СХЕМА' : 'OSM',
-                      style: GoogleFonts.unbounded(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+      );
+    }).toList();
+
+    debugPrint("Created ${markers.length} markers");
+
+    return FlutterMap(
+      mapController: _mapController,
+      options: MapOptions(
+        initialCenter: center,
+        initialZoom: zoom,
+        onTap: (tapPosition, point) {
+          debugPrint("Map tapped at: ${point.latitude}, ${point.longitude}");
+        },
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.dancejournal.app',
+        ),
+        MarkerLayer(
+          markers: markers,
         ),
       ],
     );
@@ -1239,4 +1211,37 @@ class _AllItemsScreenState extends State<_AllItemsScreen> {
       ),
     );
   }
+}
+
+// Custom painter для черной pin-иконки
+class _PinPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
+
+    final path = ui.Path();
+    
+    // Рисуем форму pin (капля с острием внизу)
+    // Верхняя часть (круг)
+    final topCenter = Offset(size.width / 2, size.height * 0.3);
+    final radius = size.width * 0.4;
+    path.addOval(Rect.fromCircle(center: topCenter, radius: radius));
+    
+    // Нижняя часть (треугольник/острие)
+    final bottomPoint = Offset(size.width / 2, size.height);
+    final leftPoint = Offset(size.width * 0.2, size.height * 0.5);
+    final rightPoint = Offset(size.width * 0.8, size.height * 0.5);
+    
+    path.moveTo(leftPoint.dx, leftPoint.dy);
+    path.lineTo(bottomPoint.dx, bottomPoint.dy);
+    path.lineTo(rightPoint.dx, rightPoint.dy);
+    path.close();
+    
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

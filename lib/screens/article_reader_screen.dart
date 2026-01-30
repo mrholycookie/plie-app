@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArticleReaderScreen extends StatefulWidget {
   final String url;
@@ -38,6 +39,12 @@ class _ArticleReaderScreenState extends State<ArticleReaderScreen> {
   }
 
   @override
+  void dispose() {
+    // WebViewController не требует явного dispose, но оставляем для ясности
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -71,7 +78,36 @@ class _ArticleReaderScreenState extends State<ArticleReaderScreen> {
               )
             : null,
       ),
-      body: WebViewWidget(controller: _controller),
+      body: Stack(
+        children: [
+          WebViewWidget(controller: _controller),
+          // Плавающая кнопка для перехода к новости
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: FloatingActionButton.extended(
+              onPressed: () async {
+                try {
+                  await launchUrl(
+                    Uri.parse(widget.url),
+                    mode: LaunchMode.externalApplication,
+                  );
+                } catch (_) {}
+              },
+              backgroundColor: const Color(0xFFCCFF00),
+              icon: const Icon(Icons.open_in_new, color: Colors.black),
+              label: Text(
+                'ОТКРЫТЬ В БРАУЗЕРЕ',
+                style: GoogleFonts.unbounded(
+                  color: Colors.black,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -33,8 +33,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light); 
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: IndexedStack(

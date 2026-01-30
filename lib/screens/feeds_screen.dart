@@ -67,7 +67,7 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
 
   void applyFilter() {
     if (selectedFilter == 'all') {
-      filteredNews = List.from(allNews);
+      filteredNews = allNews;
     } else {
       filteredNews = allNews.where((article) {
         if (selectedFilter == 'web') {
@@ -150,19 +150,155 @@ class _NewsListWithKeepAliveState extends State<NewsListWithKeepAlive> with Auto
   }
 
   Future<void> onArticleTap(Article article) async {
-    if (article.sourceType == SourceType.web) {
+    // Для VK и Telegram показываем превью с картинкой и текстом
+    if (article.sourceType == SourceType.vk || article.sourceType == SourceType.telegram) {
+      _showVkTelegramPreview(article);
+    } else {
+      // Для всех остальных новостей открываем WebView
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => ArticleReaderScreen(url: article.link, title: article.title),
         ),
       );
-    } else {
-      final Uri url = Uri.parse(article.link);
-      try {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } catch (_) {}
     }
+  }
+
+  void _showVkTelegramPreview(Article article) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: const BoxDecoration(
+          color: Color(0xFF111111),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Column(
+          children: [
+            // Заголовок с кнопкой закрытия
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: Color(0xFF222222))),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      article.sourceName.toUpperCase(),
+                      style: GoogleFonts.unbounded(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            // Контент с прокруткой
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Картинка (если есть)
+                    if (article.imageUrl != null && article.imageUrl!.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          article.imageUrl!,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                        ),
+                      ),
+                    if (article.imageUrl != null && article.imageUrl!.isNotEmpty)
+                      const SizedBox(height: 16),
+                    // Заголовок
+                    Text(
+                      article.title,
+                      style: GoogleFonts.unbounded(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Текст
+                    if (article.description.isNotEmpty)
+                      Text(
+                        article.description,
+                        style: GoogleFonts.manrope(
+                          color: Colors.grey[300],
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                    // Дата
+                    Text(
+                      article.formattedDate,
+                      style: GoogleFonts.manrope(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Плавающая кнопка для перехода к источнику
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: Color(0xFF222222))),
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    try {
+                      await launchUrl(
+                        Uri.parse(article.link),
+                        mode: LaunchMode.externalApplication,
+                      );
+                    } catch (_) {}
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: getSourceColor(article.sourceType, article.category),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: const Icon(Icons.open_in_new, color: Colors.black),
+                  label: Text(
+                    'ОТКРЫТЬ В ${article.sourceType == SourceType.vk ? 'VK' : 'TELEGRAM'}',
+                    style: GoogleFonts.unbounded(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Color getFilterColor(String filter) {

@@ -1,5 +1,6 @@
 import 'dance_studio.dart';
 import 'education_institution.dart';
+import 'review.dart';
 
 enum PlaceType { studio, education }
 
@@ -22,6 +23,8 @@ class PlaceItem {
   String? get yandexMapUrl => type == PlaceType.studio ? studio!.yandexMapUrl : null;
   double? get rating => type == PlaceType.studio ? studio!.rating : null;
   String? get yandexOrgId => type == PlaceType.studio ? studio!.yandexOrgId : null;
+  List<Review> get reviews => type == PlaceType.studio ? studio!.reviews : [];
+  String? get phone => type == PlaceType.studio ? studio!.phone : null;
   
   // Получить локацию для отображения: метро (если есть) или адрес (если метро нет)
   String get displayLocation {

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import '../models/place_item.dart';
+import '../models/review.dart';
 import '../widgets/common_widgets.dart';
 
 class DetailScreen extends StatelessWidget {
@@ -48,8 +48,8 @@ class DetailScreen extends StatelessWidget {
                   color: const Color(0xFF1A1A1A),
                   child: Center(
                     child: Icon(
-                      item.type == PlaceType.studio 
-                          ? FontAwesomeIcons.music 
+                      item.type == PlaceType.studio
+                          ? FontAwesomeIcons.music
                           : FontAwesomeIcons.graduationCap,
                       color: Colors.grey,
                       size: 60,
@@ -58,7 +58,7 @@ class DetailScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Контент
             Padding(
               padding: const EdgeInsets.all(20),
@@ -83,11 +83,13 @@ class DetailScreen extends StatelessWidget {
                       if (item.rating != null) ...[
                         const SizedBox(width: 12),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: const Color(0xFFCCFF00).withOpacity(0.2),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFCCFF00), width: 1),
+                            border: Border.all(
+                                color: const Color(0xFFCCFF00), width: 1),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -113,7 +115,7 @@ class DetailScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Информация о местоположении
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -166,9 +168,10 @@ class DetailScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        
+
                         // Адрес (если есть)
-                        if (item.address != null && item.address!.isNotEmpty) ...[
+                        if (item.address != null &&
+                            item.address!.isNotEmpty) ...[
                           const SizedBox(height: 12),
                           Container(
                             padding: const EdgeInsets.all(12),
@@ -203,7 +206,7 @@ class DetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Описание/Информация
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -218,7 +221,8 @@ class DetailScreen extends StatelessWidget {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFCCFF00).withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(4),
@@ -247,9 +251,53 @@ class DetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
-                  // Секция отзывов (если есть yandex_org_id)
-                  if (item.yandexOrgId != null && item.yandexOrgId!.isNotEmpty) ...[
+
+                  // Кнопка "Позвонить" (если есть телефон)
+                  if (item.phone != null && item.phone!.isNotEmpty) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final phoneUri = Uri.parse('tel:${item.phone}');
+                          if (await canLaunchUrl(phoneUri)) {
+                            await launchUrl(phoneUri);
+                          } else {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Не удалось совершить звонок'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        icon: const Icon(
+                          FontAwesomeIcons.phone,
+                          size: 18,
+                        ),
+                        label: Text(
+                          'Позвонить: ${item.phone}',
+                          style: GoogleFonts.unbounded(
+                            color: Colors.black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFCCFF00),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // Секция отзывов (если есть отзывы)
+                  if (item.reviews.isNotEmpty) ...[
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -263,9 +311,11 @@ class DetailScreen extends StatelessWidget {
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFCCFF00).withOpacity(0.2),
+                                  color:
+                                      const Color(0xFFCCFF00).withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
@@ -279,29 +329,57 @@ class DetailScreen extends StatelessWidget {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 16),
+                          // Список отзывов
+                          ...item.reviews
+                              .map((review) => _buildReviewCard(review)),
                           const SizedBox(height: 12),
-                          SizedBox(
-                            height: 400,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: WebViewWidget(
-                                controller: WebViewController()
-                                  ..setJavaScriptMode(JavaScriptMode.unrestricted)
-                                  ..setBackgroundColor(Colors.transparent)
-                                  ..loadRequest(
-                                    Uri.parse(
-                                      'https://yandex.ru/maps-reviews-widget/${item.yandexOrgId}?comments'
-                                    ),
+                          // Кнопка "Читать все отзывы на Яндексе"
+                          if (item.yandexOrgId != null &&
+                              item.yandexOrgId!.isNotEmpty)
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () async {
+                                  try {
+                                    final url =
+                                        'https://yandex.ru/maps/org/eto/${item.yandexOrgId}/reviews';
+                                    await launchUrl(
+                                      Uri.parse(url),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  } catch (_) {}
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                      color: Color(0xFFCCFF00)),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
+                                ),
+                                icon: const Icon(
+                                  FontAwesomeIcons.externalLinkAlt,
+                                  size: 14,
+                                  color: Color(0xFFCCFF00),
+                                ),
+                                label: Text(
+                                  'Читать все отзывы на Яндексе',
+                                  style: GoogleFonts.unbounded(
+                                    color: const Color(0xFFCCFF00),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 24),
                   ],
-                  
+
                   // Кнопки
                   Row(
                     children: [
@@ -314,34 +392,43 @@ class DetailScreen extends StatelessWidget {
                           onPressed: () async {
                             try {
                               // Если есть прямая ссылка на Яндекс карты - используем её
-                              if (item.yandexMapUrl != null && item.yandexMapUrl!.isNotEmpty) {
+                              if (item.yandexMapUrl != null &&
+                                  item.yandexMapUrl!.isNotEmpty) {
                                 await launchUrl(
                                   Uri.parse(item.yandexMapUrl!),
                                   mode: LaunchMode.externalApplication,
                                 );
                                 return;
                               }
-                              
+
                               // Иначе строим ссылку по координатам или поиску
                               String searchQuery;
-                              if (item.address != null && item.address!.isNotEmpty) {
-                                searchQuery = Uri.encodeComponent('${item.name} ${item.address}');
+                              if (item.address != null &&
+                                  item.address!.isNotEmpty) {
+                                searchQuery = Uri.encodeComponent(
+                                    '${item.name} ${item.address}');
                               } else if (item.hasMetro) {
-                                searchQuery = Uri.encodeComponent('${item.name} ${item.city} м.${item.metro}');
+                                searchQuery = Uri.encodeComponent(
+                                    '${item.name} ${item.city} м.${item.metro}');
                               } else {
-                                searchQuery = Uri.encodeComponent('${item.name} ${item.city}');
+                                searchQuery = Uri.encodeComponent(
+                                    '${item.name} ${item.city}');
                               }
-                              
+
                               Uri mapUrl;
-                              if (item.coords != null && item.coords!.length == 2) {
+                              if (item.coords != null &&
+                                  item.coords!.length == 2) {
                                 final lat = item.coords![0];
                                 final lng = item.coords![1];
-                                mapUrl = Uri.parse("https://yandex.ru/maps/?pt=$lng,$lat&z=15&text=$searchQuery");
+                                mapUrl = Uri.parse(
+                                    "https://yandex.ru/maps/?pt=$lng,$lat&z=15&text=$searchQuery");
                               } else {
-                                mapUrl = Uri.parse("https://yandex.ru/maps/?text=$searchQuery");
+                                mapUrl = Uri.parse(
+                                    "https://yandex.ru/maps/?text=$searchQuery");
                               }
-                              
-                              await launchUrl(mapUrl, mode: LaunchMode.externalApplication);
+
+                              await launchUrl(mapUrl,
+                                  mode: LaunchMode.externalApplication);
                             } catch (_) {}
                           },
                           style: OutlinedButton.styleFrom(
@@ -368,6 +455,86 @@ class DetailScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildReviewCard(Review review) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF222222)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Имя и дата
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  review.authorName,
+                  style: GoogleFonts.unbounded(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (review.date.isNotEmpty)
+                Text(
+                  review.date,
+                  style: GoogleFonts.manrope(
+                    color: Colors.grey[500],
+                    fontSize: 11,
+                  ),
+                ),
+            ],
+          ),
+          // Рейтинг (если есть)
+          if (review.rating != null) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                ...List.generate(5, (index) {
+                  return Icon(
+                    index < review.rating!.round()
+                        ? FontAwesomeIcons.solidStar
+                        : FontAwesomeIcons.star,
+                    size: 12,
+                    color: index < review.rating!.round()
+                        ? const Color(0xFFCCFF00)
+                        : Colors.grey[600],
+                  );
+                }),
+                const SizedBox(width: 8),
+                Text(
+                  review.rating!.toStringAsFixed(1),
+                  style: GoogleFonts.manrope(
+                    color: Colors.grey[400],
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          // Текст отзыва
+          if (review.text.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              review.text,
+              style: GoogleFonts.manrope(
+                color: Colors.white70,
+                fontSize: 13,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

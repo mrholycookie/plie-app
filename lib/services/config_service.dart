@@ -11,7 +11,7 @@ import '../models/event.dart';
 
 class ConfigService {
   static String get _configUrl => dotenv.env['CONFIG_URL'] ?? '';
-  static const String _cacheKey = 'config_cache_v160';
+  static const String _cacheKey = 'config_cache_v161';
   static Map<String, dynamic>? config;
   static final Completer<void> _readyCompleter = Completer<void>();
   static Future<void> get ready => _readyCompleter.future;
@@ -33,9 +33,13 @@ class ConfigService {
             config = decoded;
             loaded = true;
             
+            // Всегда обновляем кеш при успешной загрузке
             final prefs = await SharedPreferences.getInstance();
             await prefs.setString(_cacheKey, raw);
+            debugPrint("✅ Config loaded and cached. Studios count: ${(decoded['studios'] as List?)?.length ?? 0}");
           }
+        } else {
+          debugPrint("⚠️ Config fetch failed with status: ${response.statusCode}");
         }
       } catch (e) {
         debugPrint("Config fetch error: $e");
@@ -87,16 +91,26 @@ class ConfigService {
 
   // --- НОВЫЙ МЕТОД: Студии ---
   static List<DanceStudio> getStudios() {
-  final list = config?['studios'];
-  if (list is! List) return [];
-  
-  return list.map((e) {
-    if (e is Map<String, dynamic>) {
-      return DanceStudio.fromJson(e);
+    final list = config?['studios'];
+    if (list is! List) return [];
+    
+    final studios = <DanceStudio>[];
+    for (final e in list) {
+      if (e is Map<String, dynamic>) {
+        try {
+          final studio = DanceStudio.fromJson(e);
+          studios.add(studio);
+        } catch (error, stackTrace) {
+          debugPrint("❌ Ошибка парсинга студии ${e['id'] ?? 'unknown'}: $error");
+          debugPrint("   Stack trace: $stackTrace");
+          debugPrint("   Данные: $e");
+          // Продолжаем обработку остальных студий
+        }
+      }
     }
-    return null;
-  }).whereType<DanceStudio>().toList();
-}
+    debugPrint("✅ Загружено студий: ${studios.length} из ${list.length}");
+    return studios;
+  }
 
   // --- НОВЫЙ МЕТОД: События (Афиша) ---
   static List<Event> getEvents() {
