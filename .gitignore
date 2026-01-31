@@ -8,9 +8,14 @@
 .buildlog/
 .history
 .svn/
-.html
-.md
 migrate_working_dir/
+
+# Admin panel and documentation (not for public)
+admin.html
+*.md
+SEARCH_OPTIONS.md
+ADMIN_README.md
+README.md
 
 # IntelliJ related
 *.iml
