@@ -1,9 +1,10 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 import '../services/config_service.dart';
 import '../models/place_item.dart';
@@ -46,7 +47,72 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
   @override
   void initState() {
     super.initState();
-    loadData();
+    loadData().then((_) {
+      // Определяем город после загрузки данных, чтобы список городов был заполнен
+      _detectCityByLocation();
+    });
+  }
+
+  Future<void> _detectCityByLocation() async {
+    try {
+      // Проверяем разрешения
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        debugPrint('Геолокация отключена');
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          debugPrint('Разрешение на геолокацию отклонено');
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        debugPrint('Разрешение на геолокацию отклонено навсегда');
+        return;
+      }
+
+      // Получаем текущую позицию
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+      );
+
+      debugPrint('Позиция получена: ${position.latitude}, ${position.longitude}');
+
+      // Получаем адрес по координатам
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final placemark = placemarks.first;
+        final city = placemark.locality ?? placemark.subAdministrativeArea ?? '';
+        
+        if (city.isNotEmpty) {
+          final cityUpper = city.toUpperCase();
+          debugPrint('Определен город: $cityUpper');
+          
+          // Проверяем, есть ли такой город в списке доступных
+          if (mounted && sortedCities.contains(cityUpper)) {
+            setState(() {
+              selectedCity = cityUpper;
+              applyFilter();
+            });
+          } else if (mounted && sortedCities.isNotEmpty) {
+            // Если города нет в списке, но есть другие города, можно показать уведомление
+            debugPrint('Город $cityUpper не найден в списке доступных городов');
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Ошибка определения города по геолокации: $e');
+      // Не показываем ошибку пользователю, просто используем город по умолчанию
+    }
   }
 
   @override
@@ -105,10 +171,18 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (_studiosPageController != null && _studiosPageController!.hasClients) {
-        _studiosPageController!.jumpToPage(0);
+        try {
+          _studiosPageController!.jumpToPage(0);
+        } catch (e) {
+          debugPrint('Ошибка сброса слайдера студий при загрузке: $e');
+        }
       }
       if (_educationPageController != null && _educationPageController!.hasClients) {
-        _educationPageController!.jumpToPage(0);
+        try {
+          _educationPageController!.jumpToPage(0);
+        } catch (e) {
+          debugPrint('Ошибка сброса слайдера образования при загрузке: $e');
+        }
       }
     });
   }
@@ -140,17 +214,27 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
       selectedCity = city;
       applyFilter();
     });
-    // Сбрасываем слайдеры на первую карточку, чтобы PageView не оставался на старой странице
-    // после изменения фильтра (когда элементов может стать меньше).
-    if (_studiosPageController != null && _studiosPageController!.hasClients) {
-      _studiosPageController!.jumpToPage(0);
-    }
-    if (_educationPageController != null && _educationPageController!.hasClients) {
-      _educationPageController!.jumpToPage(0);
-    }
-    if (_scrollController.hasClients) {
-      _scrollController.jumpTo(0);
-    }
+    // Сбрасываем слайдеры на первую карточку после изменения фильтра
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_studiosPageController != null && _studiosPageController!.hasClients) {
+        try {
+          _studiosPageController!.jumpToPage(0);
+        } catch (e) {
+          debugPrint('Ошибка сброса слайдера студий: $e');
+        }
+      }
+      if (_educationPageController != null && _educationPageController!.hasClients) {
+        try {
+          _educationPageController!.jumpToPage(0);
+        } catch (e) {
+          debugPrint('Ошибка сброса слайдера образования: $e');
+        }
+      }
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+    });
   }
 
   @override
@@ -511,6 +595,10 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
     required List<T> items,
     required PlaceItem Function(T) itemBuilder,
   }) {
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final screenWidth = MediaQuery.of(context).size.width;
     final cardWidth =
         screenWidth * 0.75; // 75% ширины для видимости соседней карточки
@@ -521,16 +609,23 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
     // Получаем или создаем контроллер
     PageController pageController;
     if (controllerKey == 'studios') {
-      _studiosPageController ??=
-          PageController(viewportFraction: viewportFraction);
+      // Пересоздаем контроллер если он не инициализирован или был disposed
+      if (_studiosPageController == null || !_studiosPageController!.hasClients) {
+        _studiosPageController?.dispose();
+        _studiosPageController = PageController(viewportFraction: viewportFraction);
+      }
       pageController = _studiosPageController!;
     } else {
-      _educationPageController ??=
-          PageController(viewportFraction: viewportFraction);
+      // Пересоздаем контроллер если он не инициализирован или был disposed
+      if (_educationPageController == null || !_educationPageController!.hasClients) {
+        _educationPageController?.dispose();
+        _educationPageController = PageController(viewportFraction: viewportFraction);
+      }
       pageController = _educationPageController!;
     }
 
     return PageView.builder(
+      key: ValueKey('${controllerKey}_${items.length}'), // Ключ для пересоздания при изменении количества элементов
       controller: pageController,
       scrollDirection: Axis.horizontal,
       itemCount: items.length,
@@ -894,16 +989,34 @@ class _AllItemsScreenState extends State<_AllItemsScreen> {
       
       return Marker(
         point: LatLng(lat, lng),
-        width: 30,
-        height: 40,
+        width: 32,
+        height: 32,
         child: GestureDetector(
           onTap: () {
             debugPrint("Marker tapped: ${item.name}");
             _showMarkerInfo(item);
           },
-          child: CustomPaint(
-            size: const Size(30, 40),
-            painter: _PinPainter(),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Icon(
+              FontAwesomeIcons.locationPin,
+              color: Colors.white,
+              size: 18,
+            ),
           ),
         ),
       );
@@ -1213,35 +1326,3 @@ class _AllItemsScreenState extends State<_AllItemsScreen> {
   }
 }
 
-// Custom painter для черной pin-иконки
-class _PinPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-
-    final path = ui.Path();
-    
-    // Рисуем форму pin (капля с острием внизу)
-    // Верхняя часть (круг)
-    final topCenter = Offset(size.width / 2, size.height * 0.3);
-    final radius = size.width * 0.4;
-    path.addOval(Rect.fromCircle(center: topCenter, radius: radius));
-    
-    // Нижняя часть (треугольник/острие)
-    final bottomPoint = Offset(size.width / 2, size.height);
-    final leftPoint = Offset(size.width * 0.2, size.height * 0.5);
-    final rightPoint = Offset(size.width * 0.8, size.height * 0.5);
-    
-    path.moveTo(leftPoint.dx, leftPoint.dy);
-    path.lineTo(bottomPoint.dx, bottomPoint.dy);
-    path.lineTo(rightPoint.dx, rightPoint.dy);
-    path.close();
-    
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'feeds_screen.dart';
 import 'studios_education_screen.dart';
+import 'map_screen.dart';
 // import 'events_screen.dart'; // Временно скрыто до версии 1.7.7+25
 
 class MainScreen extends StatefulWidget {
@@ -15,11 +16,12 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // По умолчанию Образование (индекс 0)
 
   final List<Widget> _widgetOptions = <Widget>[
-    const NewsListWithKeepAlive(),
-    const StudiosEducationScreen(),
+    const StudiosEducationScreen(), // 0 - ОБУЧЕНИЕ (по умолчанию)
+    const NewsListWithKeepAlive(), // 1 - НОВОСТИ
+    const MapScreen(), // 2 - КАРТА
     // const EventsScreen(), // Временно скрыто до версии 1.7.7+25
   ];
 
@@ -66,6 +68,13 @@ class _MainScreenState extends State<MainScreen> {
             BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.only(bottom: 4),
+                child: Icon(FontAwesomeIcons.building, size: 20),
+              ),
+              label: 'ОБУЧЕНИЕ',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
                 child: Icon(FontAwesomeIcons.newspaper, size: 20),
               ),
               label: 'НОВОСТИ',
@@ -73,9 +82,9 @@ class _MainScreenState extends State<MainScreen> {
             BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.only(bottom: 4),
-                child: Icon(FontAwesomeIcons.building, size: 20),
+                child: Icon(FontAwesomeIcons.map, size: 20),
               ),
-              label: 'ОБУЧЕНИЕ',
+              label: 'КАРТА',
             ),
             // BottomNavigationBarItem( // Временно скрыто до версии 1.7.7+25
             //   icon: Padding(

@@ -1176,6 +1176,14 @@
                 renderStudios();
                 renderStyles(); // Обновляем список стилей
                 showStatus('Студия обновлена!');
+                // Автоматическое сохранение в Gist, если настроено (тихо, без уведомления)
+                if (gistConfig.id && gistConfig.token) {
+                    saveToGist(true).then(success => {
+                        if (success) {
+                            console.log('✅ Автоматически сохранено в Gist');
+                        }
+                    }).catch(err => console.error('Ошибка автосохранения в Gist:', err));
+                }
             } else {
                 // Добавляем новую запись
                 data.studios.push(studio);
@@ -1185,6 +1193,14 @@
                 renderStudios();
                 renderStyles(); // Обновляем список стилей
                 showStatus('Студия добавлена!');
+                // Автоматическое сохранение в Gist, если настроено (тихо, без уведомления)
+                if (gistConfig.id && gistConfig.token) {
+                    saveToGist(true).then(success => {
+                        if (success) {
+                            console.log('✅ Автоматически сохранено в Gist');
+                        }
+                    }).catch(err => console.error('Ошибка автосохранения в Gist:', err));
+                }
             }
         }
 
@@ -1260,6 +1276,14 @@
                 data.studios.splice(index, 1);
                 renderStudios();
                 showStatus('Студия удалена');
+                // Автоматическое сохранение в Gist, если настроено (тихо, без уведомления)
+                if (gistConfig.id && gistConfig.token) {
+                    saveToGist(true).then(success => {
+                        if (success) {
+                            console.log('✅ Автоматически сохранено в Gist');
+                        }
+                    }).catch(err => console.error('Ошибка автосохранения в Gist:', err));
+                }
             }
         }
 
@@ -1289,12 +1313,28 @@
                 document.getElementById('educationForm').querySelector('button[type="submit"]').textContent = '➕ Добавить учреждение';
                 renderEducation();
                 showStatus('Учреждение обновлено!');
+                // Автоматическое сохранение в Gist, если настроено (тихо, без уведомления)
+                if (gistConfig.id && gistConfig.token) {
+                    saveToGist(true).then(success => {
+                        if (success) {
+                            console.log('✅ Автоматически сохранено в Gist');
+                        }
+                    }).catch(err => console.error('Ошибка автосохранения в Gist:', err));
+                }
             } else {
                 // Добавляем новую запись
                 data.education.push(edu);
                 document.getElementById('educationForm').reset();
                 renderEducation();
                 showStatus('Учреждение добавлено!');
+                // Автоматическое сохранение в Gist, если настроено (тихо, без уведомления)
+                if (gistConfig.id && gistConfig.token) {
+                    saveToGist(true).then(success => {
+                        if (success) {
+                            console.log('✅ Автоматически сохранено в Gist');
+                        }
+                    }).catch(err => console.error('Ошибка автосохранения в Gist:', err));
+                }
             }
         }
 
@@ -1354,6 +1394,14 @@
                 data.education.splice(index, 1);
                 renderEducation();
                 showStatus('Учреждение удалено');
+                // Автоматическое сохранение в Gist, если настроено (тихо, без уведомления)
+                if (gistConfig.id && gistConfig.token) {
+                    saveToGist(true).then(success => {
+                        if (success) {
+                            console.log('✅ Автоматически сохранено в Gist');
+                        }
+                    }).catch(err => console.error('Ошибка автосохранения в Gist:', err));
+                }
             }
         }
 
@@ -1716,10 +1764,12 @@
             showStatus('JSON скопирован в буфер обмена!');
         }
 
-        async function saveToGist() {
+        async function saveToGist(silent = false) {
             if (!gistConfig.id || !gistConfig.token) {
-                showStatus('Сначала настройте Gist в разделе "Настройки Gist"', 'error');
-                return;
+                if (!silent) {
+                    showStatus('Сначала настройте Gist в разделе "Настройки Gist"', 'error');
+                }
+                return false;
             }
 
             try {
@@ -1753,13 +1803,22 @@
                 });
 
                 if (response.ok) {
-                    showStatus('✅ Gist успешно обновлен!');
+                    if (!silent) {
+                        showStatus('✅ Gist успешно обновлен!');
+                    }
+                    return true;
                 } else {
                     const error = await response.json();
-                    showStatus('Ошибка при обновлении Gist: ' + (error.message || 'Неизвестная ошибка'), 'error');
+                    if (!silent) {
+                        showStatus('Ошибка при обновлении Gist: ' + (error.message || 'Неизвестная ошибка'), 'error');
+                    }
+                    return false;
                 }
             } catch (error) {
-                showStatus('Ошибка: ' + error.message, 'error');
+                if (!silent) {
+                    showStatus('Ошибка: ' + error.message, 'error');
+                }
+                return false;
             }
         }
 
@@ -2069,74 +2128,6 @@
                     }
                 }
 
-                // Парсим стили танцев из раздела "Танцы"
-                let styles = [];
-                
-                // Ищем все элементы с категориями/стилями
-                const allFeatureElements = doc.querySelectorAll(
-                    '.card-feature-view, .business-card-view__features, .orgpage-header-view__features, [class*="feature"]'
-                );
-                
-                for (const featureEl of allFeatureElements) {
-                    const text = featureEl.textContent || '';
-                    // Ищем раздел "Танцы" или похожие
-                    if (text.toLowerCase().includes('танц') || text.toLowerCase().includes('dance')) {
-                        // Ищем стили в этом разделе
-                        const styleElements = featureEl.querySelectorAll(
-                            '.card-feature-view__text, .business-card-view__feature-text, span, div'
-                        );
-                        
-                        for (const styleEl of styleElements) {
-                            const styleText = styleEl.textContent.trim();
-                            // Пропускаем если это само слово "Танцы" или слишком короткий текст
-                            if (styleText && 
-                                styleText.length > 2 && 
-                                !styleText.toLowerCase().includes('танц') &&
-                                !styleText.toLowerCase().includes('dance') &&
-                                styleText.length < 50) { // Ограничиваем длину
-                                // Разбиваем по запятым, точкам с запятой, переносам строк
-                                const parts = styleText
-                                    .split(/[,;，；\n]/)
-                                    .map(s => s.trim())
-                                    .filter(s => s && s.length > 1 && s.length < 30);
-                                if (parts.length > 0) {
-                                    styles.push(...parts);
-                                } else {
-                                    // Если не разбилось, добавляем как один стиль
-                                    styles.push(styleText);
-                                }
-                            }
-                        }
-                        break; // Нашли раздел "Танцы", больше не ищем
-                    }
-                }
-                
-                // Альтернативный способ: ищем в категориях/тегах если не нашли в разделе "Танцы"
-                if (styles.length === 0) {
-                    const categorySelectors = [
-                        '.business-card-view__category',
-                        '.orgpage-header-view__category',
-                        '[data-category]',
-                        '.card-feature-view__category',
-                        '.business-card-view__tag'
-                    ];
-                    for (const selector of categorySelectors) {
-                        const elements = doc.querySelectorAll(selector);
-                        for (const el of elements) {
-                            const text = el.textContent.trim();
-                            if (text && text.length > 2 && text.length < 30 && 
-                                !text.toLowerCase().includes('танц') &&
-                                !text.toLowerCase().includes('dance')) {
-                                styles.push(text);
-                            }
-                        }
-                        if (styles.length > 0) break;
-                    }
-                }
-                
-                // Убираем дубликаты и ограничиваем количество
-                styles = [...new Set(styles)].slice(0, 10);
-
                 // Парсим ссылку на Яндекс.Карты (типа https://yandex.ru/maps/-/CPAur2-o)
                 let yandexMapUrl = '';
                 
@@ -2243,13 +2234,6 @@
                 if (siteUrl) {
                     document.getElementById('studio-url').value = siteUrl;
                 }
-                if (styles.length > 0) {
-                    // Добавляем стили к существующим или заменяем
-                    const currentStyles = document.getElementById('studio-styles').value.trim();
-                    const existingStyles = currentStyles ? currentStyles.split(',').map(s => s.trim()) : [];
-                    const allStyles = [...new Set([...existingStyles, ...styles])]; // Убираем дубликаты
-                    document.getElementById('studio-styles').value = allStyles.join(', ');
-                }
 
                 const foundItems = [];
                 if (name) foundItems.push('название');
@@ -2259,7 +2243,6 @@
                 if (rating) foundItems.push('рейтинг');
                 if (yandexMapUrl) foundItems.push('ссылка на Яндекс.Карты');
                 if (siteUrl) foundItems.push('сайт');
-                if (styles.length > 0) foundItems.push(`стили (${styles.length})`);
                 
                 showStatus(`✅ Основная информация спарсена! Найдено: ${foundItems.join(', ')}`, 'success');
 
@@ -2352,20 +2335,16 @@
                 if (lastError && (lastError.message.includes('Failed to fetch') || lastError.message.includes('CORS'))) {
                     throw new Error('Ошибка CORS или сети. Все CORS proxy недоступны. Подождите 30-60 секунд перед следующей попыткой.');
                 }
-                throw lastError || new Error('Не удалось загрузить страницу');
-            }
-
-            if (!response.ok) {
-                if (response.status === 408) {
+                if (response && response.status === 408) {
                     throw new Error('Превышено время ожидания (408). CORS proxy перегружен из-за частых запросов. Сделайте паузу 30-60 секунд перед следующей попыткой.');
                 }
-                if (response.status === 500) {
+                if (response && response.status === 500) {
                     throw new Error('Ошибка сервера (500). CORS proxy временно недоступен. Подождите 30-60 секунд.');
                 }
-                if (response.status === 520 || response.status === 522) {
+                if (response && (response.status === 520 || response.status === 522)) {
                     throw new Error(`Ошибка сервера (${response.status}). CORS proxy не может обработать запрос. Подождите 60 секунд и попробуйте снова.`);
                 }
-                throw new Error(`HTTP ${response.status}`);
+                throw lastError || new Error(`Не удалось загрузить страницу${response ? ` (HTTP ${response.status})` : ''}`);
             }
 
             const html = await response.text();
