@@ -165,58 +165,28 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
 
   void _showMarkerInfo(PlaceItem item) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF111111),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              item.name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              item.displayLocation,
-              style: TextStyle(
-                color: Colors.grey[400],
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailScreen(item: item),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFCCFF00),
-                  foregroundColor: Colors.black,
-                ),
-                child: const Text('ПОДРОБНЕЕ'),
-              ),
-            ),
-          ],
-        ),
+    // Сразу открываем детальный экран, как в разделе "Смотреть все студии"
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailScreen(item: item),
       ),
     );
+  }
+
+  Future<void> _refreshLocation() async {
+    // Показываем индикатор загрузки
+    if (!mounted) return;
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Определение местоположения...'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Color(0xFFCCFF00),
+      ),
+    );
+
+    await _detectCityAndCenterMap();
   }
 
   @override
@@ -303,19 +273,37 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: FlutterMap(
-        mapController: _mapController,
-        options: MapOptions(
-          initialCenter: const LatLng(55.7558, 37.6173), // Москва по умолчанию (будет переопределено после загрузки)
-          initialZoom: 10.0,
-        ),
+      body: Stack(
         children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.dancejournal.app',
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: const LatLng(55.7558, 37.6173), // Москва по умолчанию (будет переопределено после загрузки)
+              initialZoom: 10.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.dancejournal.app',
+              ),
+              MarkerLayer(
+                markers: markers,
+              ),
+            ],
           ),
-          MarkerLayer(
-            markers: markers,
+          // Кнопка уточнения геолокации
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: FloatingActionButton(
+              onPressed: _refreshLocation,
+              backgroundColor: const Color(0xFFCCFF00),
+              child: const Icon(
+                FontAwesomeIcons.locationCrosshairs,
+                color: Colors.black,
+                size: 20,
+              ),
+            ),
           ),
         ],
       ),

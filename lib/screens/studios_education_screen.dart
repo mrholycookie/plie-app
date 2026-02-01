@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/config_service.dart';
 import '../models/place_item.dart';
@@ -35,6 +36,8 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
   String selectedCity = 'МОСКВА'; // По умолчанию Москва
   String _citySearchQuery = '';
   bool _showCitySearch = false;
+  
+  static const String _selectedCityKey = 'selected_city';
 
   final List<String> priorityCities = ['МОСКВА', 'САНКТ-ПЕТЕРБУРГ'];
   final ScrollController _scrollController = ScrollController();
@@ -47,10 +50,117 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
   @override
   void initState() {
     super.initState();
-    loadData().then((_) {
-      // Определяем город после загрузки данных, чтобы список городов был заполнен
-      _detectCityByLocation();
-    });
+    _loadSavedCity();
+    loadData();
+  }
+
+  // Загружает сохраненный город из памяти
+  Future<void> _loadSavedCity() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedCity = prefs.getString(_selectedCityKey);
+      if (savedCity != null && savedCity.isNotEmpty) {
+        selectedCity = savedCity;
+        debugPrint('Загружен сохраненный город: $savedCity');
+      }
+    } catch (e) {
+      debugPrint('Ошибка загрузки сохраненного города: $e');
+    }
+  }
+
+  // Сохраняет выбранный город в память
+  Future<void> _saveCity(String city) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_selectedCityKey, city);
+      debugPrint('Город сохранен в память: $city');
+    } catch (e) {
+      debugPrint('Ошибка сохранения города: $e');
+    }
+  }
+
+  // Нормализует название города для сравнения (убирает дефисы, пробелы, приводит к верхнему регистру)
+  String _normalizeCityName(String city) {
+    return city
+        .toUpperCase()
+        .replaceAll('-', '')
+        .replaceAll(' ', '')
+        .replaceAll('Ё', 'Е')
+        .replaceAll('ГОРОД', '')
+        .replaceAll('Г.', '')
+        .replaceAll('Г', '')
+        .trim();
+  }
+
+  // Находит город в списке по нормализованному названию
+  String? _findCityInList(String detectedCity, List<String> availableCities) {
+    if (availableCities.isEmpty) return null;
+    
+    final normalizedDetected = _normalizeCityName(detectedCity);
+    debugPrint('Нормализованное название города: "$normalizedDetected"');
+    
+    // Специальные маппинги для известных городов (до нормализации)
+    final cityMappings = {
+      'СПБ': 'САНКТ-ПЕТЕРБУРГ',
+      'СП': 'САНКТ-ПЕТЕРБУРГ',
+      'ПИТЕР': 'САНКТ-ПЕТЕРБУРГ',
+      'САНКТПЕТЕРБУРГ': 'САНКТ-ПЕТЕРБУРГ',
+      'САНКТ ПЕТЕРБУРГ': 'САНКТ-ПЕТЕРБУРГ',
+      'ЛЕНИНГРАД': 'САНКТ-ПЕТЕРБУРГ',
+      'МСК': 'МОСКВА',
+      'МОСКВА ГОРОД': 'МОСКВА',
+      'КАЗАНЬ ГОРОД': 'КАЗАНЬ',
+      'САМАРА ГОРОД': 'САМАРА',
+    };
+    
+    // Проверяем маппинги
+    final upperDetected = detectedCity.toUpperCase().trim();
+    if (cityMappings.containsKey(upperDetected)) {
+      final mappedCity = cityMappings[upperDetected]!;
+      if (availableCities.contains(mappedCity)) {
+        debugPrint('Город найден через маппинг: $mappedCity');
+        return mappedCity;
+      }
+    }
+    
+    // Проверяем нормализованные маппинги
+    if (cityMappings.containsKey(normalizedDetected)) {
+      final mappedCity = cityMappings[normalizedDetected]!;
+      if (availableCities.contains(mappedCity)) {
+        debugPrint('Город найден через нормализованный маппинг: $mappedCity');
+        return mappedCity;
+      }
+    }
+    
+    // Сначала пробуем точное совпадение после нормализации
+    for (var city in availableCities) {
+      if (city.toUpperCase().trim() == upperDetected) {
+        debugPrint('Город найден точным совпадением: $city');
+        return city;
+      }
+    }
+    
+    // Затем пробуем нормализованное совпадение
+    for (var city in availableCities) {
+      final normalizedCity = _normalizeCityName(city);
+      if (normalizedCity == normalizedDetected) {
+        debugPrint('Город найден нормализованным совпадением: $city');
+        return city;
+      }
+    }
+    
+    // Затем пробуем частичное совпадение
+    for (var city in availableCities) {
+      final normalizedCity = _normalizeCityName(city);
+      if (normalizedCity.contains(normalizedDetected) || 
+          normalizedDetected.contains(normalizedCity)) {
+        debugPrint('Город найден частичным совпадением: $city');
+        return city;
+      }
+    }
+    
+    debugPrint('Город "$detectedCity" (нормализованный: "$normalizedDetected") не найден в списке');
+    return null;
   }
 
   Future<void> _detectCityByLocation() async {
@@ -76,6 +186,13 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
         return;
       }
 
+      // Проверяем, что у нас есть разрешение для продолжения
+      if (permission != LocationPermission.whileInUse && 
+          permission != LocationPermission.always) {
+        debugPrint('Нет разрешения на геолокацию');
+        return;
+      }
+
       // Получаем текущую позицию
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.medium,
@@ -91,27 +208,52 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
 
       if (placemarks.isNotEmpty) {
         final placemark = placemarks.first;
-        final city = placemark.locality ?? placemark.subAdministrativeArea ?? '';
+        // Пробуем разные поля для определения города
+        final city = placemark.locality ?? 
+                    placemark.subAdministrativeArea ?? 
+                    placemark.administrativeArea ?? 
+                    '';
+        
+        debugPrint('Placemark: locality=${placemark.locality}, subAdministrativeArea=${placemark.subAdministrativeArea}, administrativeArea=${placemark.administrativeArea}');
         
         if (city.isNotEmpty) {
-          final cityUpper = city.toUpperCase();
-          debugPrint('Определен город: $cityUpper');
+          debugPrint('=== Определение города по геолокации ===');
+          debugPrint('Город из геолокации: "$city"');
+          debugPrint('Доступные города: $sortedCities');
           
-          // Проверяем, есть ли такой город в списке доступных
-          if (mounted && sortedCities.contains(cityUpper)) {
-            setState(() {
-              selectedCity = cityUpper;
-              applyFilter();
-            });
+          // Ищем город в списке доступных
+          final foundCity = _findCityInList(city, sortedCities);
+          
+          if (foundCity != null && mounted) {
+            debugPrint('✅ Город найден в списке: "$foundCity"');
+            debugPrint('Текущий выбранный город: "$selectedCity"');
+            
+            // Устанавливаем город только если он отличается от текущего
+            if (selectedCity != foundCity) {
+              debugPrint('🔄 Меняем город с "$selectedCity" на "$foundCity"');
+              setState(() {
+                selectedCity = foundCity;
+                applyFilter();
+              });
+              // Сохраняем выбранный город в память
+              _saveCity(foundCity);
+              debugPrint('✅ Город успешно изменен на: "$selectedCity"');
+            } else {
+              debugPrint('ℹ️ Город уже выбран: "$foundCity"');
+            }
           } else if (mounted && sortedCities.isNotEmpty) {
-            // Если города нет в списке, но есть другие города, можно показать уведомление
-            debugPrint('Город $cityUpper не найден в списке доступных городов');
+            debugPrint('❌ Город "$city" не найден в списке доступных городов');
+            debugPrint('Оставляем город по умолчанию: "$selectedCity"');
           }
+        } else {
+          debugPrint('❌ Не удалось определить город из placemark');
         }
+      } else {
+        debugPrint('Placemarks пуст');
       }
     } catch (e) {
       debugPrint('Ошибка определения города по геолокации: $e');
-      // Не показываем ошибку пользователю, просто используем город по умолчанию
+      debugPrint('Stack trace: ${StackTrace.current}');
     }
   }
 
@@ -163,9 +305,34 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
         allEducation = education;
         cityCounts = counts;
         sortedCities = resultCities;
-        applyFilter();
         isLoading = false;
       });
+      
+      debugPrint('Данные загружены. Список городов: $sortedCities');
+      debugPrint('Текущий выбранный город: $selectedCity');
+      
+      // Проверяем, есть ли сохраненный город в списке доступных
+      if (sortedCities.contains(selectedCity)) {
+        debugPrint('Сохраненный город "$selectedCity" найден в списке, применяем фильтр');
+        applyFilter();
+      } else {
+        debugPrint('Сохраненный город "$selectedCity" не найден в списке, сбрасываем на Москву');
+        setState(() {
+          selectedCity = 'МОСКВА';
+          applyFilter();
+        });
+      }
+      
+      // Определяем город по геолокации после загрузки данных только если нет сохраненного города
+      // или если сохраненный город не найден в списке
+      if (!sortedCities.contains(selectedCity) || selectedCity == 'МОСКВА') {
+        // Используем небольшую задержку, чтобы UI успел обновиться
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            _detectCityByLocation();
+          }
+        });
+      }
     }
     // На случай если экран был восстановлен из кэша и контроллеры остались на старой позиции.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -214,6 +381,8 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
       selectedCity = city;
       applyFilter();
     });
+    // Сохраняем выбранный город в память
+    _saveCity(city);
     // Сбрасываем слайдеры на первую карточку после изменения фильтра
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
