@@ -207,7 +207,7 @@ class DetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Описание/Информация
+                  // Описание/Стили (для студий) или Информация (для образования)
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -228,7 +228,7 @@ class DetailScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                'ИНФОРМАЦИЯ',
+                                item.type == PlaceType.studio ? 'СТИЛИ' : 'ИНФОРМАЦИЯ',
                                 style: GoogleFonts.unbounded(
                                   color: const Color(0xFFCCFF00),
                                   fontSize: 11,
@@ -252,49 +252,155 @@ class DetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Кнопка "Позвонить" (если есть телефон)
-                  if (item.phone != null && item.phone!.isNotEmpty) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final phoneUri = Uri.parse('tel:${item.phone}');
-                          if (await canLaunchUrl(phoneUri)) {
-                            await launchUrl(phoneUri);
-                          } else {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Не удалось совершить звонок'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        icon: const Icon(
-                          FontAwesomeIcons.phone,
-                          size: 18,
-                        ),
-                        label: Text(
-                          'Позвонить: ${item.phone}',
-                          style: GoogleFonts.unbounded(
-                            color: Colors.black,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFCCFF00),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
+                  // Секция контактов (для студий перед отзывами)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF111111),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF222222)),
                     ),
-                    const SizedBox(height: 16),
-                  ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFCCFF00).withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'КОНТАКТЫ',
+                                style: GoogleFonts.unbounded(
+                                  color: const Color(0xFFCCFF00),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Кнопка "Позвонить" (если есть телефон)
+                        if (item.phone != null && item.phone!.isNotEmpty) ...[
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                final phoneUri = Uri.parse('tel:${item.phone}');
+                                if (await canLaunchUrl(phoneUri)) {
+                                  await launchUrl(phoneUri);
+                                } else {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Не удалось совершить звонок'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              icon: const Icon(
+                                FontAwesomeIcons.phone,
+                                size: 18,
+                              ),
+                              label: Text(
+                                'Позвонить: ${item.phone}',
+                                style: GoogleFonts.unbounded(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFCCFF00),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        // Кнопки Сайт и Карта
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SiteButton(url: item.siteUrl),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () async {
+                                  try {
+                                    // Если есть прямая ссылка на Яндекс карты - используем её
+                                    if (item.yandexMapUrl != null &&
+                                        item.yandexMapUrl!.isNotEmpty) {
+                                      await launchUrl(
+                                        Uri.parse(item.yandexMapUrl!),
+                                        mode: LaunchMode.externalApplication,
+                                      );
+                                      return;
+                                    }
+
+                                    // Иначе строим ссылку по координатам или поиску
+                                    String searchQuery;
+                                    if (item.address != null &&
+                                        item.address!.isNotEmpty) {
+                                      searchQuery = Uri.encodeComponent(
+                                          '${item.name} ${item.address}');
+                                    } else if (item.hasMetro) {
+                                      searchQuery = Uri.encodeComponent(
+                                          '${item.name} ${item.city} м.${item.metro}');
+                                    } else {
+                                      searchQuery = Uri.encodeComponent(
+                                          '${item.name} ${item.city}');
+                                    }
+
+                                    Uri mapUrl;
+                                    if (item.coords != null &&
+                                        item.coords!.length == 2) {
+                                      final lat = item.coords![0];
+                                      final lng = item.coords![1];
+                                      mapUrl = Uri.parse(
+                                          "https://yandex.ru/maps/?pt=$lng,$lat&z=15&text=$searchQuery");
+                                    } else {
+                                      mapUrl = Uri.parse(
+                                          "https://yandex.ru/maps/?text=$searchQuery");
+                                    }
+
+                                    await launchUrl(mapUrl,
+                                        mode: LaunchMode.externalApplication);
+                                  } catch (_) {}
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: Color(0xFFCCFF00)),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  "КАРТА",
+                                  style: GoogleFonts.unbounded(
+                                    color: const Color(0xFFCCFF00),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
                   // Секция отзывов (если есть отзывы)
                   if (item.reviews.isNotEmpty) ...[
@@ -377,79 +483,7 @@ class DetailScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
                   ],
-
-                  // Кнопки
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SiteButton(url: item.siteUrl),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () async {
-                            try {
-                              // Если есть прямая ссылка на Яндекс карты - используем её
-                              if (item.yandexMapUrl != null &&
-                                  item.yandexMapUrl!.isNotEmpty) {
-                                await launchUrl(
-                                  Uri.parse(item.yandexMapUrl!),
-                                  mode: LaunchMode.externalApplication,
-                                );
-                                return;
-                              }
-
-                              // Иначе строим ссылку по координатам или поиску
-                              String searchQuery;
-                              if (item.address != null &&
-                                  item.address!.isNotEmpty) {
-                                searchQuery = Uri.encodeComponent(
-                                    '${item.name} ${item.address}');
-                              } else if (item.hasMetro) {
-                                searchQuery = Uri.encodeComponent(
-                                    '${item.name} ${item.city} м.${item.metro}');
-                              } else {
-                                searchQuery = Uri.encodeComponent(
-                                    '${item.name} ${item.city}');
-                              }
-
-                              Uri mapUrl;
-                              if (item.coords != null &&
-                                  item.coords!.length == 2) {
-                                final lat = item.coords![0];
-                                final lng = item.coords![1];
-                                mapUrl = Uri.parse(
-                                    "https://yandex.ru/maps/?pt=$lng,$lat&z=15&text=$searchQuery");
-                              } else {
-                                mapUrl = Uri.parse(
-                                    "https://yandex.ru/maps/?text=$searchQuery");
-                              }
-
-                              await launchUrl(mapUrl,
-                                  mode: LaunchMode.externalApplication);
-                            } catch (_) {}
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Color(0xFFCCFF00)),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          child: Text(
-                            "КАРТА",
-                            style: GoogleFonts.unbounded(
-                              color: const Color(0xFFCCFF00),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
