@@ -604,8 +604,11 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
                     ),
                     const SizedBox(width: 12),
                     Container(
-                      width: 24,
-                      height: 24,
+                      constraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight: 24,
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xFFCCFF00),
                         borderRadius: BorderRadius.circular(4),
@@ -727,8 +730,11 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
                                 ),
                               ),
                               Container(
-                                width: 24,
-                                height: 24,
+                                constraints: const BoxConstraints(
+                                  minWidth: 24,
+                                  minHeight: 24,
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFCCFF00),
                                   borderRadius: BorderRadius.circular(4),
@@ -936,24 +942,30 @@ class _StudiosEducationScreenState extends State<StudiosEducationScreen>
                     ),
                     const SizedBox(height: 4),
                   ],
-                  // Метро
+                  // Метро/Адрес
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        FontAwesomeIcons.locationDot,
-                        size: 10,
-                        color: Color(0xFFCCFF00),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 2),
+                        child: Icon(
+                          FontAwesomeIcons.locationDot,
+                          size: 10,
+                          color: Color(0xFFCCFF00),
+                        ),
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        item.displayLocation,
-                        style: GoogleFonts.manrope(
-                          color: const Color(0xFFCCFF00),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                      Expanded(
+                        child: Text(
+                          item.displayLocation,
+                          style: GoogleFonts.manrope(
+                            color: const Color(0xFFCCFF00),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

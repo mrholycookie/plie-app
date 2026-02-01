@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -20,6 +21,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   final MapController _mapController = MapController();
   List<PlaceItem> _allItems = [];
   bool _isLoading = true;
+  LatLng? _currentUserLocation; // Текущее местоположение пользователя
 
   @override
   bool get wantKeepAlive => true;
@@ -101,6 +103,26 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     if (mounted) {
       _centerMapOnCity(detectedCity);
     }
+  }
+
+  // Приближает карту к местоположению пользователя с заданным радиусом (в метрах)
+  // Использует вычисление зума на основе радиуса для точного контроля области видимости
+  void _zoomToUserLocation(LatLng location, {double radiusMeters = 500}) {
+    // Вычисляем зум на основе радиуса
+    // Формула: zoom = log2(earthCircumference / (radius * 2))
+    // Где earthCircumference ≈ 40075017 метров
+    // Для радиуса 500м получаем примерно зум 15-16
+    final earthCircumference = 40075017.0; // Окружность Земли в метрах
+    final diameter = radiusMeters * 2;
+    final zoom = math.log(earthCircumference / diameter) / math.ln2;
+    
+    // Ограничиваем зум разумными значениями (от 10 до 18)
+    final clampedZoom = zoom.clamp(10.0, 18.0);
+    
+    debugPrint('Приближение карты: радиус=$radiusMeters м, зум=${clampedZoom.toStringAsFixed(2)}');
+    
+    // Центрируем карту на местоположении с вычисленным зумом
+    _mapController.move(location, clampedZoom);
   }
 
   void _centerMapOnCity(String? city) {
@@ -186,7 +208,84 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       ),
     );
 
-    await _detectCityAndCenterMap();
+    try {
+      // Проверяем разрешения
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Геолокация отключена'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Разрешение на геолокацию отклонено'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Разрешение на геолокацию отклонено навсегда'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Получаем текущую позицию с высокой точностью
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      debugPrint('Текущая позиция: ${position.latitude}, ${position.longitude}');
+
+      if (mounted) {
+        setState(() {
+          _currentUserLocation = LatLng(position.latitude, position.longitude);
+        });
+
+        // Приближаем карту к текущему местоположению
+        // Используем радиус в метрах для создания области видимости
+        _zoomToUserLocation(_currentUserLocation!, radiusMeters: 500);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Местоположение определено'),
+            duration: Duration(seconds: 1),
+            backgroundColor: Color(0xFFCCFF00),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Ошибка определения местоположения: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -224,8 +323,8 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       );
     }
 
-    // Создаем маркеры с иконкой из FontAwesome
-    final markers = _allItems.map((item) {
+    // Создаем маркеры для студий и вузов
+    final itemMarkers = _allItems.map((item) {
       final lat = item.coords![0];
       final lng = item.coords![1];
 
@@ -263,6 +362,40 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       );
     }).toList();
 
+    // Добавляем маркер текущего местоположения пользователя, если он определен
+    final allMarkers = <Marker>[...itemMarkers];
+    if (_currentUserLocation != null) {
+      allMarkers.add(
+        Marker(
+          point: _currentUserLocation!,
+          width: 40,
+          height: 40,
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFCCFF00),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 3,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: const Icon(
+              FontAwesomeIcons.locationDot,
+              color: Colors.black,
+              size: 20,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -287,7 +420,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                 userAgentPackageName: 'com.dancejournal.app',
               ),
               MarkerLayer(
-                markers: markers,
+                markers: allMarkers,
               ),
             ],
           ),
